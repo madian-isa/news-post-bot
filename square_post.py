@@ -293,9 +293,8 @@ def _debug_post_image_script(
     skill_path: Path,
 ) -> None:
     """
-    Inspect post-image.mjs.
+    Inspect the downloaded post-image.mjs.
 
-    Only relevant lines are printed.
     API key references are redacted.
     """
 
@@ -408,10 +407,12 @@ def _debug_lib_script(
     skill_path: Path,
 ) -> None:
     """
-    Inspect lib.mjs because the actual image upload
-    and presigned URL logic lives there.
+    Inspect lib.mjs.
 
-    API key values/references are redacted.
+    The image upload and presigned URL logic
+    is implemented here.
+
+    API key values are never printed.
     """
 
     script = (
@@ -448,20 +449,23 @@ def _debug_lib_script(
             f"lib.mjs has {len(lines)} lines."
         )
 
+        # These keywords target the API function,
+        # presigned URL request and image upload flow.
         keywords = (
-            "presigned",
-            "presign",
-            "upload",
-            "image",
-            "openapi",
-            "fileticket",
-            "fileTicket",
+            "async function api",
+            "function api",
+            "const api",
+            "BASE_URL",
+            "presignedUrl",
+            "image/presignedUrl",
             "fetch(",
-            "axios",
-            "request",
-            "FormData",
-            "multipart",
-            "content/add",
+            "headers",
+            "X-Square-OpenAPI-Key",
+            "clienttype",
+            "body:",
+            "JSON.stringify",
+            "uploadToS3",
+            "imageStatus",
         )
 
         found = []
@@ -490,11 +494,14 @@ def _debug_lib_script(
             "relevant lines:"
         )
 
-        for number, line in found[:200]:
+        for number, line in found[:250]:
 
             safe_line = line
 
+            # -------------------------------------------------
             # Never expose API key references.
+            # -------------------------------------------------
+
             if (
                 "BINANCE_SQUARE_OPENAPI_KEY"
                 in safe_line
@@ -504,9 +511,21 @@ def _debug_lib_script(
                     "[REDACTED: API key reference]"
                 )
 
-            # Hide common direct key variable output.
-            if "api_key" in safe_line.lower():
+            # -------------------------------------------------
+            # Hide common API key variable assignments.
+            # -------------------------------------------------
+
+            lower_line = safe_line.lower()
+
+            if (
+                "api_key" in lower_line
+                or "apikey" in lower_line
+            ):
+
+                # If the line looks like an assignment,
+                # do not print its value.
                 if "=" in safe_line:
+
                     left = safe_line.split(
                         "=",
                         1,
@@ -605,7 +624,10 @@ def post_with_images(
 
         return post_text(text)
 
-    # Maximum 4 images.
+    # ---------------------------------------------------------
+    # Maximum 4 images
+    # ---------------------------------------------------------
+
     valid_paths = valid_paths[:4]
 
     print(
@@ -630,7 +652,7 @@ def post_with_images(
     skill_path = _ensure_square_skill()
 
     # ---------------------------------------------------------
-    # DEBUG
+    # DEBUG official files
     # ---------------------------------------------------------
 
     _debug_post_image_script(
