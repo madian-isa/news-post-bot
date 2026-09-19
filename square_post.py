@@ -18,8 +18,6 @@ from typing import Optional
 
 import requests
 
-from src import config as cfg
-
 
 BASE_URL_V1 = (
     "https://www.binance.com/"
@@ -39,13 +37,7 @@ SKILL_DIR = (
 def _get_api_key() -> str:
     key = os.getenv("BINANCE_SQUARE_OPENAPI_KEY")
 
-    if not key:
-        key = getattr(
-            cfg,
-            "BINANCE_SQUARE_OPENAPI_KEY",
-            None,
-        )
-
+    
     if not key:
         raise RuntimeError(
             "BINANCE_SQUARE_OPENAPI_KEY is missing."
