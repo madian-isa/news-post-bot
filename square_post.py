@@ -286,19 +286,17 @@ def _ensure_square_skill() -> Path:
 
 
 # =========================================================
-# DEBUG OFFICIAL SKILL
+# DEBUG post-image.mjs
 # =========================================================
 
 def _debug_post_image_script(
     skill_path: Path,
 ) -> None:
     """
-    Inspect the downloaded Binance post-image.mjs.
+    Inspect post-image.mjs.
 
-    Only prints lines related to image uploading,
-    presigned URLs and relevant API calls.
-
-    Possible API key values are redacted.
+    Only relevant lines are printed.
+    API key references are redacted.
     """
 
     script = (
@@ -369,16 +367,10 @@ def _debug_post_image_script(
                     )
                 )
 
-        print(
-            "[square_post] DEBUG: "
-            "relevant lines:"
-        )
-
         for number, line in found[:120]:
 
             safe_line = line
 
-            # Never print an actual API key.
             if (
                 "BINANCE_SQUARE_OPENAPI_KEY"
                 in safe_line
@@ -409,6 +401,143 @@ def _debug_post_image_script(
 
 
 # =========================================================
+# DEBUG lib.mjs
+# =========================================================
+
+def _debug_lib_script(
+    skill_path: Path,
+) -> None:
+    """
+    Inspect lib.mjs because the actual image upload
+    and presigned URL logic lives there.
+
+    API key values/references are redacted.
+    """
+
+    script = (
+        skill_path
+        / "scripts"
+        / "lib.mjs"
+    )
+
+    if not script.exists():
+
+        print(
+            "[square_post] DEBUG: "
+            "lib.mjs not found."
+        )
+
+        return
+
+    print(
+        "[square_post] DEBUG: inspecting "
+        "official lib.mjs..."
+    )
+
+    try:
+
+        script_text = script.read_text(
+            encoding="utf-8",
+            errors="replace",
+        )
+
+        lines = script_text.splitlines()
+
+        print(
+            "[square_post] DEBUG: "
+            f"lib.mjs has {len(lines)} lines."
+        )
+
+        keywords = (
+            "presigned",
+            "presign",
+            "upload",
+            "image",
+            "openapi",
+            "fileticket",
+            "fileTicket",
+            "fetch(",
+            "axios",
+            "request",
+            "FormData",
+            "multipart",
+            "content/add",
+        )
+
+        found = []
+
+        for number, line in enumerate(
+            lines,
+            start=1,
+        ):
+
+            lower = line.lower()
+
+            if any(
+                keyword.lower() in lower
+                for keyword in keywords
+            ):
+
+                found.append(
+                    (
+                        number,
+                        line.strip(),
+                    )
+                )
+
+        print(
+            "[square_post] DEBUG lib: "
+            "relevant lines:"
+        )
+
+        for number, line in found[:200]:
+
+            safe_line = line
+
+            # Never expose API key references.
+            if (
+                "BINANCE_SQUARE_OPENAPI_KEY"
+                in safe_line
+            ):
+
+                safe_line = (
+                    "[REDACTED: API key reference]"
+                )
+
+            # Hide common direct key variable output.
+            if "api_key" in safe_line.lower():
+                if "=" in safe_line:
+                    left = safe_line.split(
+                        "=",
+                        1,
+                    )[0].strip()
+
+                    safe_line = (
+                        f"{left} = "
+                        "[REDACTED]"
+                    )
+
+            print(
+                f"[square_post] DEBUG lib "
+                f"{number}: {safe_line}"
+            )
+
+        if not found:
+
+            print(
+                "[square_post] DEBUG lib: "
+                "No matching upload lines found."
+            )
+
+    except Exception as exc:
+
+        print(
+            "[square_post] DEBUG: could not inspect "
+            f"lib.mjs: {exc}"
+        )
+
+
+# =========================================================
 # IMAGE POST
 # =========================================================
 
@@ -420,10 +549,6 @@ def post_with_images(
     Publish a Binance Square post with images.
 
     Supports up to 4 images.
-
-    Normally:
-        1. News image
-        2. Crypto logo
     """
 
     api_key = _check_api_key()
@@ -458,9 +583,7 @@ def post_with_images(
 
         if os.path.isfile(path):
 
-            valid_paths.append(
-                path
-            )
+            valid_paths.append(path)
 
         else:
 
@@ -511,6 +634,10 @@ def post_with_images(
     # ---------------------------------------------------------
 
     _debug_post_image_script(
+        skill_path
+    )
+
+    _debug_lib_script(
         skill_path
     )
 
