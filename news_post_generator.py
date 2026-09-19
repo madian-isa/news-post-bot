@@ -5,15 +5,15 @@ Generates short, factual Binance Square news posts.
 
 Format:
 
-Coin Name ($TICKER): Attention-grabbing headline
+Bitcoin ($BTC): Hits $81K as US bond yields rebound on global oil woes
 
-Paragraph 1 explaining the news.
+Paragraph 1.
 
-Paragraph 2 explaining the important development.
+Paragraph 2.
 
-Paragraph 3 explaining why it matters.
+Paragraph 3.
 
-**$TICKER**
+**$BTC**
 
 Only uses facts from the real Finnhub article.
 """
@@ -35,40 +35,36 @@ EXACT FORMAT:
 
 Coin Name ($TICKER): Attention-grabbing headline
 
-Paragraph 1:
-Explain exactly what happened using ONLY facts from the article.
+Paragraph 1 explaining what happened.
 
-Paragraph 2:
-Explain the important development, product, partnership, regulatory action,
-or other relevant detail using ONLY facts from the article.
+Paragraph 2 explaining the important development.
 
-Paragraph 3:
-Explain why the development matters using careful factual language.
-Do not make unsupported predictions.
+Paragraph 3 explaining why the development matters.
 
-Final line:
+The Python program will automatically add the final:
 **$TICKER**
 
 STRICT RULES:
 
 - Use ONLY facts contained in the article headline and summary.
 - Never invent numbers, dates, partnerships, valuations, quotes, or events.
-- If a ticker is provided, use that exact ticker.
 - Never invent a ticker.
-- The title should start with the company, project, or coin name.
-- If a ticker is available, the title MUST contain it in this format:
-  Company Name ($TICKER):
-- The final line MUST be **$TICKER** when a ticker is available.
+- If a ticker is provided, use that exact ticker.
+- The title MUST follow this format:
+  Coin/Company Name ($TICKER): Hook
+- The title must NOT be all caps.
 - Do NOT create a separate risk section.
 - Do NOT use bullet points.
 - Do NOT use hashtags.
 - Do NOT use emojis.
-- Do NOT use trading instructions.
-- Do NOT say buy, sell, long, short, target, guaranteed, moon, or similar hype.
+- Do NOT use buy/sell/long/short/target language.
 - Do NOT give investment advice.
-- Use professional but natural English.
+- Do NOT make unsupported price predictions.
+- Use professional, natural English.
 - Avoid repetitive AI-style phrases.
-- Keep the post concise, around 100-140 words when possible.
+- Keep the body around 100-140 words when possible.
+- Write 3 short paragraphs.
+- Do not write the final ticker line yourself.
 - Output ONLY valid JSON.
 - Do NOT output Markdown fences.
 
@@ -76,14 +72,14 @@ Return exactly:
 
 {
   "title": string,
-  "body": string,
-  "closing": string
+  "body": string
 }
 """
 
 
 def get_candidate_article(seen_urls: set) -> dict | None:
     """Returns one Finnhub article not already covered."""
+
     articles = fetch_crypto_news()
 
     candidates = [
@@ -105,7 +101,10 @@ def get_candidate_article(seen_urls: set) -> dict | None:
 
 def _detect_ticker(article: dict) -> str | None:
     """
-    Detect a ticker explicitly mentioned in the article.
+    Detect ticker from:
+    1. Explicit $TICKER mentions
+    2. Known asset/company names
+    3. Known standalone tickers
 
     Never invents a ticker.
     """
@@ -115,18 +114,77 @@ def _detect_ticker(article: dict) -> str | None:
         f"{article.get('summary', '')}"
     ).upper()
 
-    # First look for explicit $TICKER mentions.
+    # ---------------------------------------------------------
+    # 1. Explicit $TICKER in article
+    # ---------------------------------------------------------
+
     explicit_tickers = re.findall(
         r"\$([A-Z][A-Z0-9]{1,9})\b",
         haystack,
     )
 
-    if explicit_tickers:
-        for ticker in explicit_tickers:
-            if ticker in cfg.KNOWN_TICKERS:
-                return ticker
+    for ticker in explicit_tickers:
+        if ticker in cfg.KNOWN_TICKERS:
+            return ticker
 
-    # Then check known tickers appearing as standalone words.
+    # ---------------------------------------------------------
+    # 2. Known asset/company names
+    # ---------------------------------------------------------
+
+    asset_map = {
+        "BITCOIN": "BTC",
+        "ETHEREUM": "ETH",
+        "BINANCE COIN": "BNB",
+        "BNB": "BNB",
+        "SOLANA": "SOL",
+        "XRP": "XRP",
+        "CARDANO": "ADA",
+        "ADA": "ADA",
+        "DOGECOIN": "DOGE",
+        "DOGE": "DOGE",
+        "TRON": "TRX",
+        "TRX": "TRX",
+        "TONCOIN": "TON",
+        "TON": "TON",
+        "CHAINLINK": "LINK",
+        "AVALANCHE": "AVAX",
+        "POLKADOT": "DOT",
+        "LITECOIN": "LTC",
+        "BITCOIN CASH": "BCH",
+        "ZCASH": "ZEC",
+        "AAVE": "AAVE",
+        "UNISWAP": "UNI",
+        "ARBITRUM": "ARB",
+        "OPTIMISM": "OP",
+        "SUI": "SUI",
+        "APTOS": "APT",
+        "NEAR PROTOCOL": "NEAR",
+        "INTERNET COMPUTER": "ICP",
+        "WORLDCOIN": "WLD",
+        "WORLD": "WLD",
+        "PEPE": "PEPE",
+        "SHIBA INU": "SHIB",
+        "BONK": "BONK",
+        "COINBASE": "COIN",
+    }
+
+    # Longer names first so "BITCOIN CASH" is checked
+    # before "BITCOIN".
+    for name in sorted(
+        asset_map,
+        key=len,
+        reverse=True,
+    ):
+        if re.search(
+            rf"\b{re.escape(name)}\b",
+            haystack,
+        ):
+            return asset_map[name]
+
+    # ---------------------------------------------------------
+    # 3. Known standalone ticker
+    # ---------------------------------------------------------
+
     for base in cfg.KNOWN_TICKERS:
         if re.search(
             rf"\b{re.escape(base)}\b",
@@ -142,9 +200,8 @@ def _detect_company_name(
     ticker: str | None,
 ) -> str | None:
     """
-    Detect a company/project name from known mappings or headline.
-
-    This does not invent names.
+    Detect the company/asset name for the title.
+    Never invents a name.
     """
 
     haystack = (
@@ -152,42 +209,79 @@ def _detect_company_name(
         f"{article.get('summary', '')}"
     ).upper()
 
-    # Known company -> ticker mappings.
-    company_map = {
-        "COINBASE": "COIN",
+    name_map = {
+        "BTC": "Bitcoin",
+        "ETH": "Ethereum",
+        "BNB": "BNB",
+        "SOL": "Solana",
+        "XRP": "XRP",
+        "ADA": "Cardano",
+        "DOGE": "Dogecoin",
+        "TRX": "TRON",
+        "TON": "Toncoin",
+        "LINK": "Chainlink",
+        "AVAX": "Avalanche",
+        "DOT": "Polkadot",
+        "LTC": "Litecoin",
+        "BCH": "Bitcoin Cash",
+        "ZEC": "Zcash",
+        "AAVE": "Aave",
+        "UNI": "Uniswap",
+        "ARB": "Arbitrum",
+        "OP": "Optimism",
+        "SUI": "Sui",
+        "APT": "Aptos",
+        "NEAR": "NEAR Protocol",
+        "ICP": "Internet Computer",
+        "WLD": "World",
+        "PEPE": "Pepe",
+        "SHIB": "Shiba Inu",
+        "BONK": "Bonk",
+        "COIN": "Coinbase",
     }
 
-    if ticker:
-        for company, mapped_ticker in company_map.items():
-            if (
-                mapped_ticker == ticker
-                and company in haystack
+    if ticker and ticker in name_map:
+        expected_name = name_map[ticker]
+
+        # Confirm the name is actually present in the article
+        # for mapped assets.
+        search_names = {
+            "BTC": ["BITCOIN"],
+            "ETH": ["ETHEREUM"],
+            "BNB": ["BINANCE COIN", "BNB"],
+            "SOL": ["SOLANA"],
+            "XRP": ["XRP"],
+            "ADA": ["CARDANO", "ADA"],
+            "DOGE": ["DOGECOIN", "DOGE"],
+            "TRX": ["TRON", "TRX"],
+            "TON": ["TONCOIN", "TON"],
+            "LINK": ["CHAINLINK"],
+            "AVAX": ["AVALANCHE"],
+            "DOT": ["POLKADOT"],
+            "LTC": ["LITECOIN"],
+            "BCH": ["BITCOIN CASH"],
+            "ZEC": ["ZCASH"],
+            "AAVE": ["AAVE"],
+            "UNI": ["UNISWAP"],
+            "ARB": ["ARBITRUM"],
+            "OP": ["OPTIMISM"],
+            "SUI": ["SUI"],
+            "APT": ["APTOS"],
+            "NEAR": ["NEAR PROTOCOL"],
+            "ICP": ["INTERNET COMPUTER"],
+            "WLD": ["WORLDCOIN", "WORLD"],
+            "PEPE": ["PEPE"],
+            "SHIB": ["SHIBA INU"],
+            "BONK": ["BONK"],
+            "COIN": ["COINBASE"],
+        }
+
+        for name in search_names.get(ticker, []):
+            if re.search(
+                rf"\b{re.escape(name)}\b",
+                haystack,
             ):
-                return company.title()
-
-    headline = (
-        article.get("headline") or ""
-    ).strip()
-
-    if headline:
-        # If the headline explicitly contains the ticker,
-        # use the first meaningful part before ":".
-        if ticker and re.search(
-            rf"\b{re.escape(ticker)}\b",
-            headline.upper(),
-        ):
-            first_part = headline.split(":", 1)[0].strip()
-
-            if first_part:
-                first_part = re.sub(
-                    rf"\s*\(?\$?{re.escape(ticker)}\)?\s*",
-                    " ",
-                    first_part,
-                    flags=re.IGNORECASE,
-                ).strip()
-
-                if first_part:
-                    return first_part
+                return expected_name
 
     return None
 
@@ -196,6 +290,7 @@ def generate_news_post(article: dict) -> dict:
     client = Groq(api_key=cfg.GROQ_API_KEY)
 
     ticker = _detect_ticker(article)
+
     company_name = _detect_company_name(
         article,
         ticker,
@@ -213,31 +308,40 @@ Source:
 Detected ticker:
 {ticker or 'NONE'}
 
-Detected company/project name:
+Detected company/asset name:
 {company_name or 'NONE'}
 
-Create the Binance Square post using ONLY the information above.
+Create the Binance Square post using ONLY the article information.
 
-If a ticker is detected:
+TITLE:
 
-Title format:
-Company Name ($TICKER): Hook
+If ticker and company/asset name are available, use EXACTLY this structure:
 
-The final line must be:
-**$TICKER**
+{company_name or 'Asset'} (${ticker or 'TICKER'}): Hook
+
+Example:
+
+Bitcoin ($BTC): Hits $81K as US bond yields rebound on global oil woes
+
+BODY:
+
+Write exactly 3 short factual paragraphs.
+
+Do NOT create a risk section.
+
+Do NOT add a final ticker line.
+The Python program will add it automatically.
 
 If no ticker is detected:
+- Do NOT invent one.
+- Do NOT create a fake $TICKER.
+- Use the company/asset name without a ticker.
 
-Do NOT invent a ticker.
-Do NOT create a fake $TICKER.
-Use the company/project name only.
-
-Return JSON only:
+Return ONLY:
 
 {{
   "title": string,
-  "body": string,
-  "closing": string
+  "body": string
 }}"""
 
     completion = client.chat.completions.create(
@@ -279,9 +383,16 @@ Return JSON only:
 
 
 def format_news_post(post: dict) -> str:
+    """
+    Build the final Binance Square post.
+
+    The ticker line is generated by Python, not AI,
+    so the final format stays consistent.
+    """
+
     title = post.get("title", "").strip()
     body = post.get("body", "").strip()
-    closing = post.get("closing", "").strip()
+    ticker = post.get("ticker")
 
     parts = []
 
@@ -291,8 +402,9 @@ def format_news_post(post: dict) -> str:
     if body:
         parts.append(body)
 
-    if closing:
-        parts.append(closing)
+    # Force the final ticker line.
+    if ticker:
+        parts.append(f"**${ticker}**")
 
     text = "\n\n".join(parts).strip()
 
