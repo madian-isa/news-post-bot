@@ -14,6 +14,7 @@ Rules:
     1. original news image
     2. crypto logo
 - If images are unavailable, the bot falls back to text-only.
+- If image upload fails, the bot automatically falls back to text-only.
 """
 
 import traceback
@@ -166,10 +167,25 @@ def run_once():
         # 7. Prepare images
         # -----------------------------------------------------
 
-        image_paths = prepare_post_images(
-            article,
-            ticker,
-        )
+        try:
+
+            image_paths = prepare_post_images(
+                article,
+                ticker,
+            )
+
+        except Exception as image_prepare_error:
+
+            print(
+                "[news] image preparation failed: "
+                f"{image_prepare_error}"
+            )
+
+            print(
+                "[news] continuing with text-only post."
+            )
+
+            image_paths = []
 
         print(
             f"[news] images ready: "
@@ -230,12 +246,56 @@ def run_once():
 
         if image_paths:
 
-            result = post_with_images(
-                text,
-                image_paths,
+            print(
+                f"[news] attempting image post "
+                f"with {len(image_paths)} image(s)..."
             )
 
+            try:
+
+                result = post_with_images(
+                    text,
+                    image_paths,
+                )
+
+                print(
+                    "[news] image post succeeded."
+                )
+
+            except Exception as image_post_error:
+
+                # -------------------------------------------------
+                # IMPORTANT:
+                # Binance image upload can fail with errors such as
+                # "Can't get presigned url".
+                #
+                # Do NOT lose the whole news post.
+                # Automatically retry as text-only.
+                # -------------------------------------------------
+
+                print(
+                    "[news] image post failed: "
+                    f"{image_post_error}"
+                )
+
+                print(
+                    "[news] falling back to text-only post..."
+                )
+
+                result = post_text(
+                    text
+                )
+
+                print(
+                    "[news] text-only fallback succeeded."
+                )
+
         else:
+
+            print(
+                "[news] no images available — "
+                "publishing text-only."
+            )
 
             result = post_text(
                 text
@@ -257,7 +317,7 @@ def run_once():
         )
 
         # -----------------------------------------------------
-        # 11. Save state ONLY after publication
+        # 11. Save state ONLY after successful publication
         # -----------------------------------------------------
 
         state = record_post(
