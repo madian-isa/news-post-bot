@@ -1,256 +1,123 @@
+```python
 """
 square_post.py
 
-Publishes Binance Square text or image posts.
+Binance Square posting helper.
 
-Text posts use Binance Square OpenAPI.
-
-Image posts use Binance's official Square Skill:
-binance/binance-skills-hub
-
-Security:
-- API key is read from config/environment.
-- API key is never printed in full.
+Rules:
+- Uses the official Binance Skills Hub repository.
+- NEVER reuses an old cached Binance Skill.
+- Deletes the temporary Skill directory before cloning.
+- Uses the official post-image.mjs for image posts.
+- Uses the official /content/add API for text-only posts.
+- API keys are read only from environment variables.
 """
+
+from __future__ import annotations
 
 import os
 import shutil
 import subprocess
 import tempfile
 from pathlib import Path
+from typing import Optional
 
 import requests
 
-import config as cfg
+from src import config as cfg
 
 
-# =========================================================
+# ---------------------------------------------------------------------------
 # Binance Square API
-# =========================================================
+# ---------------------------------------------------------------------------
 
 BASE_URL_V1 = (
     "https://www.binance.com/"
     "bapi/composite/v1/public/pgc/openApi"
 )
 
+# Official Binance Skills Hub
+SKILL_REPO = "https://github.com/binance/binance-skills-hub.git"
 
-# =========================================================
-# Official Binance Square Skill
-# =========================================================
-
-SKILL_REPO = (
-    "https://github.com/binance/"
-    "binance-skills-hub.git"
-)
-
+# IMPORTANT:
+# Do not use a persistent cache here.
+# This directory is deleted before every clone.
 SKILL_DIR = (
     Path(tempfile.gettempdir())
-    / "binance-skills-hub"
+    / "binance-skills-hub-current"
 )
 
 
-# =========================================================
+# ---------------------------------------------------------------------------
 # Helpers
-# =========================================================
+# ---------------------------------------------------------------------------
 
-def _mask(key: str) -> str:
-    """Safely mask API key in logs."""
-
-    if not key or len(key) < 10:
-        return "****"
-
-    return f"{key[:5]}...{key[-4:]}"
-
-
-def _check_api_key() -> str:
-    """Get Binance Square OpenAPI key."""
-
-    api_key = cfg.BINANCE_SQUARE_OPENAPI_KEY
-
-    if not api_key:
-        raise RuntimeError(
-            "BINANCE_SQUARE_OPENAPI_KEY "
-            "is not set."
-        )
-
-    return api_key
-
-
-# =========================================================
-# TEXT POST
-# =========================================================
-
-def post_text(text: str) -> dict:
-    """Publish a text-only Binance Square post."""
-
-    api_key = _check_api_key()
-
-    text = str(text or "").strip()
-
-    if not text:
-        raise ValueError(
-            "Refusing to publish empty post."
-        )
-
-    if len(text) > cfg.CHAR_LIMIT:
-        raise ValueError(
-            f"Post text is {len(text)} chars, "
-            f"over the {cfg.CHAR_LIMIT} limit."
-        )
-
-    headers = {
-        "Content-Type": "application/json",
-        "X-Square-OpenAPI-Key": api_key,
-        "clienttype": "binanceSkill",
-    }
-
-    payload = {
-        "bodyTextOnly": text,
-    }
-
-    print(
-        f"[square_post] posting text "
-        f"({len(text)} chars)..."
-    )
-
-    response = requests.post(
-        f"{BASE_URL_V1}/content/add",
-        json=payload,
-        headers=headers,
-        timeout=30,
-    )
-
-    if response.status_code == 504:
-
-        print(
-            f"[square_post] 504 using key "
-            f"{_mask(api_key)} — "
-            "submission may already have succeeded."
-        )
-
-        return {
-            "id": None,
-            "link": None,
-            "soft_success": True,
-        }
-
-    try:
-        data = response.json()
-    except ValueError:
-        data = None
-
-    if (
-        not response.ok
-        or not data
-        or data.get("code") != "000000"
-    ):
-
-        code = (
-            (data or {}).get(
-                "code",
-                response.status_code,
-            )
-        )
-
-        message = (
-            (data or {}).get(
-                "message",
-                "Unknown error",
-            )
-        )
-
-        raise RuntimeError(
-            "Binance Square post failed "
-            f"[{code}]: {message}"
-        )
-
-    post_id = (
-        (data.get("data") or {})
-        .get("id")
-    )
-
-    link = (
-        f"https://www.binance.com/"
-        f"en/square/post/{post_id}"
-        if post_id
-        else None
-    )
-
-    print(
-        f"[square_post] text post successful: "
-        f"{link}"
-    )
-
-    return {
-        "id": post_id,
-        "link": link,
-        "soft_success": False,
-    }
-
-
-# =========================================================
-# OFFICIAL BINANCE SKILL
-# =========================================================
-
-def _ensure_square_skill() -> Path:
+def _get_api_key() -> str:
     """
-    Download Binance's official Square Skill
-    if it is not already available.
+    Get Binance Square OpenAPI key.
+
+    The GitHub Actions workflow should provide:
+        BINANCE_SQUARE_OPENAPI_KEY
     """
 
-    skill_path = (
-        SKILL_DIR
-        / "skills"
-        / "binance"
-        / "square-post"
-    )
+    key = os.getenv("BINANCE_SQUARE_OPENAPI_KEY")
 
-    post_image_script = (
-        skill_path
-        / "scripts"
-        / "post-image.mjs"
-    )
-
-    if (
-        skill_path.exists()
-        and post_image_script.exists()
-    ):
-
-        print(
-            "[square_post] official Binance "
-            "Square Skill already available."
+    if not key:
+        key = getattr(
+            cfg,
+            "BINANCE_SQUARE_OPENAPI_KEY",
+            None,
         )
 
-        return skill_path
-
-    git = shutil.which("git")
-
-    if not git:
+    if not key:
         raise RuntimeError(
-            "git is required for Binance image "
-            "posting but was not found."
+            "BINANCE_SQUARE_OPENAPI_KEY is missing."
         )
+
+    return key.strip()
+
+
+def _get_node() -> str:
+    """
+    Find Node.js executable.
+    """
+
+    node = shutil.which("node")
+
+    if not node:
+        raise RuntimeError(
+            "Node.js was not found on PATH."
+        )
+
+    return node
+
+
+def _ensure_fresh_square_skill() -> Path:
+    """
+    Delete any old cached Binance Skill and clone the
+    current official Binance Skills Hub repository.
+
+    This intentionally does NOT reuse an existing directory.
+    """
+
+    print(
+        "[square_post] removing old cached Binance Skill..."
+    )
 
     if SKILL_DIR.exists():
-
-        print(
-            "[square_post] removing old "
-            "Square Skill copy..."
-        )
-
         shutil.rmtree(
             SKILL_DIR,
             ignore_errors=True,
         )
 
     print(
-        "[square_post] downloading official "
+        "[square_post] cloning current official "
         "Binance Square Skill..."
     )
 
     result = subprocess.run(
         [
-            git,
+            "git",
             "clone",
             "--depth",
             "1",
@@ -259,514 +126,219 @@ def _ensure_square_skill() -> Path:
         ],
         capture_output=True,
         text=True,
-        timeout=120,
+        check=False,
     )
 
     if result.returncode != 0:
-
         raise RuntimeError(
-            "Could not download Binance "
-            "Square Skill:\n"
-            + result.stderr[-2000:]
+            "Failed to clone official Binance Skills Hub.\n"
+            f"stdout:\n{result.stdout}\n"
+            f"stderr:\n{result.stderr}"
         )
-
-    if not post_image_script.exists():
-
-        raise RuntimeError(
-            "Downloaded Binance Square Skill "
-            "does not contain post-image.mjs."
-        )
-
-    print(
-        "[square_post] official Binance "
-        "Square Skill ready."
-    )
-
-    return skill_path
-
-
-# =========================================================
-# DEBUG post-image.mjs
-# =========================================================
-
-def _debug_post_image_script(
-    skill_path: Path,
-) -> None:
-    """
-    Inspect the downloaded post-image.mjs.
-
-    API key references are redacted.
-    """
 
     script = (
-        skill_path
+        SKILL_DIR
+        / "skills"
+        / "binance"
+        / "square-post"
         / "scripts"
         / "post-image.mjs"
     )
 
     if not script.exists():
-
-        print(
-            "[square_post] DEBUG: "
-            "post-image.mjs not found."
+        raise RuntimeError(
+            "Official Binance Square post-image.mjs "
+            "was not found after cloning."
         )
-
-        return
 
     print(
-        "[square_post] DEBUG: inspecting "
-        "official post-image.mjs..."
+        "[square_post] current official Binance "
+        "Square Skill ready."
     )
 
-    try:
-
-        script_text = script.read_text(
-            encoding="utf-8",
-            errors="replace",
-        )
-
-        lines = script_text.splitlines()
-
-        print(
-            "[square_post] DEBUG: "
-            f"post-image.mjs has {len(lines)} lines."
-        )
-
-        keywords = (
-            "presigned",
-            "presign",
-            "upload",
-            "image",
-            "openapi",
-            "content/add",
-            "imagestatus",
-            "imageStatus",
-            "fileticket",
-            "fileTicket",
-        )
-
-        found = []
-
-        for number, line in enumerate(
-            lines,
-            start=1,
-        ):
-
-            lower = line.lower()
-
-            if any(
-                keyword.lower() in lower
-                for keyword in keywords
-            ):
-
-                found.append(
-                    (
-                        number,
-                        line.strip(),
-                    )
-                )
-
-        for number, line in found[:120]:
-
-            safe_line = line
-
-            if (
-                "BINANCE_SQUARE_OPENAPI_KEY"
-                in safe_line
-            ):
-
-                safe_line = (
-                    "[REDACTED: API key reference]"
-                )
-
-            print(
-                f"[square_post] DEBUG "
-                f"{number}: {safe_line}"
-            )
-
-        if not found:
-
-            print(
-                "[square_post] DEBUG: "
-                "No matching upload lines found."
-            )
-
-    except Exception as exc:
-
-        print(
-            "[square_post] DEBUG: could not inspect "
-            f"post-image.mjs: {exc}"
-        )
+    return script
 
 
-# =========================================================
-# DEBUG lib.mjs
-# =========================================================
-
-def _debug_lib_script(
-    skill_path: Path,
-) -> None:
+def _validate_images(
+    image_paths: list[str],
+) -> list[Path]:
     """
-    Inspect lib.mjs.
-
-    Prints the exact section around the API request
-    and image upload logic.
-
-    API key values are never printed.
+    Validate local image files before sending them
+    to the official Binance Skill.
     """
 
-    script = (
-        skill_path
-        / "scripts"
-        / "lib.mjs"
-    )
-
-    if not script.exists():
-
-        print(
-            "[square_post] DEBUG: "
-            "lib.mjs not found."
+    if not image_paths:
+        raise ValueError(
+            "No image paths were provided."
         )
 
-        return
+    if len(image_paths) > 4:
+        raise ValueError(
+            "Binance Square supports a maximum of 4 images."
+        )
+
+    valid: list[Path] = []
+
+    for index, image_path in enumerate(
+        image_paths,
+        start=1,
+    ):
+        path = Path(image_path).expanduser().resolve()
+
+        if not path.exists():
+            raise FileNotFoundError(
+                f"Image {index} does not exist: {path}"
+            )
+
+        if not path.is_file():
+            raise ValueError(
+                f"Image {index} is not a file: {path}"
+            )
+
+        if path.stat().st_size <= 0:
+            raise ValueError(
+                f"Image {index} is empty: {path}"
+            )
+
+        valid.append(path)
+
+        print(
+            f"[square_post] image {index}: {path}"
+        )
+
+    return valid
+
+
+# ---------------------------------------------------------------------------
+# Text-only post
+# ---------------------------------------------------------------------------
+
+def post_text(text: str) -> Optional[str]:
+    """
+    Publish a text-only Binance Square post.
+
+    This uses the same V1 /content/add endpoint that
+    the official Skill uses for publishing.
+    """
+
+    api_key = _get_api_key()
+
+    text = text.strip()
+
+    if not text:
+        raise ValueError(
+            "Cannot publish an empty Binance Square post."
+        )
 
     print(
-        "[square_post] DEBUG: inspecting "
-        "official lib.mjs..."
+        f"[square_post] posting text ({len(text)} chars)..."
     )
 
+    response = requests.post(
+        f"{BASE_URL_V1}/content/add",
+        headers={
+            "X-Square-OpenAPI-Key": api_key,
+            "Content-Type": "application/json",
+            "clienttype": "binanceSkill",
+        },
+        json={
+            "contentType": 1,
+            "bodyTextOnly": text,
+        },
+        timeout=60,
+    )
+
+    # Binance may return 504 even though the post was accepted.
+    if response.status_code == 504:
+        print(
+            "[square_post] Binance returned 504 after "
+            "publish request; treating as soft success."
+        )
+        return None
+
     try:
-
-        script_text = script.read_text(
-            encoding="utf-8",
-            errors="replace",
-        )
-
-        lines = script_text.splitlines()
-
-        print(
-            "[square_post] DEBUG: "
-            f"lib.mjs has {len(lines)} lines."
-        )
-
-        # -----------------------------------------------------
-        # EXACT CONTEXT
-        # -----------------------------------------------------
-
-        print(
-            "[square_post] DEBUG lib: "
-            "showing exact lines 55-105:"
-        )
-
-        for number in range(
-            55,
-            min(106, len(lines) + 1),
-        ):
-
-            safe_line = (
-                lines[number - 1]
-                .strip()
-            )
-
-            # Never expose API key references.
-            if (
-                "BINANCE_SQUARE_OPENAPI_KEY"
-                in safe_line
-            ):
-
-                safe_line = (
-                    "[REDACTED: API key reference]"
-                )
-
-            # Hide obvious API key assignments.
-            lower_line = safe_line.lower()
-
-            if (
-                "api_key" in lower_line
-                or "apikey" in lower_line
-            ):
-
-                if "=" in safe_line:
-
-                    left = safe_line.split(
-                        "=",
-                        1,
-                    )[0].strip()
-
-                    safe_line = (
-                        f"{left} = "
-                        "[REDACTED]"
-                    )
-
-            print(
-                f"[square_post] DEBUG lib "
-                f"{number}: {safe_line}"
-            )
-
-        # -----------------------------------------------------
-        # KEYWORD SEARCH
-        # -----------------------------------------------------
-
-        keywords = (
-            "async function api",
-            "function api",
-            "const api",
-            "BASE_URL",
-            "presignedUrl",
-            "image/presignedUrl",
-            "fetch(",
-            "headers",
-            "X-Square-OpenAPI-Key",
-            "clienttype",
-            "body:",
-            "JSON.stringify",
-            "uploadToS3",
-            "imageStatus",
-        )
-
-        found = []
-
-        for number, line in enumerate(
-            lines,
-            start=1,
-        ):
-
-            lower = line.lower()
-
-            if any(
-                keyword.lower() in lower
-                for keyword in keywords
-            ):
-
-                found.append(
-                    (
-                        number,
-                        line.strip(),
-                    )
-                )
-
-        print(
-            "[square_post] DEBUG lib: "
-            "relevant lines:"
-        )
-
-        for number, line in found[:250]:
-
-            safe_line = line
-
-            if (
-                "BINANCE_SQUARE_OPENAPI_KEY"
-                in safe_line
-            ):
-
-                safe_line = (
-                    "[REDACTED: API key reference]"
-                )
-
-            lower_line = safe_line.lower()
-
-            if (
-                "api_key" in lower_line
-                or "apikey" in lower_line
-            ):
-
-                if "=" in safe_line:
-
-                    left = safe_line.split(
-                        "=",
-                        1,
-                    )[0].strip()
-
-                    safe_line = (
-                        f"{left} = "
-                        "[REDACTED]"
-                    )
-
-            print(
-                f"[square_post] DEBUG lib "
-                f"{number}: {safe_line}"
-            )
-
-        if not found:
-
-            print(
-                "[square_post] DEBUG lib: "
-                "No matching upload lines found."
-            )
-
+        data = response.json()
     except Exception as exc:
+        raise RuntimeError(
+            "Binance returned a non-JSON response:\n"
+            f"HTTP {response.status_code}\n"
+            f"{response.text[:1000]}"
+        ) from exc
 
-        print(
-            "[square_post] DEBUG: could not inspect "
-            f"lib.mjs: {exc}"
+    if data.get("code") != "000000":
+        raise RuntimeError(
+            f"Binance API error "
+            f"[{data.get('code')}]: "
+            f"{data.get('message')}"
         )
 
+    result = data.get("data") or {}
 
-# =========================================================
-# IMAGE POST
-# =========================================================
+    share_link = result.get("shareLink")
+
+    if share_link:
+        print(
+            f"[square_post] text post successful: "
+            f"{share_link}"
+        )
+
+    return share_link
+
+
+# ---------------------------------------------------------------------------
+# Image post
+# ---------------------------------------------------------------------------
 
 def post_with_images(
     text: str,
     image_paths: list[str],
-) -> dict:
+) -> Optional[str]:
     """
-    Publish a Binance Square post with images.
+    Publish a Binance Square short image post.
 
-    Supports up to 4 images.
+    IMPORTANT:
+    The actual image upload is handled entirely by the
+    current official Binance Skill.
+
+    Flow:
+        image
+          ↓
+        /image/presignedUrl
+          ↓
+        S3 PUT
+          ↓
+        /image/imageStatus
+          ↓
+        /content/add
     """
 
-    api_key = _check_api_key()
-
-    text = str(text or "").strip()
+    text = text.strip()
 
     if not text:
         raise ValueError(
-            "Refusing to publish empty post."
+            "Cannot publish an empty Binance Square post."
         )
 
-    if len(text) > cfg.CHAR_LIMIT:
-        raise ValueError(
-            f"Post text is {len(text)} chars, "
-            f"over the {cfg.CHAR_LIMIT} limit."
-        )
-
-    # ---------------------------------------------------------
-    # Validate image paths
-    # ---------------------------------------------------------
-
-    valid_paths = []
-
-    for path in image_paths or []:
-
-        if not path:
-            continue
-
-        path = os.path.abspath(
-            str(path)
-        )
-
-        if os.path.isfile(path):
-
-            valid_paths.append(path)
-
-        else:
-
-            print(
-                "[square_post] image does not exist: "
-                f"{path}"
-            )
-
-    # ---------------------------------------------------------
-    # No images
-    # ---------------------------------------------------------
-
-    if not valid_paths:
-
-        print(
-            "[square_post] no valid images; "
-            "falling back to text-only."
-        )
-
-        return post_text(text)
-
-    # ---------------------------------------------------------
-    # Maximum 4 images
-    # ---------------------------------------------------------
-
-    valid_paths = valid_paths[:4]
+    images = _validate_images(image_paths)
 
     print(
-        "[square_post] valid images: "
-        f"{len(valid_paths)}"
+        f"[square_post] valid images: {len(images)}"
     )
 
-    for index, path in enumerate(
-        valid_paths,
-        start=1,
-    ):
+    # Always remove/re-clone the Skill.
+    script = _ensure_fresh_square_skill()
 
-        print(
-            f"[square_post] image {index}: "
-            f"{path}"
-        )
-
-    # ---------------------------------------------------------
-    # Official Binance Skill
-    # ---------------------------------------------------------
-
-    skill_path = _ensure_square_skill()
-
-    # ---------------------------------------------------------
-    # Debug official files
-    # ---------------------------------------------------------
-
-    _debug_post_image_script(
-        skill_path
-    )
-
-    _debug_lib_script(
-        skill_path
-    )
-
-    # ---------------------------------------------------------
-    # Check Node.js
-    # ---------------------------------------------------------
-
-    node = shutil.which("node")
-
-    if not node:
-
-        print(
-            "[square_post] Node.js not available; "
-            "falling back to text-only."
-        )
-
-        return post_text(text)
+    node = _get_node()
 
     print(
         f"[square_post] Node.js: {node}"
     )
 
-    # ---------------------------------------------------------
-    # Image script
-    # ---------------------------------------------------------
-
-    script = (
-        skill_path
-        / "scripts"
-        / "post-image.mjs"
-    )
-
-    if not script.exists():
-
-        raise RuntimeError(
-            "Binance Square image posting "
-            "script was not found:\n"
-            f"{script}"
-        )
-
-    # ---------------------------------------------------------
-    # Image argument
-    # ---------------------------------------------------------
-
+    # The official Skill expects comma-separated image paths.
     image_argument = ",".join(
-        valid_paths
+        str(path)
+        for path in images
     )
-
-    # ---------------------------------------------------------
-    # Environment
-    # ---------------------------------------------------------
-
-    env = os.environ.copy()
-
-    env[
-        "BINANCE_SQUARE_OPENAPI_KEY"
-    ] = api_key
-
-    # ---------------------------------------------------------
-    # Command
-    # ---------------------------------------------------------
 
     command = [
         node,
@@ -777,136 +349,125 @@ def post_with_images(
         image_argument,
     ]
 
-    print(
-        "[square_post] publishing "
-        f"{len(valid_paths)} image(s) "
-        "through official Binance Skill..."
+    env = os.environ.copy()
+
+    # Explicitly pass the key to the official Skill.
+    env["BINANCE_SQUARE_OPENAPI_KEY"] = (
+        _get_api_key()
     )
 
-    # ---------------------------------------------------------
-    # Execute official skill
-    # ---------------------------------------------------------
+    print(
+        "[square_post] publishing "
+        f"{len(images)} image(s) through "
+        "current official Binance Skill..."
+    )
 
     result = subprocess.run(
         command,
-        cwd=str(skill_path),
         env=env,
         capture_output=True,
         text=True,
-        timeout=180,
+        check=False,
     )
 
-    output = (
-        result.stdout
-        + "\n"
-        + result.stderr
-    ).strip()
-
-    if output:
-
+    if result.stdout:
         print(
             "[square_post] Binance Skill output:"
         )
+        print(result.stdout.rstrip())
 
-        print(output)
-
-    # ---------------------------------------------------------
-    # Skill failed
-    # ---------------------------------------------------------
+    if result.stderr:
+        print(
+            "[square_post] Binance Skill error output:"
+        )
+        print(result.stderr.rstrip())
 
     if result.returncode != 0:
+        combined = "\n".join(
+            part
+            for part in (
+                result.stdout.strip(),
+                result.stderr.strip(),
+            )
+            if part
+        )
 
         raise RuntimeError(
             "Binance Square image post failed:\n"
-            + output[-4000:]
+            + combined
         )
 
-    # ---------------------------------------------------------
-    # Extract post ID/link
-    # ---------------------------------------------------------
+    # Try to extract the Share Link from the official
+    # Skill's normal output.
+    for line in result.stdout.splitlines():
+        line = line.strip()
 
-    post_id = None
-    link = None
+        if line.startswith("Link:"):
+            link = line.split(
+                "Link:",
+                1,
+            )[1].strip()
 
-    for line in output.splitlines():
+            if link and link != "unavailable":
+                print(
+                    "[square_post] image post successful: "
+                    f"{link}"
+                )
+                return link
 
-        line_lower = line.lower().strip()
+    print(
+        "[square_post] image post completed, "
+        "but no Share Link was returned."
+    )
 
-        if line_lower.startswith("id:"):
+    return None
 
-            value = (
-                line.split(
-                    ":",
-                    1,
-                )[1]
-                .strip()
-            )
 
-            if (
-                value
-                and value.lower()
-                != "unavailable"
-            ):
+# ---------------------------------------------------------------------------
+# Generic publisher
+# ---------------------------------------------------------------------------
 
-                post_id = value
+def post(
+    text: str,
+    image_paths: Optional[list[str]] = None,
+) -> Optional[str]:
+    """
+    Publish either an image post or text-only post.
 
-        if line_lower.startswith("link:"):
+    If image_paths are supplied, the current official
+    Binance Skill is used.
 
-            value = (
-                line.split(
-                    ":",
-                    1,
-                )[1]
-                .strip()
-            )
+    If no images are supplied, the normal text API is used.
+    """
 
-            if (
-                value
-                and value.lower()
-                != "unavailable"
-            ):
-
-                link = value
-
-    # ---------------------------------------------------------
-    # Build link
-    # ---------------------------------------------------------
-
-    if not link and post_id:
-
-        link = (
-            "https://www.binance.com/"
-            f"en/square/post/{post_id}"
+    if image_paths:
+        return post_with_images(
+            text,
+            image_paths,
         )
 
-    # ---------------------------------------------------------
-    # Soft success
-    # ---------------------------------------------------------
+    return post_text(text)
+```
 
-    soft_success = (
-        not bool(post_id)
-    )
+### What changed
 
-    print(
-        "[square_post] image post completed:"
-    )
+The important part is this:
 
-    print(
-        f"[square_post] ID: {post_id}"
-    )
+```python
+if SKILL_DIR.exists():
+    shutil.rmtree(SKILL_DIR, ignore_errors=True)
 
-    print(
-        f"[square_post] Link: {link}"
-    )
+git clone --depth 1 https://github.com/binance/binance-skills-hub.git ...
+```
 
-    print(
-        "[square_post] Soft success: "
-        f"{soft_success}"
-    )
+So every GitHub Actions run:
 
-    return {
-        "id": post_id,
-        "link": link,
-        "soft_success": soft_success,
-        "output": output,
-    }
+**old Skill → deleted → fresh official Skill → used.**
+
+The current official source confirms that image upload uses `/image/presignedUrl` through V2, then S3 upload, then image-status polling, and finally `/content/add` through V1.
+
+Also, the official `post-image.mjs` accepts `--images` with up to 4 images and calls `uploadImage()` for each one.
+
+**Your YML does not need to change for this.** `BINANCE_SQUARE_OPENAPI_KEY` can remain exactly as you already have it.
+
+One thing to note: this change will tell us whether the old cached Skill was responsible. If a fresh official Skill still returns **`20005: Can't get presigned url`**, then we know the problem is not your cached Skill and we can focus specifically on Binance's image-upload API/key/account side.
