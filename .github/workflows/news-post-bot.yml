@@ -38,7 +38,7 @@ jobs:
           NEWS_MAX_POSTS_PER_DAY: "8"
 
         run: |
-          python -m src.main
+          python main.py
 
       - name: Commit updated state file
         run: |
