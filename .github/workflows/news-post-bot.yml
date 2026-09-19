@@ -35,7 +35,7 @@ jobs:
           DRY_RUN: "false"
 
           # Maximum posts per day
-          NEWS_MAX_POSTS_PER_DAY: "30"
+          NEWS_MAX_POSTS_PER_DAY: "24"
 
         run: |
           python main.py
