@@ -8,14 +8,6 @@ Text posts use Binance Square OpenAPI.
 Image posts use Binance's official Square Skill:
 binance/binance-skills-hub
 
-Image flow:
-1. Download/prepare official Binance Square Skill
-2. Run post-image.mjs
-3. Skill handles image presigning
-4. Skill uploads image
-5. Skill waits for image processing
-6. Skill publishes the Square post
-
 Security:
 - API key is read from config/environment.
 - API key is never printed in full.
@@ -62,9 +54,7 @@ SKILL_DIR = (
 # =========================================================
 
 def _mask(key: str) -> str:
-    """
-    Safely mask API key in logs.
-    """
+    """Safely mask API key in logs."""
 
     if not key or len(key) < 10:
         return "****"
@@ -73,9 +63,7 @@ def _mask(key: str) -> str:
 
 
 def _check_api_key() -> str:
-    """
-    Get Binance Square OpenAPI key.
-    """
+    """Get Binance Square OpenAPI key."""
 
     api_key = cfg.BINANCE_SQUARE_OPENAPI_KEY
 
@@ -92,12 +80,8 @@ def _check_api_key() -> str:
 # TEXT POST
 # =========================================================
 
-def post_text(
-    text: str,
-) -> dict:
-    """
-    Publish a text-only Binance Square post.
-    """
+def post_text(text: str) -> dict:
+    """Publish a text-only Binance Square post."""
 
     api_key = _check_api_key()
 
@@ -136,8 +120,6 @@ def post_text(
         timeout=30,
     )
 
-    # Binance can return 504 even if the post
-    # was actually accepted.
     if response.status_code == 504:
 
         print(
@@ -153,11 +135,8 @@ def post_text(
         }
 
     try:
-
         data = response.json()
-
     except ValueError:
-
         data = None
 
     if (
@@ -232,7 +211,6 @@ def _ensure_square_skill() -> Path:
         / "post-image.mjs"
     )
 
-    # Already installed
     if (
         skill_path.exists()
         and post_image_script.exists()
@@ -253,7 +231,6 @@ def _ensure_square_skill() -> Path:
             "posting but was not found."
         )
 
-    # Remove incomplete/old copy
     if SKILL_DIR.exists():
 
         print(
@@ -309,6 +286,129 @@ def _ensure_square_skill() -> Path:
 
 
 # =========================================================
+# DEBUG OFFICIAL SKILL
+# =========================================================
+
+def _debug_post_image_script(
+    skill_path: Path,
+) -> None:
+    """
+    Inspect the downloaded Binance post-image.mjs.
+
+    Only prints lines related to image uploading,
+    presigned URLs and relevant API calls.
+
+    Possible API key values are redacted.
+    """
+
+    script = (
+        skill_path
+        / "scripts"
+        / "post-image.mjs"
+    )
+
+    if not script.exists():
+
+        print(
+            "[square_post] DEBUG: "
+            "post-image.mjs not found."
+        )
+
+        return
+
+    print(
+        "[square_post] DEBUG: inspecting "
+        "official post-image.mjs..."
+    )
+
+    try:
+
+        script_text = script.read_text(
+            encoding="utf-8",
+            errors="replace",
+        )
+
+        lines = script_text.splitlines()
+
+        print(
+            "[square_post] DEBUG: "
+            f"post-image.mjs has {len(lines)} lines."
+        )
+
+        keywords = (
+            "presigned",
+            "presign",
+            "upload",
+            "image",
+            "openapi",
+            "content/add",
+            "imagestatus",
+            "imageStatus",
+            "fileticket",
+            "fileTicket",
+        )
+
+        found = []
+
+        for number, line in enumerate(
+            lines,
+            start=1,
+        ):
+
+            lower = line.lower()
+
+            if any(
+                keyword.lower() in lower
+                for keyword in keywords
+            ):
+
+                found.append(
+                    (
+                        number,
+                        line.strip(),
+                    )
+                )
+
+        print(
+            "[square_post] DEBUG: "
+            "relevant lines:"
+        )
+
+        for number, line in found[:120]:
+
+            safe_line = line
+
+            # Never print an actual API key.
+            if (
+                "BINANCE_SQUARE_OPENAPI_KEY"
+                in safe_line
+            ):
+
+                safe_line = (
+                    "[REDACTED: API key reference]"
+                )
+
+            print(
+                f"[square_post] DEBUG "
+                f"{number}: {safe_line}"
+            )
+
+        if not found:
+
+            print(
+                "[square_post] DEBUG: "
+                "No matching upload lines found."
+            )
+
+    except Exception as exc:
+
+        print(
+            "[square_post] DEBUG: could not inspect "
+            f"post-image.mjs: {exc}"
+        )
+
+
+# =========================================================
 # IMAGE POST
 # =========================================================
 
@@ -321,7 +421,7 @@ def post_with_images(
 
     Supports up to 4 images.
 
-    This bot normally sends:
+    Normally:
         1. News image
         2. Crypto logo
     """
@@ -365,7 +465,7 @@ def post_with_images(
         else:
 
             print(
-                f"[square_post] image does not exist: "
+                "[square_post] image does not exist: "
                 f"{path}"
             )
 
@@ -382,7 +482,7 @@ def post_with_images(
 
         return post_text(text)
 
-    # Binance Square Skill supports max 4 images.
+    # Maximum 4 images.
     valid_paths = valid_paths[:4]
 
     print(
@@ -401,10 +501,18 @@ def post_with_images(
         )
 
     # ---------------------------------------------------------
-    # Check official Binance Skill
+    # Official Binance Skill
     # ---------------------------------------------------------
 
     skill_path = _ensure_square_skill()
+
+    # ---------------------------------------------------------
+    # DEBUG
+    # ---------------------------------------------------------
+
+    _debug_post_image_script(
+        skill_path
+    )
 
     # ---------------------------------------------------------
     # Check Node.js
@@ -426,7 +534,7 @@ def post_with_images(
     )
 
     # ---------------------------------------------------------
-    # Image posting script
+    # Image script
     # ---------------------------------------------------------
 
     script = (
@@ -445,9 +553,6 @@ def post_with_images(
 
     # ---------------------------------------------------------
     # Image argument
-    #
-    # Official skill expects comma-separated
-    # local image paths.
     # ---------------------------------------------------------
 
     image_argument = ",".join(
@@ -502,7 +607,6 @@ def post_with_images(
         + result.stderr
     ).strip()
 
-    # Show skill output for debugging.
     if output:
 
         print(
@@ -533,8 +637,6 @@ def post_with_images(
 
         line_lower = line.lower().strip()
 
-        # Example:
-        # ID: 123456
         if line_lower.startswith("id:"):
 
             value = (
@@ -553,8 +655,6 @@ def post_with_images(
 
                 post_id = value
 
-        # Example:
-        # Link: https://...
         if line_lower.startswith("link:"):
 
             value = (
@@ -574,7 +674,7 @@ def post_with_images(
                 link = value
 
     # ---------------------------------------------------------
-    # Build link if only ID is available
+    # Build link
     # ---------------------------------------------------------
 
     if not link and post_id:
@@ -585,7 +685,7 @@ def post_with_images(
         )
 
     # ---------------------------------------------------------
-    # Successful submission without ID
+    # Soft success
     # ---------------------------------------------------------
 
     soft_success = (
@@ -605,7 +705,7 @@ def post_with_images(
     )
 
     print(
-        f"[square_post] Soft success: "
+        "[square_post] Soft success: "
         f"{soft_success}"
     )
 
