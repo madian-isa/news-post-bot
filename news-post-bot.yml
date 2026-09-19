@@ -3,7 +3,7 @@ name: News Post Bot
 on:
   schedule:
     - cron: "0 */3 * * *"
-  workflow_dispatch: {}
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -11,6 +11,7 @@ permissions:
 jobs:
   run-bot:
     runs-on: ubuntu-latest
+
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -21,21 +22,31 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install -r requirements.txt
 
-      - name: Run news post bot (single post)
+      - name: Run news post bot
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           BINANCE_SQUARE_OPENAPI_KEY: ${{ secrets.BINANCE_SQUARE_OPENAPI_KEY }}
           FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
-          DRY_RUN: ${{ vars.DRY_RUN || 'true' }}
-          NEWS_MAX_POSTS_PER_DAY: ${{ vars.NEWS_MAX_POSTS_PER_DAY || '8' }}
-        run: python -m src.main
+
+          # Real posting
+          DRY_RUN: "false"
+
+          # Maximum posts per day
+          NEWS_MAX_POSTS_PER_DAY: "8"
+
+        run: |
+          python -m src.main
 
       - name: Commit updated state file
         run: |
           git config user.name "news-post-bot"
           git config user.email "actions@github.com"
+
           git add news_bot_state.json
+
           git diff --staged --quiet || git commit -m "chore: update news bot state [skip ci]"
+
           git push
