@@ -3,14 +3,17 @@ main.py
 
 Single-run mode.
 
-Each invocation attempts to publish ONE real crypto-news post.
+Each invocation attempts to publish ONE crypto-news post.
 
 Rules:
-- Only Binance-verified crypto assets are allowed.
+- Only Binance-listed crypto assets are allowed.
 - Same article URL cannot be posted twice.
-- Same crypto ticker can only be posted ONCE per Bangladesh day.
-- If one coin is blocked, another eligible coin is searched.
-- Daily post limit is enforced.
+- Same crypto ticker can only be posted once per Bangladesh day.
+- Maximum daily posts are controlled by config.
+- Uses up to 2 images:
+    1. original news image
+    2. crypto logo
+- If images are unavailable, the bot falls back to text-only.
 """
 
 import traceback
@@ -23,7 +26,15 @@ from news_post_generator import (
     format_news_post,
 )
 
-from square_post import post_text
+from news_images import (
+    prepare_post_images,
+    cleanup_images,
+)
+
+from square_post import (
+    post_text,
+    post_with_images,
+)
 
 from news_state import (
     load_state,
@@ -34,6 +45,7 @@ from news_state import (
 
 
 def run_once():
+
     # ---------------------------------------------------------
     # 1. Load state
     # ---------------------------------------------------------
@@ -41,7 +53,7 @@ def run_once():
     state = load_state()
 
     # ---------------------------------------------------------
-    # 2. Daily maximum
+    # 2. Daily cap
     # ---------------------------------------------------------
 
     if not can_post_more_today(state):
@@ -49,13 +61,13 @@ def run_once():
         print(
             f"[news] daily cap reached "
             f"({cfg.NEWS_MAX_POSTS_PER_DAY}) "
-            f"— skipping this run."
+            "— skipping this run."
         )
 
         return
 
     # ---------------------------------------------------------
-    # 3. Get today's blocked crypto tickers
+    # 3. Today's blocked tickers
     # ---------------------------------------------------------
 
     blocked_tickers = {
@@ -67,23 +79,12 @@ def run_once():
     }
 
     print(
-        f"[news] today's blocked tickers: "
+        "[news] today's blocked tickers: "
         f"{sorted(blocked_tickers)}"
     )
 
     # ---------------------------------------------------------
     # 4. Find eligible article
-    #
-    # IMPORTANT:
-    # get_candidate_article() itself skips:
-    #
-    # - old article URLs
-    # - non-crypto articles
-    # - non-Binance-listed assets
-    # - today's already-posted crypto
-    #
-    # Therefore if BTC is blocked, it keeps looking for
-    # another eligible coin instead of stopping the run.
     # ---------------------------------------------------------
 
     article = get_candidate_article(
@@ -99,23 +100,25 @@ def run_once():
     if not article:
 
         print(
-            "[news] no eligible crypto article found "
-            "this run — nothing to publish."
+            "[news] no eligible crypto article "
+            "found this run."
         )
 
         return
 
     # ---------------------------------------------------------
-    # 5. Get verified ticker
+    # 5. Verified ticker
     # ---------------------------------------------------------
 
-    ticker = article.get("ticker")
+    ticker = article.get(
+        "ticker"
+    )
 
     if not ticker:
 
         print(
-            "[news] selected article has no verified ticker "
-            "— refusing to publish."
+            "[news] selected article has no "
+            "verified ticker."
         )
 
         return
@@ -128,20 +131,23 @@ def run_once():
         f"[news] preparing post for ${ticker}"
     )
 
-    # ---------------------------------------------------------
-    # 6. Generate + publish
-    # ---------------------------------------------------------
+    image_paths = []
 
     try:
 
-        # Generate AI post
+        # -----------------------------------------------------
+        # 6. Generate post text
+        # -----------------------------------------------------
+
         post = generate_news_post(
             article
         )
 
-        # Verify returned ticker
         generated_ticker = str(
-            post.get("ticker", "")
+            post.get(
+                "ticker",
+                "",
+            )
         ).upper()
 
         if generated_ticker != ticker:
@@ -152,13 +158,26 @@ def run_once():
                 f"got ${generated_ticker}"
             )
 
-        # Format final Binance Square post
         text = format_news_post(
             post
         )
 
         # -----------------------------------------------------
-        # 7. DRY RUN
+        # 7. Prepare images
+        # -----------------------------------------------------
+
+        image_paths = prepare_post_images(
+            article,
+            ticker,
+        )
+
+        print(
+            f"[news] images ready: "
+            f"{len(image_paths)}"
+        )
+
+        # -----------------------------------------------------
+        # 8. DRY RUN
         # -----------------------------------------------------
 
         if cfg.DRY_RUN:
@@ -187,6 +206,18 @@ def run_once():
             )
 
             print(
+                f"[DRY RUN] images: "
+                f"{len(image_paths)}"
+            )
+
+            for image in image_paths:
+
+                print(
+                    f"[DRY RUN] image -> "
+                    f"{image}"
+                )
+
+            print(
                 "[DRY RUN] nothing posted "
                 "to Binance Square.\n"
             )
@@ -194,12 +225,25 @@ def run_once():
             return
 
         # -----------------------------------------------------
-        # 8. Publish
+        # 9. Publish
         # -----------------------------------------------------
 
-        result = post_text(
-            text
-        )
+        if image_paths:
+
+            result = post_with_images(
+                text,
+                image_paths,
+            )
+
+        else:
+
+            result = post_text(
+                text
+            )
+
+        # -----------------------------------------------------
+        # 10. Publication result
+        # -----------------------------------------------------
 
         print(
             f"[news] published -> "
@@ -213,9 +257,7 @@ def run_once():
         )
 
         # -----------------------------------------------------
-        # 9. Save state
-        #
-        # Only after successful publication.
+        # 11. Save state ONLY after publication
         # -----------------------------------------------------
 
         state = record_post(
@@ -230,8 +272,7 @@ def run_once():
 
         print(
             f"[news] state saved: "
-            f"${ticker} is blocked "
-            f"for the rest of today."
+            f"${ticker} blocked for today."
         )
 
     except Exception as err:
@@ -241,6 +282,16 @@ def run_once():
         )
 
         traceback.print_exc()
+
+    finally:
+
+        # -----------------------------------------------------
+        # 12. Cleanup downloaded images
+        # -----------------------------------------------------
+
+        cleanup_images(
+            image_paths
+        )
 
 
 if __name__ == "__main__":
