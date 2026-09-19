@@ -17,6 +17,12 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v4
 
+      # Required for Binance Square image posting
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
