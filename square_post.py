@@ -409,8 +409,8 @@ def _debug_lib_script(
     """
     Inspect lib.mjs.
 
-    The image upload and presigned URL logic
-    is implemented here.
+    Prints the exact section around the API request
+    and image upload logic.
 
     API key values are never printed.
     """
@@ -449,8 +449,64 @@ def _debug_lib_script(
             f"lib.mjs has {len(lines)} lines."
         )
 
-        # These keywords target the API function,
-        # presigned URL request and image upload flow.
+        # -----------------------------------------------------
+        # EXACT CONTEXT
+        # -----------------------------------------------------
+
+        print(
+            "[square_post] DEBUG lib: "
+            "showing exact lines 55-105:"
+        )
+
+        for number in range(
+            55,
+            min(106, len(lines) + 1),
+        ):
+
+            safe_line = (
+                lines[number - 1]
+                .strip()
+            )
+
+            # Never expose API key references.
+            if (
+                "BINANCE_SQUARE_OPENAPI_KEY"
+                in safe_line
+            ):
+
+                safe_line = (
+                    "[REDACTED: API key reference]"
+                )
+
+            # Hide obvious API key assignments.
+            lower_line = safe_line.lower()
+
+            if (
+                "api_key" in lower_line
+                or "apikey" in lower_line
+            ):
+
+                if "=" in safe_line:
+
+                    left = safe_line.split(
+                        "=",
+                        1,
+                    )[0].strip()
+
+                    safe_line = (
+                        f"{left} = "
+                        "[REDACTED]"
+                    )
+
+            print(
+                f"[square_post] DEBUG lib "
+                f"{number}: {safe_line}"
+            )
+
+        # -----------------------------------------------------
+        # KEYWORD SEARCH
+        # -----------------------------------------------------
+
         keywords = (
             "async function api",
             "function api",
@@ -498,10 +554,6 @@ def _debug_lib_script(
 
             safe_line = line
 
-            # -------------------------------------------------
-            # Never expose API key references.
-            # -------------------------------------------------
-
             if (
                 "BINANCE_SQUARE_OPENAPI_KEY"
                 in safe_line
@@ -511,10 +563,6 @@ def _debug_lib_script(
                     "[REDACTED: API key reference]"
                 )
 
-            # -------------------------------------------------
-            # Hide common API key variable assignments.
-            # -------------------------------------------------
-
             lower_line = safe_line.lower()
 
             if (
@@ -522,8 +570,6 @@ def _debug_lib_script(
                 or "apikey" in lower_line
             ):
 
-                # If the line looks like an assignment,
-                # do not print its value.
                 if "=" in safe_line:
 
                     left = safe_line.split(
@@ -652,7 +698,7 @@ def post_with_images(
     skill_path = _ensure_square_skill()
 
     # ---------------------------------------------------------
-    # DEBUG official files
+    # Debug official files
     # ---------------------------------------------------------
 
     _debug_post_image_script(
