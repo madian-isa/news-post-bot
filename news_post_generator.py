@@ -80,13 +80,6 @@ Return exactly:
 # -------------------------------------------------------------
 # Crypto name → ticker
 # -------------------------------------------------------------
-#
-# This is NOT the allowed-coin list.
-#
-# Binance's live symbol list is used for ticker validation.
-# This map only helps when an article writes the full asset name
-# instead of the ticker.
-# -------------------------------------------------------------
 
 ASSET_NAME_MAP = {
     "BITCOIN CASH": "BCH",
@@ -157,6 +150,132 @@ KNOWN_ASSET_NAMES = {
 }
 
 
+# -------------------------------------------------------------
+# Common English words that can also be Binance tickers
+#
+# IMPORTANT:
+# These are only blocked during weak standalone-ticker detection.
+# Explicit "$THE" or Finnhub "related" data is handled separately.
+# -------------------------------------------------------------
+
+COMMON_WORD_TICKERS = {
+    "THE",
+    "AND",
+    "FOR",
+    "ARE",
+    "NOT",
+    "BUT",
+    "CAN",
+    "ONE",
+    "ALL",
+    "ANY",
+    "NEW",
+    "NOW",
+    "LOW",
+    "HIGH",
+    "TOP",
+    "USE",
+    "GET",
+    "GOT",
+    "HAS",
+    "HAD",
+    "HIS",
+    "HER",
+    "OUR",
+    "OUT",
+    "YOU",
+    "YOUR",
+    "ITS",
+    "IN",
+    "ON",
+    "OR",
+    "AS",
+    "AT",
+    "BY",
+    "TO",
+    "OF",
+    "IT",
+    "IS",
+    "BE",
+    "WE",
+    "HE",
+    "SHE",
+    "DO",
+    "GO",
+    "NO",
+    "SO",
+    "UP",
+    "DOWN",
+    "AR",
+    "OP",
+    "AI",
+    "ME",
+    "MY",
+    "US",
+    "IF",
+    "THAN",
+    "THEN",
+    "THIS",
+    "THAT",
+    "THEIR",
+    "THEM",
+    "WITH",
+    "FROM",
+    "OVER",
+    "UNDER",
+    "MORE",
+    "MOST",
+    "JUST",
+    "BACK",
+    "NEXT",
+    "LAST",
+    "FIRST",
+    "STILL",
+    "EVEN",
+    "ONLY",
+    "MAY",
+    "MUST",
+    "WILL",
+    "WOULD",
+    "COULD",
+    "SHOULD",
+}
+
+
+# -------------------------------------------------------------
+# Crypto context words
+# -------------------------------------------------------------
+
+CRYPTO_CONTEXT_WORDS = (
+    "crypto",
+    "cryptocurrency",
+    "token",
+    "tokens",
+    "coin",
+    "coins",
+    "blockchain",
+    "network",
+    "protocol",
+    "defi",
+    "stablecoin",
+    "wallet",
+    "exchange",
+    "onchain",
+    "on-chain",
+    "web3",
+    "layer",
+    "mainnet",
+    "testnet",
+    "dao",
+    "staking",
+    "ecosystem",
+    "altcoin",
+    "altcoins",
+    "digital asset",
+    "digital assets",
+)
+
+
 def get_candidate_article(
     seen_urls: set,
     blocked_tickers: set | None = None,
@@ -188,10 +307,7 @@ def get_candidate_article(
     binance_tickers = get_binance_crypto_tickers()
 
     if not binance_tickers:
-        print(
-            "[news] Binance symbol list unavailable."
-        )
-
+        print("[news] Binance symbol list unavailable.")
         return None
 
     for article in articles:
@@ -270,7 +386,6 @@ def get_candidate_article(
             "[news] no eligible crypto article found "
             "after Binance + daily ticker filters."
         )
-
         return None
 
     # ---------------------------------------------------------
@@ -295,15 +410,14 @@ def _detect_ticker(
     binance_tickers: set[str] | None = None,
 ) -> str | None:
     """
-    Detect a crypto ticker from the article.
+    Detect a crypto ticker safely.
 
     Priority:
     1. Explicit $TICKER
-    2. Known crypto asset names
-    3. Binance-listed standalone ticker
-
-    IMPORTANT:
-    The ticker must exist in Binance's current crypto list.
+    2. Finnhub related ticker
+    3. Trading-pair format
+    4. Known crypto asset name
+    5. Binance-listed standalone ticker with safeguards
     """
 
     if binance_tickers is None:
@@ -312,29 +426,99 @@ def _detect_ticker(
     if not binance_tickers:
         return None
 
-    haystack = (
-        f"{article.get('headline', '')} "
-        f"{article.get('summary', '')}"
-    ).upper()
+    headline = str(article.get("headline", ""))
+    summary = str(article.get("summary", ""))
+
+    haystack = f"{headline} {summary}"
+    upper_text = haystack.upper()
+    lower_text = haystack.lower()
 
     # ---------------------------------------------------------
     # 1. Explicit $TICKER
+    #
+    # Example:
+    # Bitcoin ($BTC)
+    # $XRP
+    # $SOL
     # ---------------------------------------------------------
 
     explicit_tickers = re.findall(
         r"\$([A-Z][A-Z0-9]{1,14})\b",
-        haystack,
+        upper_text,
     )
 
     for ticker in explicit_tickers:
-
         ticker = ticker.upper()
 
         if ticker in binance_tickers:
             return ticker
 
     # ---------------------------------------------------------
-    # 2. Full crypto asset names
+    # 2. Finnhub "related" field
+    #
+    # Finnhub can provide article-related symbols.
+    # Prefer this over guessing from ordinary English words.
+    # ---------------------------------------------------------
+
+    related = article.get("related", "")
+
+    if isinstance(related, str):
+
+        related_items = re.split(
+            r"[,;|\s]+",
+            related,
+        )
+
+        for item in related_items:
+
+            ticker = item.strip().upper()
+
+            if (
+                ticker
+                and ticker in binance_tickers
+                and ticker not in COMMON_WORD_TICKERS
+            ):
+                return ticker
+
+    elif isinstance(related, list):
+
+        for item in related:
+
+            ticker = str(item).strip().upper()
+
+            if (
+                ticker
+                and ticker in binance_tickers
+                and ticker not in COMMON_WORD_TICKERS
+            ):
+                return ticker
+
+    # ---------------------------------------------------------
+    # 3. Trading pair formats
+    #
+    # XRP/USDT
+    # SOL-USDT
+    # BTC/USDC
+    # ---------------------------------------------------------
+
+    pair_matches = re.findall(
+        r"\b([A-Z][A-Z0-9]{1,14})\s*[/\-]\s*"
+        r"(USDT|USDC|USD|BTC|ETH|BNB)\b",
+        upper_text,
+    )
+
+    for ticker, quote in pair_matches:
+
+        ticker = ticker.upper()
+
+        if (
+            ticker in binance_tickers
+            and ticker not in COMMON_WORD_TICKERS
+        ):
+            return ticker
+
+    # ---------------------------------------------------------
+    # 4. Full crypto asset names
     # ---------------------------------------------------------
 
     for name in sorted(
@@ -345,7 +529,7 @@ def _detect_ticker(
 
         if re.search(
             rf"\b{re.escape(name)}\b",
-            haystack,
+            upper_text,
         ):
 
             ticker = ASSET_NAME_MAP[name]
@@ -354,11 +538,27 @@ def _detect_ticker(
                 return ticker
 
     # ---------------------------------------------------------
-    # 3. Binance-listed standalone tickers
+    # 5. Standalone Binance ticker
+    #
+    # IMPORTANT:
+    # Do NOT blindly accept every Binance ticker appearing as
+    # an ordinary word.
+    #
+    # Example:
+    # "the crypto market..."
+    #
+    # Binance may list THE, but that does NOT mean the article
+    # is about $THE.
     # ---------------------------------------------------------
 
-    # Sort longest first.
-    # This avoids some partial matching issues.
+    has_crypto_context = any(
+        word in lower_text
+        for word in CRYPTO_CONTEXT_WORDS
+    )
+
+    if not has_crypto_context:
+        return None
+
     possible_tickers = sorted(
         binance_tickers,
         key=len,
@@ -367,13 +567,15 @@ def _detect_ticker(
 
     for ticker in possible_tickers:
 
-        # Avoid obviously unsafe single-character tickers.
         if len(ticker) < 2:
+            continue
+
+        if ticker in COMMON_WORD_TICKERS:
             continue
 
         if re.search(
             rf"\b{re.escape(ticker)}\b",
-            haystack,
+            upper_text,
         ):
             return ticker
 
