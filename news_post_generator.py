@@ -1,3 +1,4 @@
+````python
 """
 news_post_generator.py
 
@@ -11,8 +12,8 @@ Short, factual crypto news posts (not trade calls). Style:
     $ZEC is definitely one to keep on the radar as the upgrade develops.
 
 Only ever writes about a REAL article pulled from Finnhub — never
-invents a story, a number, or a coin ticker that isn't actually in the
-source material.
+invents a story, a number, or a coin ticker that isn't actually in
+the source material.
 """
 
 import re
@@ -20,8 +21,9 @@ import json
 import random
 
 from groq import Groq
-from src import config as cfg
-from src.news_fetch import fetch_crypto_news
+import config as cfg
+from news_fetch import fetch_crypto_news
+
 
 SYSTEM_PROMPT = """You are a crypto news writer for Binance Square. You turn one real news
 article into a short, punchy but strictly factual post.
@@ -39,13 +41,18 @@ def get_candidate_article(seen_urls: set) -> dict | None:
     """Returns one Finnhub article not already covered, or None if nothing
     new/substantial is available. Prefers articles with a real summary."""
     articles = fetch_crypto_news()
+
     candidates = [
         a for a in articles
-        if a.get("url") and a["url"] not in seen_urls
-        and a.get("headline") and len((a.get("summary") or "")) > 40
+        if a.get("url")
+        and a["url"] not in seen_urls
+        and a.get("headline")
+        and len((a.get("summary") or "")) > 40
     ]
+
     if not candidates:
         return None
+
     pool = candidates[:10] or candidates
     return random.choice(pool)
 
@@ -53,10 +60,15 @@ def get_candidate_article(seen_urls: set) -> dict | None:
 def _detect_ticker(article: dict) -> str | None:
     """Finds a coin ticker actually mentioned in the article — never
     guesses one that isn't there."""
-    haystack = f"{article.get('headline','')} {article.get('summary','')}".upper()
+    haystack = (
+        f"{article.get('headline', '')} "
+        f"{article.get('summary', '')}"
+    ).upper()
+
     for base in cfg.KNOWN_TICKERS:
         if re.search(rf"\b{re.escape(base)}\b", haystack):
             return base
+
     return None
 
 
@@ -91,20 +103,32 @@ Return JSON with exactly this shape:
     try:
         post = json.loads(cleaned)
     except json.JSONDecodeError as err:
-        raise RuntimeError(f"Model did not return valid JSON: {raw}") from err
+        raise RuntimeError(
+            f"Model did not return valid JSON: {raw}"
+        ) from err
 
     post["url"] = article.get("url")
     post["ticker"] = ticker
+
     return post
 
 
 def format_news_post(post: dict) -> str:
-    lines = [post["title"].strip(), "", post["body"].strip()]
+    lines = [
+        post["title"].strip(),
+        "",
+        post["body"].strip(),
+    ]
+
     closing = post.get("closing", "").strip()
+
     if closing:
         lines += ["", closing]
 
     text = "\n".join(lines).strip()
+
     if len(text) > cfg.CHAR_LIMIT:
-        text = text[: cfg.CHAR_LIMIT].rstrip()
+        text = text[:cfg.CHAR_LIMIT].rstrip()
+
     return text
+````
