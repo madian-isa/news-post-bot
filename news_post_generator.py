@@ -1,4 +1,3 @@
-````python
 """
 news_post_generator.py
 
@@ -131,4 +130,3 @@ def format_news_post(post: dict) -> str:
         text = text[:cfg.CHAR_LIMIT].rstrip()
 
     return text
-````
