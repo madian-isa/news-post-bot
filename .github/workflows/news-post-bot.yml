@@ -1,8 +1,9 @@
 name: News Post Bot
 
 on:
-  schedule:
-    - cron: "0 */3 * * *"
+  repository_dispatch:
+    types: [cron_news_post]
+
   workflow_dispatch:
 
 permissions:
@@ -31,10 +32,8 @@ jobs:
           BINANCE_SQUARE_OPENAPI_KEY: ${{ secrets.BINANCE_SQUARE_OPENAPI_KEY }}
           FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
 
-          # Real posting
           DRY_RUN: "false"
 
-          # Maximum posts per day
           NEWS_MAX_POSTS_PER_DAY: "24"
 
         run: |
