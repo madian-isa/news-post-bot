@@ -13,8 +13,8 @@ Rules:
 - Uses up to 2 images:
     1. original news image
     2. crypto logo
-- If images are unavailable, the bot falls back to text-only.
-- If image upload fails, the bot automatically falls back to text-only.
+- If images are unavailable, falls back to text-only.
+- If image upload fails, falls back to text-only.
 """
 
 import traceback
@@ -47,15 +47,15 @@ from news_state import (
 
 def run_once():
 
-    # ---------------------------------------------------------
+    # =========================================================
     # 1. Load state
-    # ---------------------------------------------------------
+    # =========================================================
 
     state = load_state()
 
-    # ---------------------------------------------------------
-    # 2. Daily cap
-    # ---------------------------------------------------------
+    # =========================================================
+    # 2. Daily post limit
+    # =========================================================
 
     if not can_post_more_today(state):
 
@@ -67,9 +67,9 @@ def run_once():
 
         return
 
-    # ---------------------------------------------------------
+    # =========================================================
     # 3. Today's blocked tickers
-    # ---------------------------------------------------------
+    # =========================================================
 
     blocked_tickers = {
         str(t).upper()
@@ -84,9 +84,9 @@ def run_once():
         f"{sorted(blocked_tickers)}"
     )
 
-    # ---------------------------------------------------------
+    # =========================================================
     # 4. Find eligible article
-    # ---------------------------------------------------------
+    # =========================================================
 
     article = get_candidate_article(
         set(
@@ -107,9 +107,9 @@ def run_once():
 
         return
 
-    # ---------------------------------------------------------
+    # =========================================================
     # 5. Verified ticker
-    # ---------------------------------------------------------
+    # =========================================================
 
     ticker = article.get(
         "ticker"
@@ -136,9 +136,9 @@ def run_once():
 
     try:
 
-        # -----------------------------------------------------
+        # =====================================================
         # 6. Generate post text
-        # -----------------------------------------------------
+        # =====================================================
 
         post = generate_news_post(
             article
@@ -163,9 +163,14 @@ def run_once():
             post
         )
 
-        # -----------------------------------------------------
+        print(
+            f"[news] generated post length: "
+            f"{len(text)} chars"
+        )
+
+        # =====================================================
         # 7. Prepare images
-        # -----------------------------------------------------
+        # =====================================================
 
         try:
 
@@ -182,7 +187,8 @@ def run_once():
             )
 
             print(
-                "[news] continuing with text-only post."
+                "[news] continuing with "
+                "text-only post."
             )
 
             image_paths = []
@@ -192,9 +198,19 @@ def run_once():
             f"{len(image_paths)}"
         )
 
-        # -----------------------------------------------------
+        for index, image in enumerate(
+            image_paths,
+            start=1,
+        ):
+
+            print(
+                f"[news] image {index}: "
+                f"{image}"
+            )
+
+        # =====================================================
         # 8. DRY RUN
-        # -----------------------------------------------------
+        # =====================================================
 
         if cfg.DRY_RUN:
 
@@ -240,9 +256,9 @@ def run_once():
 
             return
 
-        # -----------------------------------------------------
+        # =====================================================
         # 9. Publish
-        # -----------------------------------------------------
+        # =====================================================
 
         if image_paths:
 
@@ -265,12 +281,9 @@ def run_once():
             except Exception as image_post_error:
 
                 # -------------------------------------------------
-                # IMPORTANT:
-                # Binance image upload can fail with errors such as
-                # "Can't get presigned url".
-                #
-                # Do NOT lose the whole news post.
-                # Automatically retry as text-only.
+                # Image publishing failed.
+                # Do not lose the news post.
+                # Retry as text-only.
                 # -------------------------------------------------
 
                 print(
@@ -279,7 +292,8 @@ def run_once():
                 )
 
                 print(
-                    "[news] falling back to text-only post..."
+                    "[news] falling back to "
+                    "text-only post..."
                 )
 
                 result = post_text(
@@ -287,7 +301,8 @@ def run_once():
                 )
 
                 print(
-                    "[news] text-only fallback succeeded."
+                    "[news] text-only fallback "
+                    "succeeded."
                 )
 
         else:
@@ -301,9 +316,9 @@ def run_once():
                 text
             )
 
-        # -----------------------------------------------------
+        # =====================================================
         # 10. Publication result
-        # -----------------------------------------------------
+        # =====================================================
 
         print(
             f"[news] published -> "
@@ -316,9 +331,9 @@ def run_once():
             f"{article.get('url')}"
         )
 
-        # -----------------------------------------------------
-        # 11. Save state ONLY after successful publication
-        # -----------------------------------------------------
+        # =====================================================
+        # 11. Save state ONLY after publication
+        # =====================================================
 
         state = record_post(
             state,
@@ -345,13 +360,22 @@ def run_once():
 
     finally:
 
-        # -----------------------------------------------------
-        # 12. Cleanup downloaded images
-        # -----------------------------------------------------
+        # =====================================================
+        # 12. Cleanup images
+        # =====================================================
 
-        cleanup_images(
-            image_paths
-        )
+        try:
+
+            cleanup_images(
+                image_paths
+            )
+
+        except Exception as cleanup_error:
+
+            print(
+                "[news] image cleanup failed: "
+                f"{cleanup_error}"
+            )
 
 
 if __name__ == "__main__":
