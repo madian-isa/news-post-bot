@@ -1,16 +1,10 @@
-```python
 """
 square_post.py
 
 Binance Square posting helper.
 
-Rules:
-- Uses the official Binance Skills Hub repository.
-- NEVER reuses an old cached Binance Skill.
-- Deletes the temporary Skill directory before cloning.
-- Uses the official post-image.mjs for image posts.
-- Uses the official /content/add API for text-only posts.
-- API keys are read only from environment variables.
+Uses the current official Binance Skills Hub repository.
+The old temporary/cached Skill is removed before every clone.
 """
 
 from __future__ import annotations
@@ -27,39 +21,22 @@ import requests
 from src import config as cfg
 
 
-# ---------------------------------------------------------------------------
-# Binance Square API
-# ---------------------------------------------------------------------------
-
 BASE_URL_V1 = (
     "https://www.binance.com/"
     "bapi/composite/v1/public/pgc/openApi"
 )
 
-# Official Binance Skills Hub
-SKILL_REPO = "https://github.com/binance/binance-skills-hub.git"
+SKILL_REPO = (
+    "https://github.com/binance/binance-skills-hub.git"
+)
 
-# IMPORTANT:
-# Do not use a persistent cache here.
-# This directory is deleted before every clone.
 SKILL_DIR = (
     Path(tempfile.gettempdir())
     / "binance-skills-hub-current"
 )
 
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
 def _get_api_key() -> str:
-    """
-    Get Binance Square OpenAPI key.
-
-    The GitHub Actions workflow should provide:
-        BINANCE_SQUARE_OPENAPI_KEY
-    """
-
     key = os.getenv("BINANCE_SQUARE_OPENAPI_KEY")
 
     if not key:
@@ -78,10 +55,6 @@ def _get_api_key() -> str:
 
 
 def _get_node() -> str:
-    """
-    Find Node.js executable.
-    """
-
     node = shutil.which("node")
 
     if not node:
@@ -93,13 +66,6 @@ def _get_node() -> str:
 
 
 def _ensure_fresh_square_skill() -> Path:
-    """
-    Delete any old cached Binance Skill and clone the
-    current official Binance Skills Hub repository.
-
-    This intentionally does NOT reuse an existing directory.
-    """
-
     print(
         "[square_post] removing old cached Binance Skill..."
     )
@@ -148,7 +114,7 @@ def _ensure_fresh_square_skill() -> Path:
     if not script.exists():
         raise RuntimeError(
             "Official Binance Square post-image.mjs "
-            "was not found after cloning."
+            "was not found."
         )
 
     print(
@@ -162,10 +128,6 @@ def _ensure_fresh_square_skill() -> Path:
 def _validate_images(
     image_paths: list[str],
 ) -> list[Path]:
-    """
-    Validate local image files before sending them
-    to the official Binance Skill.
-    """
 
     if not image_paths:
         raise ValueError(
@@ -177,13 +139,15 @@ def _validate_images(
             "Binance Square supports a maximum of 4 images."
         )
 
-    valid: list[Path] = []
+    valid_images: list[Path] = []
 
     for index, image_path in enumerate(
         image_paths,
         start=1,
     ):
-        path = Path(image_path).expanduser().resolve()
+        path = Path(
+            image_path
+        ).expanduser().resolve()
 
         if not path.exists():
             raise FileNotFoundError(
@@ -200,26 +164,18 @@ def _validate_images(
                 f"Image {index} is empty: {path}"
             )
 
-        valid.append(path)
+        valid_images.append(path)
 
         print(
             f"[square_post] image {index}: {path}"
         )
 
-    return valid
+    return valid_images
 
 
-# ---------------------------------------------------------------------------
-# Text-only post
-# ---------------------------------------------------------------------------
-
-def post_text(text: str) -> Optional[str]:
-    """
-    Publish a text-only Binance Square post.
-
-    This uses the same V1 /content/add endpoint that
-    the official Skill uses for publishing.
-    """
+def post_text(
+    text: str,
+) -> Optional[str]:
 
     api_key = _get_api_key()
 
@@ -242,13 +198,11 @@ def post_text(text: str) -> Optional[str]:
             "clienttype": "binanceSkill",
         },
         json={
-            "contentType": 1,
             "bodyTextOnly": text,
         },
         timeout=60,
     )
 
-    # Binance may return 504 even though the post was accepted.
     if response.status_code == 504:
         print(
             "[square_post] Binance returned 504 after "
@@ -267,7 +221,7 @@ def post_text(text: str) -> Optional[str]:
 
     if data.get("code") != "000000":
         raise RuntimeError(
-            f"Binance API error "
+            "Binance API error "
             f"[{data.get('code')}]: "
             f"{data.get('message')}"
         )
@@ -278,39 +232,17 @@ def post_text(text: str) -> Optional[str]:
 
     if share_link:
         print(
-            f"[square_post] text post successful: "
+            "[square_post] text post successful: "
             f"{share_link}"
         )
 
     return share_link
 
 
-# ---------------------------------------------------------------------------
-# Image post
-# ---------------------------------------------------------------------------
-
 def post_with_images(
     text: str,
     image_paths: list[str],
 ) -> Optional[str]:
-    """
-    Publish a Binance Square short image post.
-
-    IMPORTANT:
-    The actual image upload is handled entirely by the
-    current official Binance Skill.
-
-    Flow:
-        image
-          ↓
-        /image/presignedUrl
-          ↓
-        S3 PUT
-          ↓
-        /image/imageStatus
-          ↓
-        /content/add
-    """
 
     text = text.strip()
 
@@ -319,13 +251,14 @@ def post_with_images(
             "Cannot publish an empty Binance Square post."
         )
 
-    images = _validate_images(image_paths)
+    images = _validate_images(
+        image_paths
+    )
 
     print(
         f"[square_post] valid images: {len(images)}"
     )
 
-    # Always remove/re-clone the Skill.
     script = _ensure_fresh_square_skill()
 
     node = _get_node()
@@ -334,7 +267,6 @@ def post_with_images(
         f"[square_post] Node.js: {node}"
     )
 
-    # The official Skill expects comma-separated image paths.
     image_argument = ",".join(
         str(path)
         for path in images
@@ -351,7 +283,6 @@ def post_with_images(
 
     env = os.environ.copy()
 
-    # Explicitly pass the key to the official Skill.
     env["BINANCE_SQUARE_OPENAPI_KEY"] = (
         _get_api_key()
     )
@@ -374,13 +305,17 @@ def post_with_images(
         print(
             "[square_post] Binance Skill output:"
         )
-        print(result.stdout.rstrip())
+        print(
+            result.stdout.rstrip()
+        )
 
     if result.stderr:
         print(
             "[square_post] Binance Skill error output:"
         )
-        print(result.stderr.rstrip())
+        print(
+            result.stderr.rstrip()
+        )
 
     if result.returncode != 0:
         combined = "\n".join(
@@ -397,8 +332,6 @@ def post_with_images(
             + combined
         )
 
-    # Try to extract the Share Link from the official
-    # Skill's normal output.
     for line in result.stdout.splitlines():
         line = line.strip()
 
@@ -415,30 +348,13 @@ def post_with_images(
                 )
                 return link
 
-    print(
-        "[square_post] image post completed, "
-        "but no Share Link was returned."
-    )
-
     return None
 
-
-# ---------------------------------------------------------------------------
-# Generic publisher
-# ---------------------------------------------------------------------------
 
 def post(
     text: str,
     image_paths: Optional[list[str]] = None,
 ) -> Optional[str]:
-    """
-    Publish either an image post or text-only post.
-
-    If image_paths are supplied, the current official
-    Binance Skill is used.
-
-    If no images are supplied, the normal text API is used.
-    """
 
     if image_paths:
         return post_with_images(
@@ -447,27 +363,3 @@ def post(
         )
 
     return post_text(text)
-```
-
-### What changed
-
-The important part is this:
-
-```python
-if SKILL_DIR.exists():
-    shutil.rmtree(SKILL_DIR, ignore_errors=True)
-
-git clone --depth 1 https://github.com/binance/binance-skills-hub.git ...
-```
-
-So every GitHub Actions run:
-
-**old Skill → deleted → fresh official Skill → used.**
-
-The current official source confirms that image upload uses `/image/presignedUrl` through V2, then S3 upload, then image-status polling, and finally `/content/add` through V1.
-
-Also, the official `post-image.mjs` accepts `--images` with up to 4 images and calls `uploadImage()` for each one.
-
-**Your YML does not need to change for this.** `BINANCE_SQUARE_OPENAPI_KEY` can remain exactly as you already have it.
-
-One thing to note: this change will tell us whether the old cached Skill was responsible. If a fresh official Skill still returns **`20005: Can't get presigned url`**, then we know the problem is not your cached Skill and we can focus specifically on Binance's image-upload API/key/account side.
