@@ -4,8 +4,8 @@ news_post_generator.py
 Generates short, factual Binance Square crypto-asset news posts.
 
 Rules:
-- Only real crypto assets are allowed.
-- Company-only news is rejected.
+- Only Binance-listed crypto assets are allowed.
+- Company-only news is rejected when no valid crypto ticker is found.
 - Articles already posted are rejected.
 - Crypto tickers already posted today can be blocked by main.py.
 - AI cannot invent or change the verified ticker.
@@ -16,8 +16,13 @@ import json
 import random
 
 from groq import Groq
+
 import config as cfg
 from news_fetch import fetch_crypto_news
+from binance_symbols import (
+    get_binance_crypto_tickers,
+    is_binance_crypto_ticker,
+)
 
 
 SYSTEM_PROMPT = """You are a professional crypto news writer for Binance Square.
@@ -72,34 +77,131 @@ Return exactly:
 """
 
 
+# -------------------------------------------------------------
+# Crypto name → ticker
+# -------------------------------------------------------------
+#
+# This is NOT the allowed-coin list.
+#
+# Binance's live symbol list is used for ticker validation.
+# This map only helps when an article writes the full asset name
+# instead of the ticker.
+# -------------------------------------------------------------
+
+ASSET_NAME_MAP = {
+    "BITCOIN CASH": "BCH",
+    "BINANCE COIN": "BNB",
+    "DOGECOIN": "DOGE",
+    "SHIBA INU": "SHIB",
+    "INTERNET COMPUTER": "ICP",
+    "NEAR PROTOCOL": "NEAR",
+    "WORLDCOIN": "WLD",
+    "ZCASH": "ZEC",
+    "CHAINLINK": "LINK",
+    "POLKADOT": "DOT",
+    "LITECOIN": "LTC",
+    "AVALANCHE": "AVAX",
+    "ETHEREUM": "ETH",
+    "SOLANA": "SOL",
+    "CARDANO": "ADA",
+    "BITCOIN": "BTC",
+    "RIPPLE": "XRP",
+    "TRON": "TRX",
+    "TONCOIN": "TON",
+    "TON": "TON",
+    "UNISWAP": "UNI",
+    "ARBITRUM": "ARB",
+    "OPTIMISM": "OP",
+    "SUI": "SUI",
+    "APTOS": "APT",
+    "PEPE": "PEPE",
+    "BONK": "BONK",
+    "AAVE": "AAVE",
+    "ZKSYNC": "ZK",
+    "STORY": "IP",
+}
+
+
+# -------------------------------------------------------------
+# Ticker → readable crypto name
+# -------------------------------------------------------------
+
+KNOWN_ASSET_NAMES = {
+    "BTC": "Bitcoin",
+    "ETH": "Ethereum",
+    "BNB": "BNB",
+    "SOL": "Solana",
+    "XRP": "XRP",
+    "ADA": "Cardano",
+    "DOGE": "Dogecoin",
+    "TRX": "TRON",
+    "TON": "Toncoin",
+    "LINK": "Chainlink",
+    "AVAX": "Avalanche",
+    "DOT": "Polkadot",
+    "LTC": "Litecoin",
+    "BCH": "Bitcoin Cash",
+    "ZEC": "Zcash",
+    "AAVE": "Aave",
+    "UNI": "Uniswap",
+    "ARB": "Arbitrum",
+    "OP": "Optimism",
+    "SUI": "Sui",
+    "APT": "Aptos",
+    "NEAR": "NEAR Protocol",
+    "ICP": "Internet Computer",
+    "WLD": "Worldcoin",
+    "PEPE": "Pepe",
+    "SHIB": "Shiba Inu",
+    "BONK": "Bonk",
+}
+
+
 def get_candidate_article(
     seen_urls: set,
     blocked_tickers: set | None = None,
 ) -> dict | None:
     """
-    Return ONE new crypto article.
+    Return ONE eligible crypto article.
 
     Rules:
     - Already-posted article URL is skipped.
     - Articles without a valid crypto ticker are skipped.
+    - Ticker must be currently listed on Binance Spot.
     - Crypto tickers already posted today are skipped.
-    - Another eligible crypto is searched instead.
+    - Another eligible crypto article is searched instead.
     """
 
     articles = fetch_crypto_news()
+
     candidates = []
 
     blocked_tickers = {
-        t.upper() for t in (blocked_tickers or set())
+        str(t).upper()
+        for t in (blocked_tickers or set())
     }
 
+    # ---------------------------------------------------------
+    # Load current Binance crypto tickers
+    # ---------------------------------------------------------
+
+    binance_tickers = get_binance_crypto_tickers()
+
+    if not binance_tickers:
+        print(
+            "[news] Binance symbol list unavailable."
+        )
+
+        return None
+
     for article in articles:
+
         url = article.get("url")
         headline = article.get("headline", "")
         summary = article.get("summary", "")
 
         # -----------------------------------------------------
-        # Basic article validation
+        # Basic validation
         # -----------------------------------------------------
 
         if not url:
@@ -123,14 +225,17 @@ def get_candidate_article(
             continue
 
         # -----------------------------------------------------
-        # Detect real crypto asset
+        # Detect crypto ticker
         # -----------------------------------------------------
 
-        ticker = _detect_ticker(article)
+        ticker = _detect_ticker(
+            article,
+            binance_tickers,
+        )
 
         if not ticker:
             print(
-                f"[news] SKIP — no valid crypto asset ticker: "
+                f"[news] SKIP — no verified Binance crypto: "
                 f"{headline}"
             )
             continue
@@ -163,12 +268,13 @@ def get_candidate_article(
     if not candidates:
         print(
             "[news] no eligible crypto article found "
-            "after today's ticker filter."
+            "after Binance + daily ticker filters."
         )
+
         return None
 
     # ---------------------------------------------------------
-    # Select from recent eligible articles
+    # Recent pool
     # ---------------------------------------------------------
 
     pool = candidates[:10]
@@ -176,7 +282,7 @@ def get_candidate_article(
     article = random.choice(pool)
 
     print(
-        f"[news] selected crypto asset article: "
+        f"[news] selected crypto article: "
         f"${article.get('ticker')} — "
         f"{article.get('headline')}"
     )
@@ -184,17 +290,27 @@ def get_candidate_article(
     return article
 
 
-def _detect_ticker(article: dict) -> str | None:
+def _detect_ticker(
+    article: dict,
+    binance_tickers: set[str] | None = None,
+) -> str | None:
     """
-    Detect ONLY real crypto asset tickers.
+    Detect a crypto ticker from the article.
 
     Priority:
     1. Explicit $TICKER
     2. Known crypto asset names
-    3. Known standalone crypto tickers
+    3. Binance-listed standalone ticker
 
-    Company stock tickers such as COIN are NOT included.
+    IMPORTANT:
+    The ticker must exist in Binance's current crypto list.
     """
+
+    if binance_tickers is None:
+        binance_tickers = get_binance_crypto_tickers()
+
+    if not binance_tickers:
+        return None
 
     haystack = (
         f"{article.get('headline', '')} "
@@ -206,185 +322,132 @@ def _detect_ticker(article: dict) -> str | None:
     # ---------------------------------------------------------
 
     explicit_tickers = re.findall(
-        r"\$([A-Z][A-Z0-9]{1,9})\b",
+        r"\$([A-Z][A-Z0-9]{1,14})\b",
         haystack,
     )
 
     for ticker in explicit_tickers:
-        if ticker in cfg.KNOWN_TICKERS:
+
+        ticker = ticker.upper()
+
+        if ticker in binance_tickers:
             return ticker
 
     # ---------------------------------------------------------
-    # 2. Crypto asset names
+    # 2. Full crypto asset names
     # ---------------------------------------------------------
 
-    asset_map = {
-        "BITCOIN CASH": "BCH",
-        "BINANCE COIN": "BNB",
-        "DOGECOIN": "DOGE",
-        "SHIBA INU": "SHIB",
-        "INTERNET COMPUTER": "ICP",
-        "NEAR PROTOCOL": "NEAR",
-        "WORLDCOIN": "WLD",
-        "ZCASH": "ZEC",
-        "CHAINLINK": "LINK",
-        "POLKADOT": "DOT",
-        "LITECOIN": "LTC",
-        "AVALANCHE": "AVAX",
-        "ETHEREUM": "ETH",
-        "SOLANA": "SOL",
-        "CARDANO": "ADA",
-        "BITCOIN": "BTC",
-        "XRP": "XRP",
-        "BNB": "BNB",
-        "DOGE": "DOGE",
-        "TRON": "TRX",
-        "TONCOIN": "TON",
-        "TON": "TON",
-        "TRX": "TRX",
-        "ADA": "ADA",
-        "AAVE": "AAVE",
-        "UNISWAP": "UNI",
-        "ARBITRUM": "ARB",
-        "OPTIMISM": "OP",
-        "SUI": "SUI",
-        "APTOS": "APT",
-        "PEPE": "PEPE",
-        "BONK": "BONK",
-        "SHIB": "SHIB",
-        "AVAX": "AVAX",
-        "DOT": "DOT",
-        "LTC": "LTC",
-        "BCH": "BCH",
-        "ZEC": "ZEC",
-        "LINK": "LINK",
-        "ICP": "ICP",
-        "NEAR": "NEAR",
-        "WLD": "WLD",
-        "OP": "OP",
-        "ARB": "ARB",
-        "SUI": "SUI",
-        "APT": "APT",
-    }
-
-    # Longer names first
     for name in sorted(
-        asset_map,
+        ASSET_NAME_MAP,
         key=len,
         reverse=True,
     ):
+
         if re.search(
             rf"\b{re.escape(name)}\b",
             haystack,
         ):
-            return asset_map[name]
+
+            ticker = ASSET_NAME_MAP[name]
+
+            if ticker in binance_tickers:
+                return ticker
 
     # ---------------------------------------------------------
-    # 3. Known crypto tickers
+    # 3. Binance-listed standalone tickers
     # ---------------------------------------------------------
 
-    for base in cfg.KNOWN_TICKERS:
+    # Sort longest first.
+    # This avoids some partial matching issues.
+    possible_tickers = sorted(
+        binance_tickers,
+        key=len,
+        reverse=True,
+    )
 
-        # COIN is deliberately excluded.
-        if base == "COIN":
+    for ticker in possible_tickers:
+
+        # Avoid obviously unsafe single-character tickers.
+        if len(ticker) < 2:
             continue
 
         if re.search(
-            rf"\b{re.escape(base)}\b",
+            rf"\b{re.escape(ticker)}\b",
             haystack,
         ):
-            return base
+            return ticker
 
     return None
 
 
-def _detect_company_name(
-    article: dict,
-    ticker: str | None,
+def _detect_asset_name(
+    ticker: str,
 ) -> str | None:
     """
-    Return the crypto asset name for the detected ticker.
+    Return a readable asset name.
 
-    Never invents a crypto asset name.
+    For assets not in the small name map, the ticker itself
+    is used as the display name.
     """
-
-    name_map = {
-        "BTC": "Bitcoin",
-        "ETH": "Ethereum",
-        "BNB": "BNB",
-        "SOL": "Solana",
-        "XRP": "XRP",
-        "ADA": "Cardano",
-        "DOGE": "Dogecoin",
-        "TRX": "TRON",
-        "TON": "Toncoin",
-        "LINK": "Chainlink",
-        "AVAX": "Avalanche",
-        "DOT": "Polkadot",
-        "LTC": "Litecoin",
-        "BCH": "Bitcoin Cash",
-        "ZEC": "Zcash",
-        "AAVE": "Aave",
-        "UNI": "Uniswap",
-        "ARB": "Arbitrum",
-        "OP": "Optimism",
-        "SUI": "Sui",
-        "APT": "Aptos",
-        "NEAR": "NEAR Protocol",
-        "ICP": "Internet Computer",
-        "WLD": "World",
-        "PEPE": "Pepe",
-        "SHIB": "Shiba Inu",
-        "BONK": "Bonk",
-    }
 
     if not ticker:
         return None
 
-    return name_map.get(ticker.upper())
+    ticker = ticker.upper()
+
+    return KNOWN_ASSET_NAMES.get(
+        ticker,
+        ticker,
+    )
 
 
 def generate_news_post(article: dict) -> dict:
     """
     Generate a Binance Square post ONLY for a verified
-    crypto-asset article.
+    Binance-listed crypto asset.
     """
 
     # ---------------------------------------------------------
-    # Get verified ticker
+    # Get ticker saved by candidate selector
     # ---------------------------------------------------------
 
     ticker = article.get("ticker")
 
-    # If article did not already contain a saved ticker,
-    # detect it again as a safety check.
     if not ticker:
         ticker = _detect_ticker(article)
 
-    # HARD STOP
     if not ticker:
         raise RuntimeError(
-            "Article rejected: no valid crypto asset ticker detected."
+            "Article rejected: no Binance-listed crypto "
+            "ticker detected."
         )
 
     ticker = ticker.upper()
 
     # ---------------------------------------------------------
-    # Get verified crypto name
+    # Verify again against Binance
     # ---------------------------------------------------------
 
-    company_name = _detect_company_name(
-        article,
-        ticker,
-    )
-
-    if not company_name:
+    if not is_binance_crypto_ticker(ticker):
         raise RuntimeError(
-            f"Article rejected: unknown crypto asset ticker ${ticker}."
+            f"Article rejected: ${ticker} is not currently "
+            "verified as a Binance Spot crypto asset."
         )
 
     # ---------------------------------------------------------
-    # Groq client
+    # Get asset name
+    # ---------------------------------------------------------
+
+    asset_name = _detect_asset_name(ticker)
+
+    if not asset_name:
+        raise RuntimeError(
+            f"Article rejected: unable to identify "
+            f"crypto asset ${ticker}."
+        )
+
+    # ---------------------------------------------------------
+    # Groq
     # ---------------------------------------------------------
 
     client = Groq(
@@ -392,7 +455,7 @@ def generate_news_post(article: dict) -> dict:
     )
 
     # ---------------------------------------------------------
-    # AI prompt
+    # Prompt
     # ---------------------------------------------------------
 
     user_prompt = f"""Article headline:
@@ -404,27 +467,30 @@ Article summary:
 Source:
 {article.get('source', 'unknown')}
 
-Verified crypto asset:
-{company_name}
+Verified Binance crypto asset:
+{asset_name}
 
 Verified ticker:
 ${ticker}
 
-Create a Binance Square crypto news post using ONLY the article information.
+Create a Binance Square crypto news post using ONLY the
+article headline and summary.
 
 The article MUST be about:
 
-{company_name} (${ticker})
+{asset_name} (${ticker})
 
 TITLE:
 
 Use exactly this structure:
 
-{company_name} (${ticker}): Hook
+{asset_name} (${ticker}): Hook
 
 BODY:
 
 Write exactly 3 short factual paragraphs.
+
+Use only facts from the article.
 
 Do NOT add:
 - hashtags
@@ -436,6 +502,8 @@ Do NOT add:
 - long/short language
 - target language
 - unsupported predictions
+- invented statistics
+- invented events
 
 Do NOT create or change the ticker.
 
@@ -474,7 +542,7 @@ Return ONLY:
     )
 
     # ---------------------------------------------------------
-    # Clean AI response
+    # Clean response
     # ---------------------------------------------------------
 
     cleaned = (
@@ -489,15 +557,17 @@ Return ONLY:
     # ---------------------------------------------------------
 
     try:
+
         post = json.loads(cleaned)
 
     except json.JSONDecodeError as err:
+
         raise RuntimeError(
             f"Model did not return valid JSON: {raw}"
         ) from err
 
     # ---------------------------------------------------------
-    # Validate title and body
+    # Validate
     # ---------------------------------------------------------
 
     title = str(
@@ -514,17 +584,18 @@ Return ONLY:
         )
 
     # ---------------------------------------------------------
-    # Validate ticker in title
+    # Verify ticker in title
     # ---------------------------------------------------------
 
     title_tickers = re.findall(
-        r"\$([A-Z][A-Z0-9]{1,9})\b",
+        r"\$([A-Z][A-Z0-9]{1,14})\b",
         title.upper(),
     )
 
     if title_tickers:
 
         if title_tickers[0] != ticker:
+
             raise RuntimeError(
                 f"AI used wrong ticker in title: "
                 f"${title_tickers[0]} "
@@ -532,19 +603,20 @@ Return ONLY:
             )
 
     # ---------------------------------------------------------
-    # Validate title structure
+    # Require correct ticker marker
     # ---------------------------------------------------------
 
     expected_marker = f"(${ticker})"
 
     if expected_marker not in title.upper():
+
         raise RuntimeError(
-            f"AI title does not contain verified ticker "
-            f"${ticker}: {title}"
+            f"AI title does not contain verified "
+            f"ticker ${ticker}: {title}"
         )
 
     # ---------------------------------------------------------
-    # Save final post data
+    # Save final post
     # ---------------------------------------------------------
 
     post["title"] = title
@@ -572,13 +644,14 @@ def format_news_post(post: dict) -> str:
 
     ticker = post.get("ticker")
 
-    # HARD STOP
     if not ticker:
         raise RuntimeError(
             "Refusing to publish: no crypto ticker."
         )
 
-    ticker = str(ticker).upper()
+    ticker = str(
+        ticker
+    ).upper()
 
     parts = []
 
@@ -588,7 +661,7 @@ def format_news_post(post: dict) -> str:
     if body:
         parts.append(body)
 
-    # Python-generated ticker line
+    # Final ticker line
     parts.append(
         f"**${ticker}**"
     )
@@ -600,6 +673,10 @@ def format_news_post(post: dict) -> str:
     # ---------------------------------------------------------
 
     if len(text) > cfg.CHAR_LIMIT:
-        text = text[:cfg.CHAR_LIMIT].rstrip()
+
+        text = (
+            text[:cfg.CHAR_LIMIT]
+            .rstrip()
+        )
 
     return text
