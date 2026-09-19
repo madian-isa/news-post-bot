@@ -1,13 +1,15 @@
 """
 main.py
 
-Single-run mode:
+Single-run mode.
+
 Each invocation attempts to publish ONE real crypto-news post.
 
 Rules:
-- Only valid crypto-asset articles are accepted.
+- Only Binance-verified crypto assets are allowed.
 - Same article URL cannot be posted twice.
-- Same crypto ticker can be posted only ONCE per Bangladesh day.
+- Same crypto ticker can only be posted ONCE per Bangladesh day.
+- If one coin is blocked, another eligible coin is searched.
 - Daily post limit is enforced.
 """
 
@@ -19,7 +21,6 @@ from news_post_generator import (
     get_candidate_article,
     generate_news_post,
     format_news_post,
-    _detect_ticker,
 )
 
 from square_post import post_text
@@ -28,142 +29,217 @@ from news_state import (
     load_state,
     save_state,
     can_post_more_today,
-    ticker_posted_today,
     record_post,
 )
 
 
 def run_once():
+    # ---------------------------------------------------------
+    # 1. Load state
+    # ---------------------------------------------------------
+
     state = load_state()
 
     # ---------------------------------------------------------
-    # 1. Check daily maximum post limit
+    # 2. Daily maximum
     # ---------------------------------------------------------
 
     if not can_post_more_today(state):
+
         print(
             f"[news] daily cap reached "
-            f"({cfg.NEWS_MAX_POSTS_PER_DAY}) — skipping this run."
+            f"({cfg.NEWS_MAX_POSTS_PER_DAY}) "
+            f"— skipping this run."
         )
+
         return
 
     # ---------------------------------------------------------
-    # 2. Find a new crypto article
+    # 3. Get today's blocked crypto tickers
+    # ---------------------------------------------------------
+
+    blocked_tickers = {
+        str(t).upper()
+        for t in state.get(
+            "posted_tickers",
+            [],
+        )
+    }
+
+    print(
+        f"[news] today's blocked tickers: "
+        f"{sorted(blocked_tickers)}"
+    )
+
+    # ---------------------------------------------------------
+    # 4. Find eligible article
+    #
+    # IMPORTANT:
+    # get_candidate_article() itself skips:
+    #
+    # - old article URLs
+    # - non-crypto articles
+    # - non-Binance-listed assets
+    # - today's already-posted crypto
+    #
+    # Therefore if BTC is blocked, it keeps looking for
+    # another eligible coin instead of stopping the run.
     # ---------------------------------------------------------
 
     article = get_candidate_article(
-        set(state.get("seen_urls", []))
+        set(
+            state.get(
+                "seen_urls",
+                [],
+            )
+        ),
+        blocked_tickers,
     )
 
     if not article:
+
         print(
-            "[news] no new valid crypto article found "
-            "this run — skipping."
+            "[news] no eligible crypto article found "
+            "this run — nothing to publish."
         )
+
         return
 
     # ---------------------------------------------------------
-    # 3. Detect crypto ticker
+    # 5. Get verified ticker
     # ---------------------------------------------------------
 
-    ticker = _detect_ticker(article)
+    ticker = article.get("ticker")
 
-    # HARD STOP:
-    # Never publish an article without a real crypto ticker.
     if not ticker:
+
         print(
-            "[news] article rejected — "
-            "no valid crypto ticker detected."
+            "[news] selected article has no verified ticker "
+            "— refusing to publish."
         )
+
         return
 
-    ticker = ticker.upper()
+    ticker = str(
+        ticker
+    ).upper()
 
     print(
-        f"[news] detected crypto asset: ${ticker}"
+        f"[news] preparing post for ${ticker}"
     )
 
     # ---------------------------------------------------------
-    # 4. Same coin cannot be posted twice today
-    # ---------------------------------------------------------
-
-    if ticker_posted_today(state, ticker):
-        print(
-            f"[news] ${ticker} already posted today — skipping."
-        )
-        return
-
-    # ---------------------------------------------------------
-    # 5. Generate Binance Square post
+    # 6. Generate + publish
     # ---------------------------------------------------------
 
     try:
-        post = generate_news_post(article)
 
-        # Make sure generated post still belongs to
-        # the same verified ticker.
-        if post.get("ticker") != ticker:
-            print(
-                f"[news] ticker mismatch — "
+        # Generate AI post
+        post = generate_news_post(
+            article
+        )
+
+        # Verify returned ticker
+        generated_ticker = str(
+            post.get("ticker", "")
+        ).upper()
+
+        if generated_ticker != ticker:
+
+            raise RuntimeError(
+                f"Ticker mismatch: "
                 f"expected ${ticker}, "
-                f"got ${post.get('ticker')}"
+                f"got ${generated_ticker}"
             )
-            return
 
-        text = format_news_post(post)
+        # Format final Binance Square post
+        text = format_news_post(
+            post
+        )
 
         # -----------------------------------------------------
-        # 6. Dry-run mode
+        # 7. DRY RUN
         # -----------------------------------------------------
 
         if cfg.DRY_RUN:
-            print("\n[DRY RUN] would post:")
-            print("-" * 60)
+
+            print(
+                "\n[DRY RUN] would post:"
+            )
+
+            print(
+                "-" * 60
+            )
+
             print(text)
-            print("-" * 60)
+
+            print(
+                "-" * 60
+            )
+
             print(
                 f"[DRY RUN] crypto: ${ticker}"
             )
+
             print(
-                f"[DRY RUN] source: {article.get('url')}"
+                f"[DRY RUN] source: "
+                f"{article.get('url')}"
             )
+
             print(
-                "[DRY RUN] nothing posted to Binance Square.\n"
+                "[DRY RUN] nothing posted "
+                "to Binance Square.\n"
             )
+
             return
 
         # -----------------------------------------------------
-        # 7. Publish to Binance Square
+        # 8. Publish
         # -----------------------------------------------------
 
-        result = post_text(text)
+        result = post_text(
+            text
+        )
 
         print(
             f"[news] published -> "
             f"{result.get('link')} "
-            f"(crypto: ${ticker}) "
-            f"(source: {article.get('url')})"
+            f"(crypto: ${ticker})"
+        )
+
+        print(
+            f"[news] source: "
+            f"{article.get('url')}"
         )
 
         # -----------------------------------------------------
-        # 8. Save successful post
+        # 9. Save state
+        #
+        # Only after successful publication.
         # -----------------------------------------------------
 
         state = record_post(
             state,
-            article["url"],
+            article.get("url"),
             ticker,
         )
 
-        save_state(state)
+        save_state(
+            state
+        )
 
         print(
-            f"[news] saved: ${ticker} "
-            f"cannot be posted again today."
+            f"[news] state saved: "
+            f"${ticker} is blocked "
+            f"for the rest of today."
         )
 
     except Exception as err:
-        print(f"[news] failed: {err}")
+
+        print(
+            f"[news] failed: {err}"
+        )
+
         traceback.print_exc()
 
 
