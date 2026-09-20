@@ -7,7 +7,7 @@ Rules:
 - Only Binance-listed crypto assets are allowed.
 - Company-only news is rejected when no valid crypto ticker is found.
 - Articles already posted are rejected.
-- Crypto tickers already posted today can be blocked by main.py.
+- The same crypto can be posted multiple times if the news article is different.
 - AI cannot invent or change the verified ticker.
 """
 
@@ -152,10 +152,6 @@ KNOWN_ASSET_NAMES = {
 
 # -------------------------------------------------------------
 # Common English words that can also be Binance tickers
-#
-# IMPORTANT:
-# These are only blocked during weak standalone-ticker detection.
-# Explicit "$THE" or Finnhub "related" data is handled separately.
 # -------------------------------------------------------------
 
 COMMON_WORD_TICKERS = {
@@ -278,7 +274,6 @@ CRYPTO_CONTEXT_WORDS = (
 
 def get_candidate_article(
     seen_urls: set,
-    blocked_tickers: set | None = None,
 ) -> dict | None:
     """
     Return ONE eligible crypto article.
@@ -287,18 +282,12 @@ def get_candidate_article(
     - Already-posted article URL is skipped.
     - Articles without a valid crypto ticker are skipped.
     - Ticker must be currently listed on Binance Spot.
-    - Crypto tickers already posted today are skipped.
-    - Another eligible crypto article is searched instead.
+    - The same crypto ticker CAN be posted again if the article is new.
     """
 
     articles = fetch_crypto_news()
 
     candidates = []
-
-    blocked_tickers = {
-        str(t).upper()
-        for t in (blocked_tickers or set())
-    }
 
     # ---------------------------------------------------------
     # Load current Binance crypto tickers
@@ -333,7 +322,6 @@ def get_candidate_article(
         if not headline:
             continue
 
-
         # -----------------------------------------------------
         # Detect crypto ticker
         # -----------------------------------------------------
@@ -353,18 +341,16 @@ def get_candidate_article(
         ticker = ticker.upper()
 
         # -----------------------------------------------------
-        # Same crypto already posted today
-        # -----------------------------------------------------
-
-        if ticker in blocked_tickers:
-            print(
-                f"[news] SKIP — ${ticker} already posted today: "
-                f"{headline}"
-            )
-            continue
-
-        # -----------------------------------------------------
-        # Save verified ticker
+        # IMPORTANT:
+        #
+        # Same ticker is NOT blocked.
+        #
+        # Example:
+        # ETH article #1 → allowed
+        # ETH article #2 → allowed
+        # ETH article #3 → allowed
+        #
+        # Only the exact same article URL is blocked above.
         # -----------------------------------------------------
 
         article["ticker"] = ticker
@@ -378,7 +364,7 @@ def get_candidate_article(
     if not candidates:
         print(
             "[news] no eligible crypto article found "
-            "after Binance + daily ticker filters."
+            "after Binance + article history filters."
         )
         return None
 
@@ -429,11 +415,6 @@ def _detect_ticker(
 
     # ---------------------------------------------------------
     # 1. Explicit $TICKER
-    #
-    # Example:
-    # Bitcoin ($BTC)
-    # $XRP
-    # $SOL
     # ---------------------------------------------------------
 
     explicit_tickers = re.findall(
@@ -449,9 +430,6 @@ def _detect_ticker(
 
     # ---------------------------------------------------------
     # 2. Finnhub "related" field
-    #
-    # Finnhub can provide article-related symbols.
-    # Prefer this over guessing from ordinary English words.
     # ---------------------------------------------------------
 
     related = article.get("related", "")
@@ -489,10 +467,6 @@ def _detect_ticker(
 
     # ---------------------------------------------------------
     # 3. Trading pair formats
-    #
-    # XRP/USDT
-    # SOL-USDT
-    # BTC/USDC
     # ---------------------------------------------------------
 
     pair_matches = re.findall(
@@ -533,16 +507,6 @@ def _detect_ticker(
 
     # ---------------------------------------------------------
     # 5. Standalone Binance ticker
-    #
-    # IMPORTANT:
-    # Do NOT blindly accept every Binance ticker appearing as
-    # an ordinary word.
-    #
-    # Example:
-    # "the crypto market..."
-    #
-    # Binance may list THE, but that does NOT mean the article
-    # is about $THE.
     # ---------------------------------------------------------
 
     has_crypto_context = any(
