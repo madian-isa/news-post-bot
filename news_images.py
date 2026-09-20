@@ -22,19 +22,15 @@ from pathlib import Path
 
 import requests
 
-from src.binance_symbols import is_binance_crypto_ticker
+# IMPORTANT:
+# binance_symbols.py is in the project root,
+# so do NOT use "src.binance_symbols".
+from binance_symbols import is_binance_crypto_ticker
 
 
 TIMEOUT = 20
 MAX_IMAGE_SIZE = 10 * 1024 * 1024
 
-
-# Binance-hosted asset CDN.
-#
-# IMPORTANT:
-# We do NOT blindly trust a guessed URL.
-# The URL must return an actual image before
-# it is used in the post.
 BINANCE_LOGO_BASE = (
     "https://bin.bnbstatic.com"
 )
@@ -46,10 +42,6 @@ def _get_verified_ticker(
     """
     Verify ticker using the project's existing
     Binance Spot asset verification system.
-
-    This deliberately uses binance_symbols.py so
-    there is only ONE source of truth for whether
-    an asset is Binance-listed.
     """
 
     if not ticker:
@@ -59,6 +51,7 @@ def _get_verified_ticker(
         str(ticker)
         .upper()
         .strip()
+        .replace("$", "")
     )
 
     if not ticker:
@@ -97,30 +90,28 @@ def _get_logo_candidates(
     """
     Return possible Binance-hosted logo URLs.
 
-    IMPORTANT:
     These are ONLY candidates.
-
-    We never assume that a candidate is valid.
-    _download_image() must confirm that Binance
-    actually returns an image.
-
-    The list is intentionally small so the bot
-    never starts searching arbitrary third-party
-    websites for a logo.
     """
 
     ticker = (
         str(ticker)
         .upper()
         .strip()
+        .replace("$", "")
     )
 
     if not ticker:
         return []
 
     return [
-        f"{BINANCE_LOGO_BASE}/static/assets/logos/{ticker}.png",
-        f"{BINANCE_LOGO_BASE}/static/assets/logos/{ticker.lower()}.png",
+        (
+            f"{BINANCE_LOGO_BASE}"
+            f"/static/assets/logos/{ticker}.png"
+        ),
+        (
+            f"{BINANCE_LOGO_BASE}"
+            f"/static/assets/logos/{ticker.lower()}.png"
+        ),
     ]
 
 
@@ -130,8 +121,6 @@ def _download_image(
 ) -> str | None:
     """
     Download one image and verify its response.
-
-    The server MUST return an actual image.
     """
 
     if not url:
@@ -141,6 +130,10 @@ def _download_image(
     path = None
 
     try:
+        print(
+            f"[news_images] requesting image: {url}"
+        )
+
         response = requests.get(
             url,
             headers={
@@ -183,9 +176,14 @@ def _download_image(
 
         if content_type not in allowed_types:
             print(
-                "[news_images] rejected logo URL "
-                f"because response is not an image: "
+                "[news_images] rejected image URL "
+                "because response is not an image: "
                 f"{url}"
+            )
+
+            print(
+                "[news_images] Content-Type: "
+                f"{content_type or 'unknown'}"
             )
 
             return None
@@ -238,6 +236,7 @@ def _download_image(
             Path(path).unlink(
                 missing_ok=True
             )
+
             return None
 
         print(
@@ -248,6 +247,7 @@ def _download_image(
         return path
 
     except Exception as err:
+
         if path:
             Path(path).unlink(
                 missing_ok=True
@@ -261,6 +261,7 @@ def _download_image(
         return None
 
     finally:
+
         if response is not None:
             response.close()
 
@@ -290,9 +291,8 @@ def get_binance_asset_logo_url(
         return None
 
     # Return the first candidate.
-    #
-    # The actual image validation happens inside
-    # prepare_post_images() through _download_image().
+    # prepare_post_images() will verify that
+    # it actually returns an image.
     return candidates[0]
 
 
@@ -312,17 +312,18 @@ def prepare_post_images(
         print(
             "[news_images] no ticker -> no image"
         )
+
         return []
 
     ticker = (
         str(ticker)
         .upper()
         .strip()
+        .replace("$", "")
     )
 
     # ---------------------------------------------------------
-    # STEP 1
-    # Verify against the project's Binance Spot list.
+    # Verify ticker
     # ---------------------------------------------------------
 
     verified_ticker = _get_verified_ticker(
@@ -334,57 +335,64 @@ def prepare_post_images(
             f"[news_images] ${ticker} failed "
             "Binance verification -> text-only"
         )
+
         return []
 
     # ---------------------------------------------------------
-    # STEP 2
-    # Get Binance-hosted logo candidate.
+    # Get logo candidates
     # ---------------------------------------------------------
 
-    logo_url = get_binance_asset_logo_url(
+    candidates = _get_logo_candidates(
         verified_ticker
     )
 
-    if not logo_url:
+    if not candidates:
         print(
             f"[news_images] no Binance logo "
             f"candidate for ${verified_ticker} "
             "-> text-only"
         )
+
         return []
 
-    print(
-        f"[news_images] checking Binance logo "
-        f"for ${verified_ticker}: {logo_url}"
-    )
-
     # ---------------------------------------------------------
-    # STEP 3
-    # Download only if Binance actually returns
-    # an image.
+    # Try each candidate
     # ---------------------------------------------------------
 
-    logo_path = _download_image(
-        logo_url,
-        "crypto_logo",
-    )
+    for logo_url in candidates:
 
-    if not logo_path:
         print(
-            f"[news_images] could not verify/download "
-            f"logo for ${verified_ticker} "
-            "-> text-only"
+            f"[news_images] checking Binance logo "
+            f"for ${verified_ticker}: {logo_url}"
         )
-        return []
+
+        logo_path = _download_image(
+            logo_url,
+            "crypto_logo",
+        )
+
+        if logo_path:
+
+            print(
+                f"[news_images] crypto logo ready "
+                f"for ${verified_ticker}: {logo_path}"
+            )
+
+            # IMPORTANT:
+            # Maximum ONE image.
+            return [logo_path]
+
+    # ---------------------------------------------------------
+    # No valid logo found
+    # ---------------------------------------------------------
 
     print(
-        f"[news_images] crypto logo ready "
-        f"for ${verified_ticker}: {logo_path}"
+        f"[news_images] could not find a valid "
+        f"Binance logo for ${verified_ticker} "
+        "-> text-only"
     )
 
-    # HARD LIMIT:
-    # Exactly one image maximum.
-    return [logo_path]
+    return []
 
 
 def cleanup_images(
@@ -400,11 +408,13 @@ def cleanup_images(
             continue
 
         try:
+
             Path(path).unlink(
                 missing_ok=True
             )
 
         except Exception as err:
+
             print(
                 f"[news_images] cleanup failed: "
                 f"{path} -> {err}"
