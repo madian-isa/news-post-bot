@@ -10,10 +10,10 @@ Rules:
 - Same article URL cannot be posted twice.
 - Same crypto ticker can only be posted once per Bangladesh day.
 - Maximum daily posts are controlled by config.
-- Uses up to 2 images:
-    1. original news image
-    2. crypto logo
-- If images are unavailable, falls back to text-only.
+- Uses a maximum of 1 image:
+    1. crypto logo only
+- Article images are not used.
+- If the crypto logo is unavailable, falls back to text-only.
 - If image upload fails, falls back to text-only.
 """
 
@@ -169,7 +169,7 @@ def run_once():
         )
 
         # =====================================================
-        # 7. Prepare images
+        # 7. Prepare ONLY crypto logo
         # =====================================================
 
         try:
@@ -192,6 +192,16 @@ def run_once():
             )
 
             image_paths = []
+
+        # Safety: maximum 1 image
+        if len(image_paths) > 1:
+
+            print(
+                "[news] more than 1 image returned. "
+                "Using only the first image."
+            )
+
+            image_paths = image_paths[:1]
 
         print(
             f"[news] images ready: "
@@ -280,12 +290,6 @@ def run_once():
 
             except Exception as image_post_error:
 
-                # -------------------------------------------------
-                # Image publishing failed.
-                # Do not lose the news post.
-                # Retry as text-only.
-                # -------------------------------------------------
-
                 print(
                     "[news] image post failed: "
                     f"{image_post_error}"
@@ -320,11 +324,24 @@ def run_once():
         # 10. Publication result
         # =====================================================
 
-        print(
-            f"[news] published -> "
-            f"{result.get('link')} "
-            f"(crypto: ${ticker})"
-        )
+        # post_text() and post_with_images()
+        # return the Binance post link as a string.
+
+        if result:
+
+            print(
+                f"[news] published -> "
+                f"{result} "
+                f"(crypto: ${ticker})"
+            )
+
+        else:
+
+            print(
+                f"[news] published successfully "
+                f"(link unavailable) "
+                f"(crypto: ${ticker})"
+            )
 
         print(
             f"[news] source: "
