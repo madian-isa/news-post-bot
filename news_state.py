@@ -4,11 +4,12 @@ news_state.py
 Tracks:
 1. Which article URLs were already posted.
 2. How many posts were published today.
-3. Which crypto tickers were already posted today.
 
-Rule:
-The same crypto ticker can only be posted ONCE per Bangladesh day.
-The daily reset follows Bangladesh time (Asia/Dhaka).
+Rules:
+- Same article URL cannot be posted twice.
+- Same crypto ticker CAN be posted multiple times
+  in the same Bangladesh day if the article is different.
+- Daily reset follows Bangladesh time (Asia/Dhaka).
 """
 
 import json
@@ -28,25 +29,44 @@ def _today_str() -> str:
 
 
 def load_state() -> dict:
+    """
+    Load saved bot state.
+
+    State contains:
+    - date
+    - daily post count
+    - previously posted article URLs
+    """
+
     if not os.path.exists(cfg.NEWS_STATE_FILE):
+
         return {
             "date": _today_str(),
             "count": 0,
             "seen_urls": [],
-            "posted_tickers": [],
         }
 
     try:
-        with open(cfg.NEWS_STATE_FILE, "r") as f:
+
+        with open(
+            cfg.NEWS_STATE_FILE,
+            "r",
+            encoding="utf-8",
+        ) as f:
+
             state = json.load(f)
+
     except Exception as err:
-        print(f"[news_state] failed to load state: {err}")
+
+        print(
+            f"[news_state] failed to load state: "
+            f"{err}"
+        )
 
         return {
             "date": _today_str(),
             "count": 0,
             "seen_urls": [],
-            "posted_tickers": [],
         }
 
     today = _today_str()
@@ -60,8 +80,10 @@ def load_state() -> dict:
         state = {
             "date": today,
             "count": 0,
-            "seen_urls": state.get("seen_urls", []),
-            "posted_tickers": [],
+            "seen_urls": state.get(
+                "seen_urls",
+                [],
+            ),
         }
 
     # ---------------------------------------------------------
@@ -70,23 +92,23 @@ def load_state() -> dict:
 
     state["date"] = today
 
-    state["count"] = int(
-        state.get("count", 0)
-    )
+    try:
+
+        state["count"] = int(
+            state.get(
+                "count",
+                0,
+            )
+        )
+
+    except (TypeError, ValueError):
+
+        state["count"] = 0
 
     state["seen_urls"] = list(
-        state.get("seen_urls", [])
-    )
-
-    # Normalize ticker list to uppercase
-    state["posted_tickers"] = list(
-        dict.fromkeys(
-            str(t).upper().strip()
-            for t in state.get(
-                "posted_tickers",
-                [],
-            )
-            if t
+        state.get(
+            "seen_urls",
+            [],
         )
     )
 
@@ -131,9 +153,16 @@ def save_state(state: dict) -> None:
 def can_post_more_today(
     state: dict,
 ) -> bool:
+    """
+    Check whether today's daily post limit
+    has been reached.
+    """
 
     return (
-        state.get("count", 0)
+        state.get(
+            "count",
+            0,
+        )
         < cfg.NEWS_MAX_POSTS_PER_DAY
     )
 
@@ -142,39 +171,18 @@ def already_covered(
     state: dict,
     url: str,
 ) -> bool:
+    """
+    Check whether this article URL was
+    already posted.
+    """
+
+    if not url:
+        return True
 
     return url in state.get(
         "seen_urls",
         [],
     )
-
-
-def ticker_posted_today(
-    state: dict,
-    ticker: str,
-) -> bool:
-    """
-    Check whether this crypto ticker
-    was already posted today.
-    """
-
-    if not ticker:
-        return True
-
-    ticker = str(
-        ticker
-    ).upper().strip()
-
-    posted_tickers = {
-        str(t).upper().strip()
-        for t in state.get(
-            "posted_tickers",
-            [],
-        )
-        if t
-    }
-
-    return ticker in posted_tickers
 
 
 def record_post(
@@ -188,7 +196,10 @@ def record_post(
     Saves:
     - article URL
     - daily post count
-    - crypto ticker posted today
+
+    The ticker parameter is kept for compatibility
+    with existing main.py calls, but the ticker is
+    NOT used as a daily posting restriction.
     """
 
     # ---------------------------------------------------------
@@ -201,14 +212,18 @@ def record_post(
 
         state["date"] = today
         state["count"] = 0
-        state["posted_tickers"] = []
 
     # ---------------------------------------------------------
     # Daily post count
     # ---------------------------------------------------------
 
     state["count"] = (
-        int(state.get("count", 0))
+        int(
+            state.get(
+                "count",
+                0,
+            )
+        )
         + 1
     )
 
@@ -223,43 +238,20 @@ def record_post(
         )
     )
 
-    if url:
-        if url not in seen:
-            seen.append(url)
+    if url and url not in seen:
+
+        seen.append(url)
+
+    # Keep only the configured history size
+    history_size = max(
+        1,
+        int(
+            cfg.NEWS_SEEN_HISTORY_SIZE
+        ),
+    )
 
     state["seen_urls"] = seen[
-        -cfg.NEWS_SEEN_HISTORY_SIZE:
+        -history_size:
     ]
-
-    # ---------------------------------------------------------
-    # Save today's crypto ticker
-    # ---------------------------------------------------------
-
-    if ticker:
-
-        ticker = str(
-            ticker
-        ).upper().strip()
-
-        posted_tickers = [
-            str(t).upper().strip()
-            for t in state.get(
-                "posted_tickers",
-                [],
-            )
-            if t
-        ]
-
-        # Never duplicate the ticker
-        if ticker not in posted_tickers:
-            posted_tickers.append(
-                ticker
-            )
-
-        state["posted_tickers"] = list(
-            dict.fromkeys(
-                posted_tickers
-            )
-        )
 
     return state
