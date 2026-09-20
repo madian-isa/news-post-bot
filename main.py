@@ -8,7 +8,8 @@ Each invocation attempts to publish ONE crypto-news post.
 Rules:
 - Only Binance-listed crypto assets are allowed.
 - Same article URL cannot be posted twice.
-- Same crypto ticker can only be posted once per Bangladesh day.
+- Same crypto ticker CAN be posted multiple times in the same
+  Bangladesh day, as long as the article URL is different.
 - Maximum daily posts are controlled by config.
 - Uses a maximum of 1 image:
     1. crypto logo only
@@ -68,20 +69,25 @@ def run_once():
         return
 
     # =========================================================
-    # 3. Today's blocked tickers
+    # 3. Find eligible article
+    #
+    # IMPORTANT:
+    # We do NOT block tickers based on today's previous posts.
+    #
+    # Same ticker + different article = allowed.
+    # Same article URL = blocked by seen_urls.
     # =========================================================
 
-    blocked_tickers = {
-        str(t).upper()
-        for t in state.get(
-            "posted_tickers",
+    seen_urls = set(
+        state.get(
+            "seen_urls",
             [],
         )
-    }
+    )
 
     print(
-        "[news] today's blocked tickers: "
-        f"{sorted(blocked_tickers)}"
+        "[news] checking for new Binance-listed "
+        "crypto articles..."
     )
 
     # =========================================================
@@ -89,13 +95,7 @@ def run_once():
     # =========================================================
 
     article = get_candidate_article(
-        set(
-            state.get(
-                "seen_urls",
-                [],
-            )
-        ),
-        blocked_tickers,
+        seen_urls,
     )
 
     if not article:
@@ -324,9 +324,6 @@ def run_once():
         # 10. Publication result
         # =====================================================
 
-        # post_text() and post_with_images()
-        # return the Binance post link as a string.
-
         if result:
 
             print(
@@ -364,7 +361,7 @@ def run_once():
 
         print(
             f"[news] state saved: "
-            f"${ticker} blocked for today."
+            f"${ticker} published."
         )
 
     except Exception as err:
