@@ -333,12 +333,6 @@ def get_candidate_article(
         if not headline:
             continue
 
-        if len(summary) <= 40:
-            print(
-                f"[news] SKIP — summary too short: "
-                f"{headline}"
-            )
-            continue
 
         # -----------------------------------------------------
         # Detect crypto ticker
