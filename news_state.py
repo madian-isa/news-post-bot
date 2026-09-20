@@ -4,11 +4,11 @@ news_state.py
 Tracks:
 1. Which article URLs were already posted.
 2. How many posts were published today.
+3. Which crypto tickers were already posted today.
 
 Rules:
 - Same article URL cannot be posted twice.
-- Same crypto ticker CAN be posted multiple times
-  in the same Bangladesh day if the article is different.
+- Same crypto ticker can only be posted ONCE per Bangladesh day.
 - Daily reset follows Bangladesh time (Asia/Dhaka).
 """
 
@@ -36,6 +36,7 @@ def load_state() -> dict:
     - date
     - daily post count
     - previously posted article URLs
+    - today's posted crypto tickers
     """
 
     if not os.path.exists(cfg.NEWS_STATE_FILE):
@@ -44,6 +45,7 @@ def load_state() -> dict:
             "date": _today_str(),
             "count": 0,
             "seen_urls": [],
+            "posted_tickers": [],
         }
 
     try:
@@ -67,6 +69,7 @@ def load_state() -> dict:
             "date": _today_str(),
             "count": 0,
             "seen_urls": [],
+            "posted_tickers": [],
         }
 
     today = _today_str()
@@ -84,6 +87,7 @@ def load_state() -> dict:
                 "seen_urls",
                 [],
             ),
+            "posted_tickers": [],
         }
 
     # ---------------------------------------------------------
@@ -109,6 +113,18 @@ def load_state() -> dict:
         state.get(
             "seen_urls",
             [],
+        )
+    )
+
+    # Normalize today's ticker list
+    state["posted_tickers"] = list(
+        dict.fromkeys(
+            str(t).upper().strip()
+            for t in state.get(
+                "posted_tickers",
+                [],
+            )
+            if t
         )
     )
 
@@ -185,6 +201,34 @@ def already_covered(
     )
 
 
+def ticker_posted_today(
+    state: dict,
+    ticker: str,
+) -> bool:
+    """
+    Check whether this crypto ticker
+    was already posted today.
+    """
+
+    if not ticker:
+        return True
+
+    ticker = str(
+        ticker
+    ).upper().strip()
+
+    posted_tickers = {
+        str(t).upper().strip()
+        for t in state.get(
+            "posted_tickers",
+            [],
+        )
+        if t
+    }
+
+    return ticker in posted_tickers
+
+
 def record_post(
     state: dict,
     url: str,
@@ -196,10 +240,7 @@ def record_post(
     Saves:
     - article URL
     - daily post count
-
-    The ticker parameter is kept for compatibility
-    with existing main.py calls, but the ticker is
-    NOT used as a daily posting restriction.
+    - crypto ticker posted today
     """
 
     # ---------------------------------------------------------
@@ -212,6 +253,7 @@ def record_post(
 
         state["date"] = today
         state["count"] = 0
+        state["posted_tickers"] = []
 
     # ---------------------------------------------------------
     # Daily post count
@@ -242,7 +284,6 @@ def record_post(
 
         seen.append(url)
 
-    # Keep only the configured history size
     history_size = max(
         1,
         int(
@@ -253,5 +294,36 @@ def record_post(
     state["seen_urls"] = seen[
         -history_size:
     ]
+
+    # ---------------------------------------------------------
+    # Save today's crypto ticker
+    # ---------------------------------------------------------
+
+    if ticker:
+
+        ticker = str(
+            ticker
+        ).upper().strip()
+
+        posted_tickers = [
+            str(t).upper().strip()
+            for t in state.get(
+                "posted_tickers",
+                [],
+            )
+            if t
+        ]
+
+        if ticker not in posted_tickers:
+
+            posted_tickers.append(
+                ticker
+            )
+
+        state["posted_tickers"] = list(
+            dict.fromkeys(
+                posted_tickers
+            )
+        )
 
     return state
