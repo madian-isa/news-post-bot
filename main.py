@@ -8,8 +8,7 @@ Each invocation attempts to publish ONE crypto-news post.
 Rules:
 - Only Binance-listed crypto assets are allowed.
 - Same article URL cannot be posted twice.
-- Same crypto ticker CAN be posted multiple times in the same
-  Bangladesh day, as long as the article URL is different.
+- Same crypto ticker can only be posted ONCE per Bangladesh day.
 - Maximum daily posts are controlled by config.
 - Uses a maximum of 1 image:
     1. crypto logo only
@@ -69,13 +68,25 @@ def run_once():
         return
 
     # =========================================================
-    # 3. Find eligible article
-    #
-    # IMPORTANT:
-    # We do NOT block tickers based on today's previous posts.
-    #
-    # Same ticker + different article = allowed.
-    # Same article URL = blocked by seen_urls.
+    # 3. Today's blocked tickers
+    # =========================================================
+
+    blocked_tickers = {
+        str(t).upper().strip()
+        for t in state.get(
+            "posted_tickers",
+            [],
+        )
+        if t
+    }
+
+    print(
+        "[news] today's blocked tickers: "
+        f"{sorted(blocked_tickers)}"
+    )
+
+    # =========================================================
+    # 4. Previously posted article URLs
     # =========================================================
 
     seen_urls = set(
@@ -91,11 +102,21 @@ def run_once():
     )
 
     # =========================================================
-    # 4. Find eligible article
+    # 5. Find eligible article
+    #
+    # Same ticker already posted today:
+    #     SKIP
+    #
+    # Same article URL already posted:
+    #     SKIP
+    #
+    # Different ticker + new article:
+    #     eligible
     # =========================================================
 
     article = get_candidate_article(
         seen_urls,
+        blocked_tickers,
     )
 
     if not article:
@@ -108,7 +129,7 @@ def run_once():
         return
 
     # =========================================================
-    # 5. Verified ticker
+    # 6. Verified ticker
     # =========================================================
 
     ticker = article.get(
@@ -126,7 +147,7 @@ def run_once():
 
     ticker = str(
         ticker
-    ).upper()
+    ).upper().strip()
 
     print(
         f"[news] preparing post for ${ticker}"
@@ -137,7 +158,7 @@ def run_once():
     try:
 
         # =====================================================
-        # 6. Generate post text
+        # 7. Generate post text
         # =====================================================
 
         post = generate_news_post(
@@ -149,7 +170,7 @@ def run_once():
                 "ticker",
                 "",
             )
-        ).upper()
+        ).upper().strip()
 
         if generated_ticker != ticker:
 
@@ -169,7 +190,7 @@ def run_once():
         )
 
         # =====================================================
-        # 7. Prepare ONLY crypto logo
+        # 8. Prepare ONLY crypto logo
         # =====================================================
 
         try:
@@ -219,7 +240,7 @@ def run_once():
             )
 
         # =====================================================
-        # 8. DRY RUN
+        # 9. DRY RUN
         # =====================================================
 
         if cfg.DRY_RUN:
@@ -267,7 +288,7 @@ def run_once():
             return
 
         # =====================================================
-        # 9. Publish
+        # 10. Publish
         # =====================================================
 
         if image_paths:
@@ -321,7 +342,7 @@ def run_once():
             )
 
         # =====================================================
-        # 10. Publication result
+        # 11. Publication result
         # =====================================================
 
         if result:
@@ -346,7 +367,7 @@ def run_once():
         )
 
         # =====================================================
-        # 11. Save state ONLY after publication
+        # 12. Save state ONLY after publication
         # =====================================================
 
         state = record_post(
@@ -361,7 +382,7 @@ def run_once():
 
         print(
             f"[news] state saved: "
-            f"${ticker} published."
+            f"${ticker} blocked for today."
         )
 
     except Exception as err:
@@ -375,7 +396,7 @@ def run_once():
     finally:
 
         # =====================================================
-        # 12. Cleanup images
+        # 13. Cleanup images
         # =====================================================
 
         try:
