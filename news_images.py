@@ -8,10 +8,10 @@ Rules:
 - Crypto logo only.
 - No article image.
 - No AI-generated image.
-- Does NOT use Binance Web3 token search.
-- Verifies the ticker against Binance Spot exchangeInfo first.
-- If a verified Binance-hosted logo cannot be confirmed,
-  returns text-only.
+- No Binance Web3 token search.
+- Uses the existing binance_symbols.py verification.
+- Never guesses a Web3 token from a ticker.
+- If an exact Binance logo cannot be verified, returns text-only.
 """
 
 from __future__ import annotations
@@ -22,40 +22,38 @@ from pathlib import Path
 
 import requests
 
+from src.binance_symbols import is_binance_crypto_ticker
+
 
 TIMEOUT = 20
 MAX_IMAGE_SIZE = 10 * 1024 * 1024
 
-BINANCE_SPOT_BASE = (
-    "https://data-api.binance.vision"
-)
 
-BINANCE_EXCHANGE_INFO_URL = (
-    f"{BINANCE_SPOT_BASE}/api/v3/exchangeInfo"
-)
-
-# Binance's static asset CDN.
-# We only accept an image if the URL actually returns
-# an image and the Binance Spot asset was verified first.
+# Binance-hosted asset CDN.
+#
+# IMPORTANT:
+# We do NOT blindly trust a guessed URL.
+# The URL must return an actual image before
+# it is used in the post.
 BINANCE_LOGO_BASE = (
-    "https://bin.bnbstatic.com/static/assets/logos"
+    "https://bin.bnbstatic.com"
 )
 
 
-def _get_spot_exchange_info(
+def _get_verified_ticker(
     ticker: str,
-) -> dict | None:
+) -> str | None:
     """
-    Verify that the ticker belongs to a Binance Spot asset.
+    Verify ticker using the project's existing
+    Binance Spot asset verification system.
 
-    Binance official Spot API:
-        GET /api/v3/exchangeInfo
-
-    We query symbols containing the asset against common
-    USDT/BTC/USDC pairs.
-
-    Returns the exchangeInfo response or None.
+    This deliberately uses binance_symbols.py so
+    there is only ONE source of truth for whether
+    an asset is Binance-listed.
     """
+
+    if not ticker:
+        return None
 
     ticker = (
         str(ticker)
@@ -66,101 +64,49 @@ def _get_spot_exchange_info(
     if not ticker:
         return None
 
-    # Try the most common quote assets first.
-    quote_assets = (
-        "USDT",
-        "USDC",
-        "FDUSD",
-        "BTC",
-        "BNB",
-        "ETH",
-    )
+    try:
+        verified = is_binance_crypto_ticker(
+            ticker
+        )
 
-    for quote in quote_assets:
+    except Exception as err:
+        print(
+            "[news_images] Binance ticker "
+            f"verification failed for ${ticker}: {err}"
+        )
+        return None
 
-        symbol = f"{ticker}{quote}"
-
-        try:
-            response = requests.get(
-                BINANCE_EXCHANGE_INFO_URL,
-                params={
-                    "symbol": symbol,
-                },
-                headers={
-                    "User-Agent": (
-                        "Mozilla/5.0 "
-                        "NewsPostBot/1.0"
-                    ),
-                    "Accept": "application/json",
-                },
-                timeout=TIMEOUT,
-            )
-
-            if response.status_code != 200:
-                continue
-
-            data = response.json()
-
-            if not isinstance(data, dict):
-                continue
-
-            returned_symbol = str(
-                data.get("symbol", "")
-            ).upper()
-
-            base_asset = str(
-                data.get("baseAsset", "")
-            ).upper()
-
-            if (
-                returned_symbol == symbol
-                and base_asset == ticker
-            ):
-                print(
-                    f"[news_images] Binance Spot "
-                    f"verified: {symbol}"
-                )
-
-                return data
-
-        except Exception as err:
-            print(
-                "[news_images] Binance Spot "
-                f"verification failed for {symbol}: {err}"
-            )
-
-    return None
-
-
-def _find_verified_spot_asset(
-    ticker: str,
-) -> bool:
-    """
-    Return True only when the ticker is verified as a
-    Binance Spot base asset.
-    """
-
-    info = _get_spot_exchange_info(ticker)
-
-    if not info:
+    if not verified:
         print(
             f"[news_images] ${ticker} is not "
-            "verified through Binance Spot exchangeInfo."
+            "verified by binance_symbols.py."
         )
-        return False
+        return None
 
-    return True
+    print(
+        f"[news_images] Binance Spot asset "
+        f"verified: ${ticker}"
+    )
+
+    return ticker
 
 
-def _candidate_logo_urls(
+def _get_logo_candidates(
     ticker: str,
 ) -> list[str]:
     """
-    Build Binance-hosted logo candidates.
+    Return possible Binance-hosted logo URLs.
 
-    These are only candidates. We NEVER assume a URL is
-    valid; _download_image() must confirm that Binance
+    IMPORTANT:
+    These are ONLY candidates.
+
+    We never assume that a candidate is valid.
+    _download_image() must confirm that Binance
     actually returns an image.
+
+    The list is intentionally small so the bot
+    never starts searching arbitrary third-party
+    websites for a logo.
     """
 
     ticker = (
@@ -173,8 +119,8 @@ def _candidate_logo_urls(
         return []
 
     return [
-        f"{BINANCE_LOGO_BASE}/{ticker}.png",
-        f"{BINANCE_LOGO_BASE}/{ticker.lower()}.png",
+        f"{BINANCE_LOGO_BASE}/static/assets/logos/{ticker}.png",
+        f"{BINANCE_LOGO_BASE}/static/assets/logos/{ticker.lower()}.png",
     ]
 
 
@@ -183,13 +129,16 @@ def _download_image(
     prefix: str,
 ) -> str | None:
     """
-    Download one verified image.
+    Download one image and verify its response.
 
-    The server response MUST identify itself as an image.
+    The server MUST return an actual image.
     """
 
     if not url:
         return None
+
+    response = None
+    path = None
 
     try:
         response = requests.get(
@@ -202,11 +151,13 @@ def _download_image(
                 "Accept": (
                     "image/avif,image/webp,"
                     "image/apng,image/png,"
-                    "image/jpeg,image/*,*/*;q=0.8"
+                    "image/jpeg,image/gif,"
+                    "image/*,*/*;q=0.8"
                 ),
             },
             timeout=TIMEOUT,
             stream=True,
+            allow_redirects=True,
         )
 
         response.raise_for_status()
@@ -232,10 +183,9 @@ def _download_image(
 
         if content_type not in allowed_types:
             print(
-                "[news_images] Binance logo candidate "
-                "did not return a supported image: "
-                f"{url} "
-                f"(Content-Type: {content_type})"
+                "[news_images] rejected logo URL "
+                f"because response is not an image: "
+                f"{url}"
             )
 
             return None
@@ -292,88 +242,58 @@ def _download_image(
 
         print(
             f"[news_images] downloaded "
-            f"{total:,} bytes from Binance."
+            f"{total:,} bytes."
         )
 
         return path
 
     except Exception as err:
+        if path:
+            Path(path).unlink(
+                missing_ok=True
+            )
+
         print(
-            "[news_images] logo download failed: "
+            "[news_images] image download failed: "
             f"{url} -> {err}"
         )
 
         return None
+
+    finally:
+        if response is not None:
+            response.close()
 
 
 def get_binance_asset_logo_url(
     ticker: str,
 ) -> str | None:
     """
-    Return a Binance-hosted logo URL only after the
-    ticker has been verified as a Binance Spot asset.
+    Get a Binance-hosted logo candidate only after
+    the ticker has been verified by binance_symbols.py.
 
-    IMPORTANT:
-    No Web3 token search is performed here.
+    No Web3 token search is used.
     """
 
-    if not ticker:
-        return None
-
-    ticker = (
-        str(ticker)
-        .upper()
-        .strip()
-    )
-
-    if not ticker:
-        return None
-
-    print(
-        f"[news_images] looking for verified "
-        f"Binance Spot logo for ${ticker}"
-    )
-
-    # ---------------------------------------------------------
-    # STEP 1
-    # Verify ticker against Binance Spot.
-    # ---------------------------------------------------------
-
-    if not _find_verified_spot_asset(
-        ticker
-    ):
-        print(
-            f"[news_images] ${ticker} failed "
-            "Binance Spot verification -> text-only"
-        )
-        return None
-
-    # ---------------------------------------------------------
-    # STEP 2
-    # Try Binance-hosted logo candidates.
-    # ---------------------------------------------------------
-
-    candidates = _candidate_logo_urls(
+    verified_ticker = _get_verified_ticker(
         ticker
     )
 
-    for logo_url in candidates:
+    if not verified_ticker:
+        return None
 
-        print(
-            f"[news_images] checking Binance "
-            f"logo candidate: {logo_url}"
-        )
-
-        # We do NOT return the URL merely because it
-        # looks correct. Download validation happens later.
-        return logo_url
-
-    print(
-        f"[news_images] no Binance logo candidate "
-        f"available for ${ticker}"
+    candidates = _get_logo_candidates(
+        verified_ticker
     )
 
-    return None
+    if not candidates:
+        return None
+
+    # Return the first candidate.
+    #
+    # The actual image validation happens inside
+    # prepare_post_images() through _download_image().
+    return candidates[0]
 
 
 def prepare_post_images(
@@ -401,22 +321,47 @@ def prepare_post_images(
     )
 
     # ---------------------------------------------------------
-    # Get Binance-verified logo URL.
+    # STEP 1
+    # Verify against the project's Binance Spot list.
     # ---------------------------------------------------------
 
-    logo_url = get_binance_asset_logo_url(
+    verified_ticker = _get_verified_ticker(
         ticker
     )
 
-    if not logo_url:
+    if not verified_ticker:
         print(
-            f"[news_images] no verified Binance "
-            f"logo for ${ticker} -> text-only"
+            f"[news_images] ${ticker} failed "
+            "Binance verification -> text-only"
         )
         return []
 
     # ---------------------------------------------------------
-    # Download and verify actual image response.
+    # STEP 2
+    # Get Binance-hosted logo candidate.
+    # ---------------------------------------------------------
+
+    logo_url = get_binance_asset_logo_url(
+        verified_ticker
+    )
+
+    if not logo_url:
+        print(
+            f"[news_images] no Binance logo "
+            f"candidate for ${verified_ticker} "
+            "-> text-only"
+        )
+        return []
+
+    print(
+        f"[news_images] checking Binance logo "
+        f"for ${verified_ticker}: {logo_url}"
+    )
+
+    # ---------------------------------------------------------
+    # STEP 3
+    # Download only if Binance actually returns
+    # an image.
     # ---------------------------------------------------------
 
     logo_path = _download_image(
@@ -426,19 +371,19 @@ def prepare_post_images(
 
     if not logo_path:
         print(
-            f"[news_images] Binance logo could "
-            f"not be downloaded for ${ticker} "
+            f"[news_images] could not verify/download "
+            f"logo for ${verified_ticker} "
             "-> text-only"
         )
         return []
 
     print(
         f"[news_images] crypto logo ready "
-        f"for ${ticker}: {logo_path}"
+        f"for ${verified_ticker}: {logo_path}"
     )
 
     # HARD LIMIT:
-    # Never return more than one image.
+    # Exactly one image maximum.
     return [logo_path]
 
 
