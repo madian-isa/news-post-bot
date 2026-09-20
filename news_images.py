@@ -3,14 +3,13 @@ news_images.py
 
 Prepares ONLY the crypto logo for a crypto news post.
 
-Example:
-$ZEC post  -> ZEC logo
-$SUPER post -> SUPER logo
-$BTC post  -> BTC logo
-
-No article image.
-No AI-generated image.
-If the coin logo cannot be found, the post will be text-only.
+Rules:
+- Maximum 1 image.
+- Crypto logo only.
+- No article image.
+- No AI-generated image.
+- Uses Binance-hosted logo sources.
+- If logo cannot be found/downloaded, returns text-only.
 """
 
 import os
@@ -20,12 +19,23 @@ from pathlib import Path
 import requests
 
 
-BINANCE_ASSET_LOGO_URL = (
-    "https://www.binance.com/"
-    "bapi/asset/v1/public/asset-service/product/currency"
-)
-
 TIMEOUT = 15
+MAX_IMAGE_SIZE = 10 * 1024 * 1024
+
+
+# Binance-hosted logo sources.
+# We try more than one official Binance-hosted pattern
+# because logo availability can differ between assets.
+BINANCE_LOGO_URLS = [
+    "https://bin.bnbstatic.com/image/cms/blog/20230404/"
+    "{ticker}.png",
+
+    "https://bin.bnbstatic.com/image/cms/blog/20230404/"
+    "{ticker}.webp",
+
+    "https://public.bnbstatic.com/image/currencies/"
+    "{ticker}.png",
+]
 
 
 def _download_image(
@@ -44,7 +54,9 @@ def _download_image(
                 "User-Agent": (
                     "Mozilla/5.0 "
                     "NewsPostBot/1.0"
-                )
+                ),
+                "Accept": "image/avif,image/webp,"
+                "image/apng,image/svg+xml,image/*,*/*;q=0.8",
             },
             timeout=TIMEOUT,
             stream=True,
@@ -69,7 +81,10 @@ def _download_image(
             extension = ".webp"
         elif "gif" in content_type:
             extension = ".gif"
-        elif "jpeg" in content_type or "jpg" in content_type:
+        elif (
+            "jpeg" in content_type
+            or "jpg" in content_type
+        ):
             extension = ".jpg"
         else:
             extension = ".png"
@@ -92,13 +107,18 @@ def _download_image(
 
                 total += len(chunk)
 
-                # Safety limit: 10 MB
-                if total > 10 * 1024 * 1024:
+                if total > MAX_IMAGE_SIZE:
                     raise ValueError(
                         "Image is larger than 10 MB."
                     )
 
                 file.write(chunk)
+
+        if total == 0:
+            Path(path).unlink(
+                missing_ok=True
+            )
+            return None
 
         return path
 
@@ -115,56 +135,77 @@ def get_binance_asset_logo_url(
     ticker: str,
 ) -> str | None:
     """
-    Get the Binance asset logo URL for the ticker.
+    Find a Binance-hosted logo URL.
+
+    The previous asset-service/product/currency endpoint
+    was incorrect for crypto logos; it currently returns
+    fiat-currency conversion data.
+
+    We therefore try Binance-hosted logo URL patterns
+    directly.
     """
 
     if not ticker:
         return None
 
-    ticker = ticker.upper().strip()
+    ticker = (
+        str(ticker)
+        .upper()
+        .strip()
+    )
 
-    try:
-        response = requests.get(
-            BINANCE_ASSET_LOGO_URL,
-            timeout=TIMEOUT,
-        )
-
-        response.raise_for_status()
-
-        data = response.json()
-
-    except Exception as err:
-        print(
-            f"[news_images] Binance logo lookup failed: "
-            f"{err}"
-        )
+    if not ticker:
         return None
 
-    assets = data.get("data") or []
+    print(
+        f"[news_images] looking for Binance logo "
+        f"for ${ticker}"
+    )
 
-    for asset in assets:
+    for template in BINANCE_LOGO_URLS:
 
-        if not isinstance(asset, dict):
-            continue
-
-        symbol = str(
-            asset.get("asset", "")
-        ).upper().strip()
-
-        if symbol != ticker:
-            continue
-
-        logo = (
-            asset.get("pic")
-            or asset.get("icon")
-            or asset.get("logo")
+        url = template.format(
+            ticker=ticker
         )
 
-        if logo:
-            return str(logo)
+        try:
+            response = requests.head(
+                url,
+                headers={
+                    "User-Agent": (
+                        "Mozilla/5.0 "
+                        "NewsPostBot/1.0"
+                    )
+                },
+                timeout=TIMEOUT,
+                allow_redirects=True,
+            )
+
+            content_type = response.headers.get(
+                "Content-Type",
+                "",
+            ).lower()
+
+            if (
+                response.status_code == 200
+                and content_type.startswith("image/")
+            ):
+                print(
+                    f"[news_images] logo found: "
+                    f"{url}"
+                )
+
+                return url
+
+        except Exception as err:
+            print(
+                f"[news_images] logo check failed: "
+                f"{url} -> {err}"
+            )
 
     print(
-        f"[news_images] no Binance logo found for ${ticker}"
+        f"[news_images] no Binance-hosted logo "
+        f"found for ${ticker}"
     )
 
     return None
@@ -178,9 +219,13 @@ def prepare_post_images(
     Prepare ONLY the crypto logo.
 
     Article images are intentionally ignored.
+
+    Returns:
+        []       -> text-only post
+        [path]   -> exactly one logo image
     """
 
-    paths = []
+    paths: list[str] = []
 
     if not ticker:
         print(
@@ -188,7 +233,11 @@ def prepare_post_images(
         )
         return paths
 
-    ticker = ticker.upper().strip()
+    ticker = (
+        str(ticker)
+        .upper()
+        .strip()
+    )
 
     # ---------------------------------------------------------
     # ONLY IMAGE — CRYPTO LOGO
@@ -200,8 +249,8 @@ def prepare_post_images(
 
     if not logo_url:
         print(
-            f"[news_images] no logo available for "
-            f"${ticker} -> text-only post"
+            f"[news_images] no logo available "
+            f"for ${ticker} -> text-only post"
         )
         return paths
 
@@ -212,10 +261,11 @@ def prepare_post_images(
 
     if logo_path:
         print(
-            f"[news_images] crypto logo ready for "
-            f"${ticker}: {logo_path}"
+            f"[news_images] crypto logo ready "
+            f"for ${ticker}: {logo_path}"
         )
 
+        # Safety: never allow more than one image.
         paths.append(logo_path)
 
     print(
@@ -223,7 +273,7 @@ def prepare_post_images(
         f"{len(paths)} image(s) for ${ticker}"
     )
 
-    return paths
+    return paths[:1]
 
 
 def cleanup_images(
@@ -246,4 +296,3 @@ def cleanup_images(
                 f"[news_images] cleanup failed: "
                 f"{path} -> {err}"
             )
-            
