@@ -36,10 +36,14 @@ jobs:
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           BINANCE_SQUARE_OPENAPI_KEY: ${{ secrets.BINANCE_SQUARE_OPENAPI_KEY }}
-          FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
+
+          # Finnhub temporarily disabled for CMC testing
+          # FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
+
           CMC_API_KEY: ${{ secrets.CMC_API_KEY }}
 
-          DRY_RUN: "false"
+          # TEST MODE — no real Binance Square post
+          DRY_RUN: "true"
 
           NEWS_MAX_POSTS_PER_DAY: "24"
 
