@@ -8,17 +8,15 @@ Rules:
 - Crypto logo only.
 - No article image.
 - No AI-generated image.
-- Uses the current official Binance Web3
-  query-token-info Skill.
-- If the logo cannot be found, returns text-only.
+- Does NOT use Binance Web3 token search.
+- Verifies the ticker against Binance Spot exchangeInfo first.
+- If a verified Binance-hosted logo cannot be confirmed,
+  returns text-only.
 """
 
 from __future__ import annotations
 
-import json
 import os
-import shutil
-import subprocess
 import tempfile
 from pathlib import Path
 
@@ -26,571 +24,38 @@ import requests
 
 
 TIMEOUT = 20
-
 MAX_IMAGE_SIZE = 10 * 1024 * 1024
 
-BINANCE_SKILLS_REPO = (
-    "https://github.com/binance/"
-    "binance-skills-hub.git"
+BINANCE_SPOT_BASE = (
+    "https://data-api.binance.vision"
 )
 
-BINANCE_SKILL_DIR = (
-    Path(tempfile.gettempdir())
-    / "binance-skills-hub-image"
+BINANCE_EXCHANGE_INFO_URL = (
+    f"{BINANCE_SPOT_BASE}/api/v3/exchangeInfo"
 )
 
-BINANCE_WEB3_SKILL = (
-    BINANCE_SKILL_DIR
-    / "skills"
-    / "binance-web3"
-    / "query-token-info"
-)
-
-BINANCE_TOKEN_CLI = (
-    BINANCE_WEB3_SKILL
-    / "scripts"
-    / "cli.mjs"
-)
-
-BINANCE_ICON_BASE = (
-    "https://bin.bnbstatic.com"
+# Binance's static asset CDN.
+# We only accept an image if the URL actually returns
+# an image and the Binance Spot asset was verified first.
+BINANCE_LOGO_BASE = (
+    "https://bin.bnbstatic.com/static/assets/logos"
 )
 
 
-def _ensure_binance_token_skill() -> bool:
-    """
-    Clone the current official Binance Skills Hub
-    if the query-token-info Skill is not available.
-    """
-
-    if BINANCE_TOKEN_CLI.exists():
-        return True
-
-    try:
-        if BINANCE_SKILL_DIR.exists():
-            shutil.rmtree(
-                BINANCE_SKILL_DIR,
-                ignore_errors=True,
-            )
-
-        print(
-            "[news_images] cloning current official "
-            "Binance token-info Skill..."
-        )
-
-        result = subprocess.run(
-            [
-                "git",
-                "clone",
-                "--depth",
-                "1",
-                BINANCE_SKILLS_REPO,
-                str(BINANCE_SKILL_DIR),
-            ],
-            capture_output=True,
-            text=True,
-            timeout=120,
-        )
-
-        if result.returncode != 0:
-            print(
-                "[news_images] Binance Skill clone failed:"
-            )
-            print(
-                result.stderr.strip()
-            )
-            return False
-
-        if not BINANCE_TOKEN_CLI.exists():
-            print(
-                "[news_images] Binance token-info CLI "
-                "was not found."
-            )
-            return False
-
-        print(
-            "[news_images] official Binance "
-            "token-info Skill ready."
-        )
-
-        return True
-
-    except Exception as err:
-        print(
-            "[news_images] Binance Skill setup failed: "
-            f"{err}"
-        )
-        return False
-
-
-def _run_binance_token_search(
+def _get_spot_exchange_info(
     ticker: str,
 ) -> dict | None:
     """
-    Search Binance Web3 token metadata by ticker.
+    Verify that the ticker belongs to a Binance Spot asset.
 
-    Official Skill command:
+    Binance official Spot API:
+        GET /api/v3/exchangeInfo
 
-    node cli.mjs search
-        '{"keyword":"SUPER","chainIds":"1,56,8453,CT_501"}'
+    We query symbols containing the asset against common
+    USDT/BTC/USDC pairs.
+
+    Returns the exchangeInfo response or None.
     """
-
-    if not ticker:
-        return None
-
-    if not _ensure_binance_token_skill():
-        return None
-
-    params = {
-        "keyword": ticker,
-        "chainIds": "1,56,8453,CT_501",
-    }
-
-    try:
-        result = subprocess.run(
-            [
-                "node",
-                str(BINANCE_TOKEN_CLI),
-                "search",
-                json.dumps(params),
-            ],
-            capture_output=True,
-            text=True,
-            timeout=45,
-        )
-
-        stdout = (
-            result.stdout or ""
-        ).strip()
-
-        stderr = (
-            result.stderr or ""
-        ).strip()
-
-        if result.returncode != 0:
-            print(
-                "[news_images] Binance token search "
-                "failed."
-            )
-
-            if stderr:
-                print(
-                    f"[news_images] {stderr}"
-                )
-
-            return None
-
-        if not stdout:
-            print(
-                "[news_images] Binance token search "
-                "returned empty output."
-            )
-            return None
-
-        # -----------------------------------------------------
-        # Try the whole output first.
-        # -----------------------------------------------------
-
-        try:
-            data = json.loads(stdout)
-
-            if isinstance(data, dict):
-                return data
-
-            if isinstance(data, list):
-                return {
-                    "data": data
-                }
-
-        except json.JSONDecodeError:
-            pass
-
-        # -----------------------------------------------------
-        # Some CLIs may print additional text.
-        # Find JSON-looking lines/blocks.
-        # -----------------------------------------------------
-
-        lines = stdout.splitlines()
-
-        for line in reversed(lines):
-
-            line = line.strip()
-
-            if not line:
-                continue
-
-            try:
-                data = json.loads(line)
-
-                if isinstance(data, dict):
-                    return data
-
-                if isinstance(data, list):
-                    return {
-                        "data": data
-                    }
-
-            except json.JSONDecodeError:
-                continue
-
-        print(
-            "[news_images] could not parse Binance "
-            "token search output."
-        )
-
-        print(
-            f"[news_images] raw output: {stdout[:2000]}"
-        )
-
-        return None
-
-    except Exception as err:
-        print(
-            "[news_images] Binance token search "
-            f"exception: {err}"
-        )
-        return None
-
-
-def _extract_search_items(
-    result: dict | None,
-) -> list[dict]:
-    """Extract token search results from Binance output."""
-
-    if not result:
-        return []
-
-    candidates = []
-
-    for key in (
-        "data",
-        "result",
-        "tokens",
-        "list",
-        "items",
-    ):
-        value = result.get(key)
-
-        if isinstance(value, list):
-            candidates.extend(
-                item
-                for item in value
-                if isinstance(item, dict)
-            )
-
-        elif isinstance(value, dict):
-            candidates.append(value)
-
-    if not candidates:
-        if any(
-            key in result
-            for key in (
-                "symbol",
-                "contractAddress",
-                "address",
-                "tokenAddress",
-            )
-        ):
-            candidates.append(result)
-
-    return candidates
-
-
-def _get_value(
-    item: dict,
-    *keys: str,
-):
-    """Return the first existing value."""
-
-    for key in keys:
-
-        if key in item:
-            value = item.get(key)
-
-            if value not in (
-                None,
-                "",
-            ):
-                return value
-
-    return None
-
-
-def _find_matching_token(
-    items: list[dict],
-    ticker: str,
-) -> dict | None:
-    """
-    Prefer an exact symbol/ticker match.
-    """
-
-    ticker = ticker.upper().strip()
-
-    # ---------------------------------------------------------
-    # Exact symbol match.
-    # ---------------------------------------------------------
-
-    for item in items:
-
-        symbol = _get_value(
-            item,
-            "symbol",
-            "tokenSymbol",
-        )
-
-        if (
-            symbol
-            and str(symbol).upper().strip()
-            == ticker
-        ):
-            return item
-
-    # ---------------------------------------------------------
-    # Exact ticker match.
-    # ---------------------------------------------------------
-
-    for item in items:
-
-        token_ticker = _get_value(
-            item,
-            "ticker",
-            "tokenTicker",
-        )
-
-        if (
-            token_ticker
-            and str(token_ticker).upper().strip()
-            == ticker
-        ):
-            return item
-
-    return None
-
-
-def _get_token_contract(
-    item: dict,
-) -> tuple[str, str] | None:
-    """
-    Extract chain ID + contract address.
-
-    Returns:
-        (chain_id, contract_address)
-    """
-
-    contract = _get_value(
-        item,
-        "contractAddress",
-        "contract",
-        "address",
-        "tokenAddress",
-    )
-
-    if not contract:
-        return None
-
-    chain_id = _get_value(
-        item,
-        "chainId",
-        "chainID",
-    )
-
-    if not chain_id:
-        return None
-
-    return (
-        str(chain_id),
-        str(contract),
-    )
-
-
-def _run_binance_token_meta(
-    chain_id: str,
-    contract_address: str,
-) -> dict | None:
-    """
-    Query official Binance token metadata.
-
-    The metadata endpoint returns the token icon.
-    """
-
-    params = {
-        "chainId": chain_id,
-        "contractAddress": contract_address,
-    }
-
-    try:
-        result = subprocess.run(
-            [
-                "node",
-                str(BINANCE_TOKEN_CLI),
-                "meta",
-                json.dumps(params),
-            ],
-            capture_output=True,
-            text=True,
-            timeout=45,
-        )
-
-        stdout = (
-            result.stdout or ""
-        ).strip()
-
-        stderr = (
-            result.stderr or ""
-        ).strip()
-
-        if result.returncode != 0:
-            print(
-                "[news_images] Binance token meta "
-                "query failed."
-            )
-
-            if stderr:
-                print(
-                    f"[news_images] {stderr}"
-                )
-
-            return None
-
-        if not stdout:
-            return None
-
-        try:
-            data = json.loads(stdout)
-
-            if isinstance(data, dict):
-                return data
-
-        except json.JSONDecodeError:
-            pass
-
-        for line in reversed(
-            stdout.splitlines()
-        ):
-
-            line = line.strip()
-
-            if not line:
-                continue
-
-            try:
-                data = json.loads(line)
-
-                if isinstance(data, dict):
-                    return data
-
-            except json.JSONDecodeError:
-                continue
-
-        return None
-
-    except Exception as err:
-        print(
-            "[news_images] Binance token meta "
-            f"exception: {err}"
-        )
-        return None
-
-
-def _extract_icon(
-    metadata: dict | None,
-) -> str | None:
-    """Extract and normalize Binance icon URL."""
-
-    if not metadata:
-        return None
-
-    candidates = [
-        metadata,
-        metadata.get("data")
-        if isinstance(
-            metadata.get("data"),
-            dict,
-        )
-        else None,
-        metadata.get("result")
-        if isinstance(
-            metadata.get("result"),
-            dict,
-        )
-        else None,
-    ]
-
-    for item in candidates:
-
-        if not isinstance(item, dict):
-            continue
-
-        icon = _get_value(
-            item,
-            "icon",
-            "logo",
-            "logoUrl",
-            "iconUrl",
-        )
-
-        if not icon:
-            continue
-
-        icon = str(icon).strip()
-
-        if not icon:
-            continue
-
-        if icon.startswith(
-            "https://"
-        ):
-            return icon
-
-        if icon.startswith(
-            "http://"
-        ):
-            return icon.replace(
-                "http://",
-                "https://",
-                1,
-            )
-
-        if icon.startswith("/"):
-            return (
-                BINANCE_ICON_BASE
-                + icon
-            )
-
-        return (
-            BINANCE_ICON_BASE
-            + "/"
-            + icon
-        )
-
-    return None
-
-
-def get_binance_asset_logo_url(
-    ticker: str,
-) -> str | None:
-    """
-    Find the official Binance-hosted token logo.
-
-    Flow:
-
-    ticker
-      ↓
-    Binance official token search
-      ↓
-    exact symbol match
-      ↓
-    chain + contract
-      ↓
-    Binance token metadata
-      ↓
-    icon
-      ↓
-    https://bin.bnbstatic.com + relative path
-    """
-
-    if not ticker:
-        return None
 
     ticker = (
         str(ticker)
@@ -601,90 +66,127 @@ def get_binance_asset_logo_url(
     if not ticker:
         return None
 
-    print(
-        f"[news_images] looking for official "
-        f"Binance logo for ${ticker}"
+    # Try the most common quote assets first.
+    quote_assets = (
+        "USDT",
+        "USDC",
+        "FDUSD",
+        "BTC",
+        "BNB",
+        "ETH",
     )
 
-    search_result = (
-        _run_binance_token_search(
-            ticker
-        )
-    )
+    for quote in quote_assets:
 
-    items = _extract_search_items(
-        search_result
-    )
+        symbol = f"{ticker}{quote}"
 
-    if not items:
+        try:
+            response = requests.get(
+                BINANCE_EXCHANGE_INFO_URL,
+                params={
+                    "symbol": symbol,
+                },
+                headers={
+                    "User-Agent": (
+                        "Mozilla/5.0 "
+                        "NewsPostBot/1.0"
+                    ),
+                    "Accept": "application/json",
+                },
+                timeout=TIMEOUT,
+            )
+
+            if response.status_code != 200:
+                continue
+
+            data = response.json()
+
+            if not isinstance(data, dict):
+                continue
+
+            returned_symbol = str(
+                data.get("symbol", "")
+            ).upper()
+
+            base_asset = str(
+                data.get("baseAsset", "")
+            ).upper()
+
+            if (
+                returned_symbol == symbol
+                and base_asset == ticker
+            ):
+                print(
+                    f"[news_images] Binance Spot "
+                    f"verified: {symbol}"
+                )
+
+                return data
+
+        except Exception as err:
+            print(
+                "[news_images] Binance Spot "
+                f"verification failed for {symbol}: {err}"
+            )
+
+    return None
+
+
+def _find_verified_spot_asset(
+    ticker: str,
+) -> bool:
+    """
+    Return True only when the ticker is verified as a
+    Binance Spot base asset.
+    """
+
+    info = _get_spot_exchange_info(ticker)
+
+    if not info:
         print(
-            f"[news_images] Binance token search "
-            f"returned no results for ${ticker}"
+            f"[news_images] ${ticker} is not "
+            "verified through Binance Spot exchangeInfo."
         )
-        return None
+        return False
 
-    token = _find_matching_token(
-        items,
-        ticker,
+    return True
+
+
+def _candidate_logo_urls(
+    ticker: str,
+) -> list[str]:
+    """
+    Build Binance-hosted logo candidates.
+
+    These are only candidates. We NEVER assume a URL is
+    valid; _download_image() must confirm that Binance
+    actually returns an image.
+    """
+
+    ticker = (
+        str(ticker)
+        .upper()
+        .strip()
     )
 
-    if not token:
-        print(
-            f"[news_images] no exact Binance token "
-            f"match for ${ticker}"
-        )
-        return None
+    if not ticker:
+        return []
 
-    contract_info = _get_token_contract(
-        token
-    )
-
-    if not contract_info:
-        print(
-            f"[news_images] token found for "
-            f"${ticker}, but no chain/contract "
-            "was returned."
-        )
-        return None
-
-    chain_id, contract_address = (
-        contract_info
-    )
-
-    print(
-        f"[news_images] matched ${ticker} "
-        f"on chain {chain_id}"
-    )
-
-    metadata = _run_binance_token_meta(
-        chain_id,
-        contract_address,
-    )
-
-    logo_url = _extract_icon(
-        metadata
-    )
-
-    if not logo_url:
-        print(
-            f"[news_images] Binance metadata "
-            f"has no icon for ${ticker}"
-        )
-        return None
-
-    print(
-        f"[news_images] official Binance logo found: "
-        f"{logo_url}"
-    )
-
-    return logo_url
+    return [
+        f"{BINANCE_LOGO_BASE}/{ticker}.png",
+        f"{BINANCE_LOGO_BASE}/{ticker.lower()}.png",
+    ]
 
 
 def _download_image(
     url: str,
     prefix: str,
 ) -> str | None:
-    """Download one verified image."""
+    """
+    Download one verified image.
+
+    The server response MUST identify itself as an image.
+    """
 
     if not url:
         return None
@@ -699,8 +201,8 @@ def _download_image(
                 ),
                 "Accept": (
                     "image/avif,image/webp,"
-                    "image/apng,image/svg+xml,"
-                    "image/*,*/*;q=0.8"
+                    "image/apng,image/png,"
+                    "image/jpeg,image/*,*/*;q=0.8"
                 ),
             },
             timeout=TIMEOUT,
@@ -715,31 +217,42 @@ def _download_image(
                 "",
             )
             .lower()
+            .split(";")[0]
+            .strip()
         )
 
-        if not content_type.startswith(
-            "image/"
-        ):
+        allowed_types = {
+            "image/png",
+            "image/jpeg",
+            "image/jpg",
+            "image/webp",
+            "image/gif",
+            "image/avif",
+        }
+
+        if content_type not in allowed_types:
             print(
-                "[news_images] Binance icon URL "
-                "did not return an image: "
-                f"{url}"
+                "[news_images] Binance logo candidate "
+                "did not return a supported image: "
+                f"{url} "
+                f"(Content-Type: {content_type})"
             )
+
             return None
 
-        if "png" in content_type:
-            extension = ".png"
-        elif "webp" in content_type:
-            extension = ".webp"
-        elif "gif" in content_type:
-            extension = ".gif"
-        elif (
-            "jpeg" in content_type
-            or "jpg" in content_type
-        ):
-            extension = ".jpg"
-        else:
-            extension = ".png"
+        extension_map = {
+            "image/png": ".png",
+            "image/jpeg": ".jpg",
+            "image/jpg": ".jpg",
+            "image/webp": ".webp",
+            "image/gif": ".gif",
+            "image/avif": ".avif",
+        }
+
+        extension = extension_map.get(
+            content_type,
+            ".png",
+        )
 
         fd, path = tempfile.mkstemp(
             prefix=f"{prefix}_",
@@ -764,13 +277,9 @@ def _download_image(
 
                 total += len(chunk)
 
-                if (
-                    total
-                    > MAX_IMAGE_SIZE
-                ):
+                if total > MAX_IMAGE_SIZE:
                     raise ValueError(
-                        "Image is larger than "
-                        "10 MB."
+                        "Image is larger than 10 MB."
                     )
 
                 file.write(chunk)
@@ -783,7 +292,7 @@ def _download_image(
 
         print(
             f"[news_images] downloaded "
-            f"{total:,} bytes."
+            f"{total:,} bytes from Binance."
         )
 
         return path
@@ -793,7 +302,78 @@ def _download_image(
             "[news_images] logo download failed: "
             f"{url} -> {err}"
         )
+
         return None
+
+
+def get_binance_asset_logo_url(
+    ticker: str,
+) -> str | None:
+    """
+    Return a Binance-hosted logo URL only after the
+    ticker has been verified as a Binance Spot asset.
+
+    IMPORTANT:
+    No Web3 token search is performed here.
+    """
+
+    if not ticker:
+        return None
+
+    ticker = (
+        str(ticker)
+        .upper()
+        .strip()
+    )
+
+    if not ticker:
+        return None
+
+    print(
+        f"[news_images] looking for verified "
+        f"Binance Spot logo for ${ticker}"
+    )
+
+    # ---------------------------------------------------------
+    # STEP 1
+    # Verify ticker against Binance Spot.
+    # ---------------------------------------------------------
+
+    if not _find_verified_spot_asset(
+        ticker
+    ):
+        print(
+            f"[news_images] ${ticker} failed "
+            "Binance Spot verification -> text-only"
+        )
+        return None
+
+    # ---------------------------------------------------------
+    # STEP 2
+    # Try Binance-hosted logo candidates.
+    # ---------------------------------------------------------
+
+    candidates = _candidate_logo_urls(
+        ticker
+    )
+
+    for logo_url in candidates:
+
+        print(
+            f"[news_images] checking Binance "
+            f"logo candidate: {logo_url}"
+        )
+
+        # We do NOT return the URL merely because it
+        # looks correct. Download validation happens later.
+        return logo_url
+
+    print(
+        f"[news_images] no Binance logo candidate "
+        f"available for ${ticker}"
+    )
+
+    return None
 
 
 def prepare_post_images(
@@ -820,19 +400,24 @@ def prepare_post_images(
         .strip()
     )
 
-    logo_url = (
-        get_binance_asset_logo_url(
-            ticker
-        )
+    # ---------------------------------------------------------
+    # Get Binance-verified logo URL.
+    # ---------------------------------------------------------
+
+    logo_url = get_binance_asset_logo_url(
+        ticker
     )
 
     if not logo_url:
         print(
-            f"[news_images] no official Binance "
-            f"logo available for ${ticker} "
-            "-> text-only post"
+            f"[news_images] no verified Binance "
+            f"logo for ${ticker} -> text-only"
         )
         return []
+
+    # ---------------------------------------------------------
+    # Download and verify actual image response.
+    # ---------------------------------------------------------
 
     logo_path = _download_image(
         logo_url,
@@ -841,9 +426,9 @@ def prepare_post_images(
 
     if not logo_path:
         print(
-            f"[news_images] failed to download "
-            f"logo for ${ticker} "
-            "-> text-only post"
+            f"[news_images] Binance logo could "
+            f"not be downloaded for ${ticker} "
+            "-> text-only"
         )
         return []
 
@@ -852,14 +437,17 @@ def prepare_post_images(
         f"for ${ticker}: {logo_path}"
     )
 
-    # Hard limit: exactly one image maximum.
+    # HARD LIMIT:
+    # Never return more than one image.
     return [logo_path]
 
 
 def cleanup_images(
     paths: list[str],
 ) -> None:
-    """Delete temporary downloaded images."""
+    """
+    Delete temporary downloaded images.
+    """
 
     for path in paths:
 
