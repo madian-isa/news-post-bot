@@ -7,7 +7,7 @@ Rules:
 - Only Binance-listed crypto assets are allowed.
 - Company-only news is rejected when no valid crypto ticker is found.
 - Articles already posted are rejected.
-- The same crypto can be posted multiple times if the news article is different.
+- Same crypto ticker can only be posted ONCE per Bangladesh day.
 - AI cannot invent or change the verified ticker.
 """
 
@@ -274,16 +274,26 @@ CRYPTO_CONTEXT_WORDS = (
 
 def get_candidate_article(
     seen_urls: set,
+    blocked_tickers: set | None = None,
 ) -> dict | None:
     """
     Return ONE eligible crypto article.
 
     Rules:
     - Already-posted article URL is skipped.
+    - Already-posted ticker for today is skipped.
     - Articles without a valid crypto ticker are skipped.
     - Ticker must be currently listed on Binance Spot.
-    - The same crypto ticker CAN be posted again if the article is new.
     """
+
+    if blocked_tickers is None:
+        blocked_tickers = set()
+
+    blocked_tickers = {
+        str(t).upper().strip()
+        for t in blocked_tickers
+        if t
+    }
 
     articles = fetch_crypto_news()
 
@@ -296,7 +306,9 @@ def get_candidate_article(
     binance_tickers = get_binance_crypto_tickers()
 
     if not binance_tickers:
-        print("[news] Binance symbol list unavailable.")
+        print(
+            "[news] Binance symbol list unavailable."
+        )
         return None
 
     for article in articles:
@@ -313,10 +325,12 @@ def get_candidate_article(
             continue
 
         if url in seen_urls:
+
             print(
                 f"[news] SKIP — article already posted: "
                 f"{headline}"
             )
+
             continue
 
         if not headline:
@@ -332,25 +346,31 @@ def get_candidate_article(
         )
 
         if not ticker:
+
             print(
                 f"[news] SKIP — no verified Binance crypto: "
                 f"{headline}"
             )
+
             continue
 
-        ticker = ticker.upper()
+        ticker = ticker.upper().strip()
 
         # -----------------------------------------------------
-        # IMPORTANT:
-        #
-        # Same ticker is NOT blocked.
-        #
-        # Example:
-        # ETH article #1 → allowed
-        # ETH article #2 → allowed
-        # ETH article #3 → allowed
-        #
-        # Only the exact same article URL is blocked above.
+        # Same crypto already posted today
+        # -----------------------------------------------------
+
+        if ticker in blocked_tickers:
+
+            print(
+                f"[news] SKIP — ${ticker} already posted today: "
+                f"{headline}"
+            )
+
+            continue
+
+        # -----------------------------------------------------
+        # Save verified ticker
         # -----------------------------------------------------
 
         article["ticker"] = ticker
@@ -362,10 +382,13 @@ def get_candidate_article(
     # ---------------------------------------------------------
 
     if not candidates:
+
         print(
             "[news] no eligible crypto article found "
-            "after Binance + article history filters."
+            "after Binance + article history + "
+            "daily ticker filters."
         )
+
         return None
 
     # ---------------------------------------------------------
@@ -406,10 +429,22 @@ def _detect_ticker(
     if not binance_tickers:
         return None
 
-    headline = str(article.get("headline", ""))
-    summary = str(article.get("summary", ""))
+    headline = str(
+        article.get(
+            "headline",
+            "",
+        )
+    )
+
+    summary = str(
+        article.get(
+            "summary",
+            "",
+        )
+    )
 
     haystack = f"{headline} {summary}"
+
     upper_text = haystack.upper()
     lower_text = haystack.lower()
 
@@ -423,18 +458,26 @@ def _detect_ticker(
     )
 
     for ticker in explicit_tickers:
+
         ticker = ticker.upper()
 
         if ticker in binance_tickers:
+
             return ticker
 
     # ---------------------------------------------------------
     # 2. Finnhub "related" field
     # ---------------------------------------------------------
 
-    related = article.get("related", "")
+    related = article.get(
+        "related",
+        "",
+    )
 
-    if isinstance(related, str):
+    if isinstance(
+        related,
+        str,
+    ):
 
         related_items = re.split(
             r"[,;|\s]+",
@@ -450,19 +493,26 @@ def _detect_ticker(
                 and ticker in binance_tickers
                 and ticker not in COMMON_WORD_TICKERS
             ):
+
                 return ticker
 
-    elif isinstance(related, list):
+    elif isinstance(
+        related,
+        list,
+    ):
 
         for item in related:
 
-            ticker = str(item).strip().upper()
+            ticker = str(
+                item
+            ).strip().upper()
 
             if (
                 ticker
                 and ticker in binance_tickers
                 and ticker not in COMMON_WORD_TICKERS
             ):
+
                 return ticker
 
     # ---------------------------------------------------------
@@ -483,6 +533,7 @@ def _detect_ticker(
             ticker in binance_tickers
             and ticker not in COMMON_WORD_TICKERS
         ):
+
             return ticker
 
     # ---------------------------------------------------------
@@ -503,6 +554,7 @@ def _detect_ticker(
             ticker = ASSET_NAME_MAP[name]
 
             if ticker in binance_tickers:
+
                 return ticker
 
     # ---------------------------------------------------------
@@ -515,6 +567,7 @@ def _detect_ticker(
     )
 
     if not has_crypto_context:
+
         return None
 
     possible_tickers = sorted(
@@ -535,6 +588,7 @@ def _detect_ticker(
             rf"\b{re.escape(ticker)}\b",
             upper_text,
         ):
+
             return ticker
 
     return None
@@ -546,8 +600,8 @@ def _detect_asset_name(
     """
     Return a readable asset name.
 
-    For assets not in the small name map, the ticker itself
-    is used as the display name.
+    For assets not in the small name map,
+    the ticker itself is used as the display name.
     """
 
     if not ticker:
@@ -561,7 +615,9 @@ def _detect_asset_name(
     )
 
 
-def generate_news_post(article: dict) -> dict:
+def generate_news_post(
+    article: dict,
+) -> dict:
     """
     Generate a Binance Square post ONLY for a verified
     Binance-listed crypto asset.
@@ -571,24 +627,33 @@ def generate_news_post(article: dict) -> dict:
     # Get ticker saved by candidate selector
     # ---------------------------------------------------------
 
-    ticker = article.get("ticker")
+    ticker = article.get(
+        "ticker"
+    )
 
     if not ticker:
-        ticker = _detect_ticker(article)
+
+        ticker = _detect_ticker(
+            article
+        )
 
     if not ticker:
+
         raise RuntimeError(
             "Article rejected: no Binance-listed crypto "
             "ticker detected."
         )
 
-    ticker = ticker.upper()
+    ticker = ticker.upper().strip()
 
     # ---------------------------------------------------------
     # Verify again against Binance
     # ---------------------------------------------------------
 
-    if not is_binance_crypto_ticker(ticker):
+    if not is_binance_crypto_ticker(
+        ticker
+    ):
+
         raise RuntimeError(
             f"Article rejected: ${ticker} is not currently "
             "verified as a Binance Spot crypto asset."
@@ -598,9 +663,12 @@ def generate_news_post(article: dict) -> dict:
     # Get asset name
     # ---------------------------------------------------------
 
-    asset_name = _detect_asset_name(ticker)
+    asset_name = _detect_asset_name(
+        ticker
+    )
 
     if not asset_name:
+
         raise RuntimeError(
             f"Article rejected: unable to identify "
             f"crypto asset ${ticker}."
@@ -707,8 +775,14 @@ Return ONLY:
 
     cleaned = (
         raw
-        .replace("```json", "")
-        .replace("```", "")
+        .replace(
+            "```json",
+            "",
+        )
+        .replace(
+            "```",
+            "",
+        )
         .strip()
     )
 
@@ -718,7 +792,9 @@ Return ONLY:
 
     try:
 
-        post = json.loads(cleaned)
+        post = json.loads(
+            cleaned
+        )
 
     except json.JSONDecodeError as err:
 
@@ -731,14 +807,21 @@ Return ONLY:
     # ---------------------------------------------------------
 
     title = str(
-        post.get("title", "")
+        post.get(
+            "title",
+            "",
+        )
     ).strip()
 
     body = str(
-        post.get("body", "")
+        post.get(
+            "body",
+            "",
+        )
     ).strip()
 
     if not title or not body:
+
         raise RuntimeError(
             "AI returned an empty title or body."
         )
@@ -781,13 +864,17 @@ Return ONLY:
 
     post["title"] = title
     post["body"] = body
-    post["url"] = article.get("url")
+    post["url"] = article.get(
+        "url"
+    )
     post["ticker"] = ticker
 
     return post
 
 
-def format_news_post(post: dict) -> str:
+def format_news_post(
+    post: dict,
+) -> str:
     """
     Build final Binance Square post.
 
@@ -795,38 +882,53 @@ def format_news_post(post: dict) -> str:
     """
 
     title = str(
-        post.get("title", "")
+        post.get(
+            "title",
+            "",
+        )
     ).strip()
 
     body = str(
-        post.get("body", "")
+        post.get(
+            "body",
+            "",
+        )
     ).strip()
 
-    ticker = post.get("ticker")
+    ticker = post.get(
+        "ticker"
+    )
 
     if not ticker:
+
         raise RuntimeError(
             "Refusing to publish: no crypto ticker."
         )
 
     ticker = str(
         ticker
-    ).upper()
+    ).upper().strip()
 
     parts = []
 
     if title:
-        parts.append(title)
+        parts.append(
+            title
+        )
 
     if body:
-        parts.append(body)
+        parts.append(
+            body
+        )
 
     # Final ticker line
     parts.append(
         f"**${ticker}**"
     )
 
-    text = "\n\n".join(parts).strip()
+    text = "\n\n".join(
+        parts
+    ).strip()
 
     # ---------------------------------------------------------
     # Character limit
