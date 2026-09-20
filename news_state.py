@@ -7,7 +7,7 @@ Tracks:
 3. Which crypto tickers were already posted today.
 
 Rule:
-The same crypto ticker can only be posted ONCE per day.
+The same crypto ticker can only be posted ONCE per Bangladesh day.
 The daily reset follows Bangladesh time (Asia/Dhaka).
 """
 
@@ -36,37 +36,117 @@ def load_state() -> dict:
             "posted_tickers": [],
         }
 
-    with open(cfg.NEWS_STATE_FILE, "r") as f:
-        state = json.load(f)
+    try:
+        with open(cfg.NEWS_STATE_FILE, "r") as f:
+            state = json.load(f)
+    except Exception as err:
+        print(f"[news_state] failed to load state: {err}")
 
-    # New Bangladesh day:
-    # reset daily post count and ticker list.
-    if state.get("date") != _today_str():
-        state = {
+        return {
             "date": _today_str(),
+            "count": 0,
+            "seen_urls": [],
+            "posted_tickers": [],
+        }
+
+    today = _today_str()
+
+    # ---------------------------------------------------------
+    # New Bangladesh day
+    # ---------------------------------------------------------
+
+    if state.get("date") != today:
+
+        state = {
+            "date": today,
             "count": 0,
             "seen_urls": state.get("seen_urls", []),
             "posted_tickers": [],
         }
 
-    # Compatibility with old state files.
-    if "posted_tickers" not in state:
-        state["posted_tickers"] = []
+    # ---------------------------------------------------------
+    # Compatibility / cleanup
+    # ---------------------------------------------------------
+
+    state["date"] = today
+
+    state["count"] = int(
+        state.get("count", 0)
+    )
+
+    state["seen_urls"] = list(
+        state.get("seen_urls", [])
+    )
+
+    # Normalize ticker list to uppercase
+    state["posted_tickers"] = list(
+        dict.fromkeys(
+            str(t).upper().strip()
+            for t in state.get(
+                "posted_tickers",
+                [],
+            )
+            if t
+        )
+    )
 
     return state
 
 
 def save_state(state: dict) -> None:
-    with open(cfg.NEWS_STATE_FILE, "w") as f:
-        json.dump(state, f, indent=2)
+    """
+    Save state safely.
+
+    Writes to a temporary file first and then replaces
+    the original state file.
+    """
+
+    state["date"] = _today_str()
+
+    temp_file = (
+        f"{cfg.NEWS_STATE_FILE}.tmp"
+    )
+
+    with open(
+        temp_file,
+        "w",
+        encoding="utf-8",
+    ) as f:
+
+        json.dump(
+            state,
+            f,
+            indent=2,
+            ensure_ascii=False,
+        )
+
+        f.write("\n")
+
+    os.replace(
+        temp_file,
+        cfg.NEWS_STATE_FILE,
+    )
 
 
-def can_post_more_today(state: dict) -> bool:
-    return state.get("count", 0) < cfg.NEWS_MAX_POSTS_PER_DAY
+def can_post_more_today(
+    state: dict,
+) -> bool:
+
+    return (
+        state.get("count", 0)
+        < cfg.NEWS_MAX_POSTS_PER_DAY
+    )
 
 
-def already_covered(state: dict, url: str) -> bool:
-    return url in state.get("seen_urls", [])
+def already_covered(
+    state: dict,
+    url: str,
+) -> bool:
+
+    return url in state.get(
+        "seen_urls",
+        [],
+    )
 
 
 def ticker_posted_today(
@@ -74,18 +154,27 @@ def ticker_posted_today(
     ticker: str,
 ) -> bool:
     """
-    Check whether this crypto ticker was already posted today.
+    Check whether this crypto ticker
+    was already posted today.
     """
 
     if not ticker:
         return True
 
-    ticker = ticker.upper()
+    ticker = str(
+        ticker
+    ).upper().strip()
 
-    return ticker in {
-        t.upper()
-        for t in state.get("posted_tickers", [])
+    posted_tickers = {
+        str(t).upper().strip()
+        for t in state.get(
+            "posted_tickers",
+            [],
+        )
+        if t
     }
+
+    return ticker in posted_tickers
 
 
 def record_post(
@@ -102,16 +191,41 @@ def record_post(
     - crypto ticker posted today
     """
 
-    state["count"] = state.get("count", 0) + 1
+    # ---------------------------------------------------------
+    # Make sure state belongs to today's Bangladesh date
+    # ---------------------------------------------------------
+
+    today = _today_str()
+
+    if state.get("date") != today:
+
+        state["date"] = today
+        state["count"] = 0
+        state["posted_tickers"] = []
+
+    # ---------------------------------------------------------
+    # Daily post count
+    # ---------------------------------------------------------
+
+    state["count"] = (
+        int(state.get("count", 0))
+        + 1
+    )
 
     # ---------------------------------------------------------
     # Save article URL
     # ---------------------------------------------------------
 
-    seen = state.get("seen_urls", [])
+    seen = list(
+        state.get(
+            "seen_urls",
+            [],
+        )
+    )
 
     if url:
-        seen.append(url)
+        if url not in seen:
+            seen.append(url)
 
     state["seen_urls"] = seen[
         -cfg.NEWS_SEEN_HISTORY_SIZE:
@@ -122,16 +236,30 @@ def record_post(
     # ---------------------------------------------------------
 
     if ticker:
-        ticker = ticker.upper()
 
-        posted_tickers = state.get(
-            "posted_tickers",
-            [],
-        )
+        ticker = str(
+            ticker
+        ).upper().strip()
 
+        posted_tickers = [
+            str(t).upper().strip()
+            for t in state.get(
+                "posted_tickers",
+                [],
+            )
+            if t
+        ]
+
+        # Never duplicate the ticker
         if ticker not in posted_tickers:
-            posted_tickers.append(ticker)
+            posted_tickers.append(
+                ticker
+            )
 
-        state["posted_tickers"] = posted_tickers
+        state["posted_tickers"] = list(
+            dict.fromkeys(
+                posted_tickers
+            )
+        )
 
     return state
