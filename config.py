@@ -1,31 +1,115 @@
 """
 config.py
 
-All settings read from environment variables only. Never hard-code keys
-here — set them in GitHub repo Settings > Secrets and variables > Actions.
+All settings read from environment variables only.
+Never hard-code API keys here.
+
+Set secrets in:
+GitHub repo
+→ Settings
+→ Secrets and variables
+→ Actions
 """
 
 import os
 
-BINANCE_SQUARE_OPENAPI_KEY = os.environ.get("BINANCE_SQUARE_OPENAPI_KEY", "")
-GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
-GROQ_MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
-FINNHUB_API_KEY = os.environ.get("FINNHUB_API_KEY", "")
+
+# ---------------------------------------------------------
+# API KEYS
+# ---------------------------------------------------------
+
+BINANCE_SQUARE_OPENAPI_KEY = os.environ.get(
+    "BINANCE_SQUARE_OPENAPI_KEY",
+    "",
+)
+
+GROQ_API_KEY = os.environ.get(
+    "GROQ_API_KEY",
+    "",
+)
+
+GROQ_MODEL = os.environ.get(
+    "GROQ_MODEL",
+    "openai/gpt-oss-120b",
+)
+
+FINNHUB_API_KEY = os.environ.get(
+    "FINNHUB_API_KEY",
+    "",
+)
+
+# CoinMarketCap — secondary news source
+CMC_API_KEY = os.environ.get(
+    "CMC_API_KEY",
+    "",
+)
+
+
+# ---------------------------------------------------------
+# POST SETTINGS
+# ---------------------------------------------------------
 
 CHAR_LIMIT = 2000
 
-# How many recent article URLs to remember, so the same story isn't posted twice.
-NEWS_STATE_FILE = os.environ.get("NEWS_BOT_STATE_FILE", "news_bot_state.json")
-NEWS_MAX_POSTS_PER_DAY = int(os.environ.get("NEWS_MAX_POSTS_PER_DAY", "8"))
-NEWS_SEEN_HISTORY_SIZE = int(os.environ.get("NEWS_SEEN_HISTORY_SIZE", "100"))
 
-# Safety switch: when true (the default), nothing is posted to Binance
-# Square — the bot builds the post and just PRINTS it. Set DRY_RUN=false
-# to go live.
-DRY_RUN = os.environ.get("DRY_RUN", "true").lower() not in ("false", "0", "no")
+# ---------------------------------------------------------
+# NEWS STATE
+# ---------------------------------------------------------
 
-# Used only to detect a real coin ticker mentioned in an article (so the
-# closing line never names a coin that isn't actually in the source).
+# How many recent article URLs to remember,
+# so the same story isn't posted twice.
+
+NEWS_STATE_FILE = os.environ.get(
+    "NEWS_BOT_STATE_FILE",
+    "news_bot_state.json",
+)
+
+NEWS_MAX_POSTS_PER_DAY = int(
+    os.environ.get(
+        "NEWS_MAX_POSTS_PER_DAY",
+        "8",
+    )
+)
+
+NEWS_SEEN_HISTORY_SIZE = int(
+    os.environ.get(
+        "NEWS_SEEN_HISTORY_SIZE",
+        "100",
+    )
+)
+
+
+# ---------------------------------------------------------
+# DRY RUN
+# ---------------------------------------------------------
+
+# When true, nothing is posted to Binance Square.
+#
+# GitHub Actions currently sets:
+# DRY_RUN=false
+#
+# Therefore the bot is LIVE.
+
+DRY_RUN = (
+    os.environ.get(
+        "DRY_RUN",
+        "true",
+    ).lower()
+    not in (
+        "false",
+        "0",
+        "no",
+    )
+)
+
+
+# ---------------------------------------------------------
+# KNOWN TICKERS
+# ---------------------------------------------------------
+
+# Used only to detect a real coin ticker mentioned
+# in an article.
+
 KNOWN_TICKERS = {
     "BTC", "ETH", "BNB", "SOL", "XRP", "ADA", "DOGE", "TRX", "TON", "LINK",
     "AVAX", "DOT", "LTC", "BCH", "ATOM", "XLM", "ETC", "NEAR", "FIL", "EOS",
