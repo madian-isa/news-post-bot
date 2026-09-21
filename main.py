@@ -15,6 +15,7 @@ Rules:
 - Article images are not used.
 - If the crypto logo is unavailable, falls back to text-only.
 - If image upload fails, falls back to text-only.
+- If Groq fails, news_post_generator.py uses Python fallback.
 """
 
 import traceback
@@ -103,15 +104,6 @@ def run_once():
 
     # =========================================================
     # 5. Find eligible article
-    #
-    # Same ticker already posted today:
-    #     SKIP
-    #
-    # Same article URL already posted:
-    #     SKIP
-    #
-    # Different ticker + new article:
-    #     eligible
     # =========================================================
 
     article = get_candidate_article(
@@ -147,7 +139,10 @@ def run_once():
 
     ticker = str(
         ticker
-    ).upper().strip()
+    ).upper().replace(
+        "$",
+        "",
+    ).strip()
 
     print(
         f"[news] preparing post for ${ticker}"
@@ -159,18 +154,41 @@ def run_once():
 
         # =====================================================
         # 7. Generate post text
+        #
+        # Groq works:
+        #     AI-generated post
+        #
+        # Groq fails:
+        #     Python fallback post
         # =====================================================
 
         post = generate_news_post(
             article
         )
 
+        # Safety check
+        if not post:
+
+            print(
+                f"[news] post generation returned empty "
+                f"result for ${ticker} — skipping."
+            )
+
+            return
+
+        # =====================================================
+        # 8. Verify generated ticker
+        # =====================================================
+
         generated_ticker = str(
             post.get(
                 "ticker",
                 "",
             )
-        ).upper().strip()
+        ).upper().replace(
+            "$",
+            "",
+        ).strip()
 
         if generated_ticker != ticker:
 
@@ -180,9 +198,19 @@ def run_once():
                 f"got ${generated_ticker}"
             )
 
+        # =====================================================
+        # 9. Format final post
+        # =====================================================
+
         text = format_news_post(
             post
         )
+
+        if not text:
+
+            raise RuntimeError(
+                "Generated post text is empty."
+            )
 
         print(
             f"[news] generated post length: "
@@ -190,7 +218,7 @@ def run_once():
         )
 
         # =====================================================
-        # 8. Prepare ONLY crypto logo
+        # 10. Prepare ONLY crypto logo
         # =====================================================
 
         try:
@@ -214,7 +242,10 @@ def run_once():
 
             image_paths = []
 
+        # =====================================================
         # Safety: maximum 1 image
+        # =====================================================
+
         if len(image_paths) > 1:
 
             print(
@@ -240,7 +271,7 @@ def run_once():
             )
 
         # =====================================================
-        # 9. DRY RUN
+        # 11. DRY RUN
         # =====================================================
 
         if cfg.DRY_RUN:
@@ -288,7 +319,7 @@ def run_once():
             return
 
         # =====================================================
-        # 10. Publish
+        # 12. Publish
         # =====================================================
 
         if image_paths:
@@ -342,7 +373,7 @@ def run_once():
             )
 
         # =====================================================
-        # 11. Publication result
+        # 13. Publication result
         # =====================================================
 
         if result:
@@ -367,7 +398,7 @@ def run_once():
         )
 
         # =====================================================
-        # 12. Save state ONLY after publication
+        # 14. Save state ONLY after publication
         # =====================================================
 
         state = record_post(
@@ -396,7 +427,7 @@ def run_once():
     finally:
 
         # =====================================================
-        # 13. Cleanup images
+        # 15. Cleanup images
         # =====================================================
 
         try:
