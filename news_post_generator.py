@@ -9,18 +9,13 @@ Rules:
 - Articles already posted are rejected.
 - Same crypto ticker can only be posted ONCE per Bangladesh day.
 - AI cannot invent or change the verified ticker.
-- Groq is used when available.
-- If Groq fails, a Python fallback creates the post.
 """
 
-from __future__ import annotations
-
-import json
-import os
-import random
 import re
+import json
+import random
 
-import requests
+from groq import Groq
 
 import config as cfg
 from news_fetch import fetch_crypto_news
@@ -30,111 +25,61 @@ from binance_symbols import (
 )
 
 
-# =============================================================
-# GROQ
-# =============================================================
+SYSTEM_PROMPT = """You are a professional crypto news writer for Binance Square.
 
-GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
+Turn ONE real crypto-asset news article into a concise, natural,
+research-style post.
 
+EXACT FORMAT:
 
-def _get_groq_api_key() -> str | None:
-    """
-    Get Groq API key.
+Bitcoin ($BTC): Attention-grabbing factual headline
 
-    Priority:
-    1. config.py
-    2. GROQ_API_KEY environment variable
-    """
+Paragraph 1 explaining what happened.
 
-    key = getattr(cfg, "GROQ_API_KEY", None)
+Paragraph 2 explaining the important development.
 
-    if key:
-        key = str(key).strip()
+Paragraph 3 explaining why the development matters.
 
-    if not key:
-        key = os.environ.get(
-            "GROQ_API_KEY",
-            "",
-        ).strip()
-
-    if not key:
-        print(
-            "[news_post_generator] "
-            "GROQ_API_KEY is not set."
-        )
-        return None
-
-    return key
-
-
-# =============================================================
-# SYSTEM PROMPT
-# =============================================================
-
-SYSTEM_PROMPT = """
-You are a professional crypto news writer for Binance Square.
-
-Turn ONE real crypto-asset news article into a short,
-natural and factual Binance Square post.
-
-Python has already verified the crypto ticker.
-
-You MUST write ONLY about that verified crypto asset.
-
-Do NOT change the ticker.
-Do NOT invent a ticker.
-Do NOT invent facts.
-Use ONLY the supplied article headline and content.
-
-STYLE:
-- Professional
-- Natural
-- Human-like
-- Concise
-- News/research style
-- Sharp but not sensational
-- Suitable for Binance Square
-
-FORMAT:
-Title
-Paragraph 1.
-Paragraph 2.
-Paragraph 3.
+The Python program will automatically add:
+**$BTC**
 
 STRICT RULES:
-- Exactly 3 short paragraphs.
-- Body normally around 100-140 words.
-- Title format:
-Coin Name ($TICKER): Hook
-- Title must not be all caps.
-- No emojis.
-- No hashtags.
-- No bullet points.
-- No investment advice.
-- No buy/sell language.
-- No long/short language.
-- No target/entry/SL/TP language.
-- No unsupported predictions.
-- No invented statistics.
-- No invented dates.
-- No invented partnerships.
-- No invented quotes.
-- No invented events.
-- No outside knowledge.
-- Do not add a final ticker line.
 
-Return ONLY valid JSON:
+- Write ONLY about the specific crypto asset identified by Python.
+- Use ONLY facts contained in the article headline and summary.
+- Never invent numbers, dates, partnerships, valuations, quotes, or events.
+- Never invent a ticker.
+- Use the exact ticker provided by Python.
+- The title MUST follow:
+  Coin Name ($TICKER): Hook
+- The title must NOT be all caps.
+- Do NOT create a separate risk section.
+- Do NOT use bullet points.
+- Do NOT use hashtags.
+- Do NOT use emojis.
+- Do NOT use buy/sell/long/short/target language.
+- Do NOT give investment advice.
+- Do NOT make unsupported price predictions.
+- Use professional, natural English.
+- Avoid repetitive AI-style phrases.
+- Keep the body around 100-140 words when possible.
+- Write exactly 3 short paragraphs.
+- Do NOT write the final ticker line.
+- Output ONLY valid JSON.
+- Do NOT output Markdown fences.
+
+Return exactly:
 
 {
-  "title": "string",
-  "body": "string"
+  "title": string,
+  "body": string
 }
 """
 
 
-# =============================================================
-# ASSET NAME → TICKER
-# =============================================================
+# -------------------------------------------------------------
+# Crypto name → ticker
+# -------------------------------------------------------------
 
 ASSET_NAME_MAP = {
     "BITCOIN CASH": "BCH",
@@ -167,13 +112,12 @@ ASSET_NAME_MAP = {
     "AAVE": "AAVE",
     "ZKSYNC": "ZK",
     "STORY": "IP",
-    "MORPHO": "MORPHO",
 }
 
 
-# =============================================================
-# KNOWN READABLE NAMES
-# =============================================================
+# -------------------------------------------------------------
+# Ticker → readable crypto name
+# -------------------------------------------------------------
 
 KNOWN_ASSET_NAMES = {
     "BTC": "Bitcoin",
@@ -203,33 +147,100 @@ KNOWN_ASSET_NAMES = {
     "PEPE": "Pepe",
     "SHIB": "Shiba Inu",
     "BONK": "Bonk",
-    "MORPHO": "Morpho",
 }
 
 
-# =============================================================
-# COMMON ENGLISH WORDS
-# =============================================================
+# -------------------------------------------------------------
+# Common English words that can also be Binance tickers
+# -------------------------------------------------------------
 
 COMMON_WORD_TICKERS = {
-    "THE", "AND", "FOR", "ARE", "NOT", "BUT", "CAN",
-    "ONE", "ALL", "ANY", "NEW", "NOW", "LOW", "HIGH",
-    "TOP", "USE", "GET", "GOT", "HAS", "HAD", "HIS",
-    "HER", "OUR", "OUT", "YOU", "YOUR", "ITS", "IN",
-    "ON", "OR", "AS", "AT", "BY", "TO", "OF", "IT",
-    "IS", "BE", "WE", "HE", "SHE", "DO", "GO", "NO",
-    "SO", "UP", "DOWN", "AR", "OP", "AI", "ME", "MY",
-    "US", "IF", "THAN", "THEN", "THIS", "THAT",
-    "THEIR", "THEM", "WITH", "FROM", "OVER", "UNDER",
-    "MORE", "MOST", "JUST", "BACK", "NEXT", "LAST",
-    "FIRST", "STILL", "EVEN", "ONLY", "MAY", "MUST",
-    "WILL", "WOULD", "COULD", "SHOULD",
+    "THE",
+    "AND",
+    "FOR",
+    "ARE",
+    "NOT",
+    "BUT",
+    "CAN",
+    "ONE",
+    "ALL",
+    "ANY",
+    "NEW",
+    "NOW",
+    "LOW",
+    "HIGH",
+    "TOP",
+    "USE",
+    "GET",
+    "GOT",
+    "HAS",
+    "HAD",
+    "HIS",
+    "HER",
+    "OUR",
+    "OUT",
+    "YOU",
+    "YOUR",
+    "ITS",
+    "IN",
+    "ON",
+    "OR",
+    "AS",
+    "AT",
+    "BY",
+    "TO",
+    "OF",
+    "IT",
+    "IS",
+    "BE",
+    "WE",
+    "HE",
+    "SHE",
+    "DO",
+    "GO",
+    "NO",
+    "SO",
+    "UP",
+    "DOWN",
+    "AR",
+    "OP",
+    "AI",
+    "ME",
+    "MY",
+    "US",
+    "IF",
+    "THAN",
+    "THEN",
+    "THIS",
+    "THAT",
+    "THEIR",
+    "THEM",
+    "WITH",
+    "FROM",
+    "OVER",
+    "UNDER",
+    "MORE",
+    "MOST",
+    "JUST",
+    "BACK",
+    "NEXT",
+    "LAST",
+    "FIRST",
+    "STILL",
+    "EVEN",
+    "ONLY",
+    "MAY",
+    "MUST",
+    "WILL",
+    "WOULD",
+    "COULD",
+    "SHOULD",
 }
 
 
-# =============================================================
-# CRYPTO CONTEXT
-# =============================================================
+# -------------------------------------------------------------
+# Crypto context words
+# -------------------------------------------------------------
 
 CRYPTO_CONTEXT_WORDS = (
     "crypto",
@@ -258,44 +269,22 @@ CRYPTO_CONTEXT_WORDS = (
     "altcoins",
     "digital asset",
     "digital assets",
-    "smart contract",
-    "liquidity",
-    "validator",
-    "validators",
 )
 
-
-# =============================================================
-# ARTICLE TEXT HELPERS
-# =============================================================
-
-def _get_article_title(article: dict) -> str:
-    return str(
-        article.get("headline")
-        or article.get("title")
-        or ""
-    ).strip()
-
-
-def _get_article_content(article: dict) -> str:
-    content = (
-        article.get("summary")
-        or article.get("content")
-        or article.get("description")
-        or ""
-    )
-
-    return str(content).strip()
-
-
-# =============================================================
-# FIND CANDIDATE ARTICLE
-# =============================================================
 
 def get_candidate_article(
     seen_urls: set,
     blocked_tickers: set | None = None,
 ) -> dict | None:
+    """
+    Return ONE eligible crypto article.
+
+    Rules:
+    - Already-posted article URL is skipped.
+    - Already-posted ticker for today is skipped.
+    - Articles without a valid crypto ticker are skipped.
+    - Ticker must be currently listed on Binance Spot.
+    """
 
     if blocked_tickers is None:
         blocked_tickers = set()
@@ -308,50 +297,48 @@ def get_candidate_article(
 
     articles = fetch_crypto_news()
 
-    if not articles:
-        print("[news] No crypto news articles returned.")
-        return None
-
     candidates = []
+
+    # ---------------------------------------------------------
+    # Load current Binance crypto tickers
+    # ---------------------------------------------------------
 
     binance_tickers = get_binance_crypto_tickers()
 
     if not binance_tickers:
-        print("[news] Binance symbol list unavailable.")
+        print(
+            "[news] Binance symbol list unavailable."
+        )
         return None
-
-    binance_tickers = {
-        str(t).upper().strip()
-        for t in binance_tickers
-        if t
-    }
-
-    print(
-        f"[news] Binance crypto tickers loaded: "
-        f"{len(binance_tickers)}"
-    )
 
     for article in articles:
 
-        url = str(
-            article.get("url")
-            or ""
-        ).strip()
+        url = article.get("url")
+        headline = article.get("headline", "")
+        summary = article.get("summary", "")
 
-        headline = _get_article_title(article)
+        # -----------------------------------------------------
+        # Basic validation
+        # -----------------------------------------------------
 
         if not url:
+            continue
+
+        if url in seen_urls:
+
+            print(
+                f"[news] SKIP — article already posted: "
+                f"{headline}"
+            )
+
             continue
 
         if not headline:
             continue
 
-        if url in seen_urls:
-            print(
-                f"[news] SKIP — article already posted: "
-                f"{headline}"
-            )
-            continue
+        # -----------------------------------------------------
+        # Detect crypto ticker
+        # -----------------------------------------------------
 
         ticker = _detect_ticker(
             article,
@@ -359,54 +346,82 @@ def get_candidate_article(
         )
 
         if not ticker:
+
             print(
                 f"[news] SKIP — no verified Binance crypto: "
                 f"{headline}"
             )
+
             continue
 
         ticker = ticker.upper().strip()
 
+        # -----------------------------------------------------
+        # Same crypto already posted today
+        # -----------------------------------------------------
+
         if ticker in blocked_tickers:
+
             print(
                 f"[news] SKIP — ${ticker} already posted today: "
                 f"{headline}"
             )
+
             continue
+
+        # -----------------------------------------------------
+        # Save verified ticker
+        # -----------------------------------------------------
 
         article["ticker"] = ticker
 
         candidates.append(article)
 
+    # ---------------------------------------------------------
+    # No eligible article
+    # ---------------------------------------------------------
+
     if not candidates:
+
         print(
-            "[news] No eligible crypto article found "
+            "[news] no eligible crypto article found "
             "after Binance + article history + "
             "daily ticker filters."
         )
+
         return None
+
+    # ---------------------------------------------------------
+    # Recent pool
+    # ---------------------------------------------------------
 
     pool = candidates[:10]
 
     article = random.choice(pool)
 
     print(
-        f"[news] Selected crypto article: "
+        f"[news] selected crypto article: "
         f"${article.get('ticker')} — "
-        f"{_get_article_title(article)}"
+        f"{article.get('headline')}"
     )
 
     return article
 
 
-# =============================================================
-# TICKER DETECTION
-# =============================================================
-
 def _detect_ticker(
     article: dict,
     binance_tickers: set[str] | None = None,
 ) -> str | None:
+    """
+    Detect a crypto ticker safely.
+
+    Priority:
+    1. Explicit $TICKER
+    2. Finnhub related ticker
+    3. Trading-pair format
+    4. Known crypto asset name
+    5. Binance-listed standalone ticker with safeguards
+    """
 
     if binance_tickers is None:
         binance_tickers = get_binance_crypto_tickers()
@@ -414,8 +429,19 @@ def _detect_ticker(
     if not binance_tickers:
         return None
 
-    headline = _get_article_title(article)
-    summary = _get_article_content(article)
+    headline = str(
+        article.get(
+            "headline",
+            "",
+        )
+    )
+
+    summary = str(
+        article.get(
+            "summary",
+            "",
+        )
+    )
 
     haystack = f"{headline} {summary}"
 
@@ -436,10 +462,11 @@ def _detect_ticker(
         ticker = ticker.upper()
 
         if ticker in binance_tickers:
+
             return ticker
 
     # ---------------------------------------------------------
-    # 2. Finnhub related ticker
+    # 2. Finnhub "related" field
     # ---------------------------------------------------------
 
     related = article.get(
@@ -447,7 +474,10 @@ def _detect_ticker(
         "",
     )
 
-    if isinstance(related, str):
+    if isinstance(
+        related,
+        str,
+    ):
 
         related_items = re.split(
             r"[,;|\s]+",
@@ -463,9 +493,13 @@ def _detect_ticker(
                 and ticker in binance_tickers
                 and ticker not in COMMON_WORD_TICKERS
             ):
+
                 return ticker
 
-    elif isinstance(related, list):
+    elif isinstance(
+        related,
+        list,
+    ):
 
         for item in related:
 
@@ -478,10 +512,11 @@ def _detect_ticker(
                 and ticker in binance_tickers
                 and ticker not in COMMON_WORD_TICKERS
             ):
+
                 return ticker
 
     # ---------------------------------------------------------
-    # 3. Trading pair
+    # 3. Trading pair formats
     # ---------------------------------------------------------
 
     pair_matches = re.findall(
@@ -498,10 +533,11 @@ def _detect_ticker(
             ticker in binance_tickers
             and ticker not in COMMON_WORD_TICKERS
         ):
+
             return ticker
 
     # ---------------------------------------------------------
-    # 4. Known asset name
+    # 4. Full crypto asset names
     # ---------------------------------------------------------
 
     for name in sorted(
@@ -518,6 +554,7 @@ def _detect_ticker(
             ticker = ASSET_NAME_MAP[name]
 
             if ticker in binance_tickers:
+
                 return ticker
 
     # ---------------------------------------------------------
@@ -530,6 +567,7 @@ def _detect_ticker(
     )
 
     if not has_crypto_context:
+
         return None
 
     possible_tickers = sorted(
@@ -539,8 +577,6 @@ def _detect_ticker(
     )
 
     for ticker in possible_tickers:
-
-        ticker = ticker.upper()
 
         if len(ticker) < 2:
             continue
@@ -552,25 +588,26 @@ def _detect_ticker(
             rf"\b{re.escape(ticker)}\b",
             upper_text,
         ):
+
             return ticker
 
     return None
 
 
-# =============================================================
-# ASSET NAME
-# =============================================================
-
 def _detect_asset_name(
     ticker: str,
 ) -> str | None:
+    """
+    Return a readable asset name.
+
+    For assets not in the small name map,
+    the ticker itself is used as the display name.
+    """
 
     if not ticker:
         return None
 
-    ticker = str(
-        ticker
-    ).upper().strip()
+    ticker = ticker.upper()
 
     return KNOWN_ASSET_NAMES.get(
         ticker,
@@ -578,173 +615,196 @@ def _detect_asset_name(
     )
 
 
-# =============================================================
-# PYTHON FALLBACK GENERATOR
-# =============================================================
-
-def _clean_text(text: str) -> str:
-    """
-    Clean article text for fallback generation.
-    """
-
-    text = str(text or "").strip()
-
-    # Remove HTML tags
-    text = re.sub(
-        r"<[^>]+>",
-        " ",
-        text,
-    )
-
-    # Remove excessive whitespace
-    text = re.sub(
-        r"\s+",
-        " ",
-        text,
-    ).strip()
-
-    return text
-
-
-def _trim_sentence(
-    text: str,
-    max_chars: int = 420,
-) -> str:
-    """
-    Keep fallback paragraphs reasonably short.
-    """
-
-    text = _clean_text(text)
-
-    if len(text) <= max_chars:
-        return text
-
-    cut = text[:max_chars]
-
-    last_space = cut.rfind(" ")
-
-    if last_space > 150:
-        cut = cut[:last_space]
-
-    return cut.rstrip(" .,;:") + "."
-
-
-def _python_fallback_post(
+def generate_news_post(
     article: dict,
-    ticker: str,
 ) -> dict:
     """
-    Create a post without AI.
-
-    This uses ONLY the supplied article headline/content.
+    Generate a Binance Square post ONLY for a verified
+    Binance-listed crypto asset.
     """
 
-    asset_name = _detect_asset_name(ticker)
+    # ---------------------------------------------------------
+    # Get ticker saved by candidate selector
+    # ---------------------------------------------------------
+
+    ticker = article.get(
+        "ticker"
+    )
+
+    if not ticker:
+
+        ticker = _detect_ticker(
+            article
+        )
+
+    if not ticker:
+
+        raise RuntimeError(
+            "Article rejected: no Binance-listed crypto "
+            "ticker detected."
+        )
+
+    ticker = ticker.upper().strip()
+
+    # ---------------------------------------------------------
+    # Verify again against Binance
+    # ---------------------------------------------------------
+
+    if not is_binance_crypto_ticker(
+        ticker
+    ):
+
+        raise RuntimeError(
+            f"Article rejected: ${ticker} is not currently "
+            "verified as a Binance Spot crypto asset."
+        )
+
+    # ---------------------------------------------------------
+    # Get asset name
+    # ---------------------------------------------------------
+
+    asset_name = _detect_asset_name(
+        ticker
+    )
 
     if not asset_name:
-        asset_name = ticker
 
-    headline = _clean_text(
-        _get_article_title(article)
-    )
-
-    content = _clean_text(
-        _get_article_content(article)
-    )
-
-    if not headline:
-        headline = f"Latest {asset_name} development"
-
-    if not content:
-        content = headline
+        raise RuntimeError(
+            f"Article rejected: unable to identify "
+            f"crypto asset ${ticker}."
+        )
 
     # ---------------------------------------------------------
-    # Remove accidental markdown / hashtags
+    # Groq
     # ---------------------------------------------------------
 
-    headline = re.sub(
-        r"#\w+",
-        "",
-        headline,
-    ).strip()
-
-    content = re.sub(
-        r"#\w+",
-        "",
-        content,
-    ).strip()
-
-    # ---------------------------------------------------------
-    # Build factual fallback title
-    # ---------------------------------------------------------
-
-    title = (
-        f"{asset_name} (${ticker}): "
-        f"Latest Development Draws Attention"
+    client = Groq(
+        api_key=cfg.GROQ_API_KEY
     )
 
     # ---------------------------------------------------------
-    # Paragraph 1
+    # Prompt
     # ---------------------------------------------------------
 
-    paragraph_1 = (
-        f"{headline} "
-        f"The development puts renewed attention on "
-        f"{asset_name} (${ticker})."
+    user_prompt = f"""Article headline:
+{article.get('headline')}
+
+Article summary:
+{article.get('summary')}
+
+Source:
+{article.get('source', 'unknown')}
+
+Verified Binance crypto asset:
+{asset_name}
+
+Verified ticker:
+${ticker}
+
+Create a Binance Square crypto news post using ONLY the
+article headline and summary.
+
+The article MUST be about:
+
+{asset_name} (${ticker})
+
+TITLE:
+
+Use exactly this structure:
+
+{asset_name} (${ticker}): Hook
+
+BODY:
+
+Write exactly 3 short factual paragraphs.
+
+Use only facts from the article.
+
+Do NOT add:
+- hashtags
+- emojis
+- bullet points
+- risk section
+- investment advice
+- buy/sell language
+- long/short language
+- target language
+- unsupported predictions
+- invented statistics
+- invented events
+
+Do NOT create or change the ticker.
+
+Do NOT add the final **${ticker}** line.
+Python will add it.
+
+Return ONLY:
+
+{{
+  "title": string,
+  "body": string
+}}"""
+
+    # ---------------------------------------------------------
+    # Call Groq
+    # ---------------------------------------------------------
+
+    completion = client.chat.completions.create(
+        model=cfg.GROQ_MODEL,
+        temperature=0.6,
+        messages=[
+            {
+                "role": "system",
+                "content": SYSTEM_PROMPT,
+            },
+            {
+                "role": "user",
+                "content": user_prompt,
+            },
+        ],
+    )
+
+    raw = (
+        completion.choices[0].message.content
+        or ""
     )
 
     # ---------------------------------------------------------
-    # Paragraph 2
+    # Clean response
     # ---------------------------------------------------------
 
-    paragraph_2 = (
-        f"According to the reported information, "
-        f"{_trim_sentence(content, 430)}"
+    cleaned = (
+        raw
+        .replace(
+            "```json",
+            "",
+        )
+        .replace(
+            "```",
+            "",
+        )
+        .strip()
     )
 
     # ---------------------------------------------------------
-    # Paragraph 3
+    # Parse JSON
     # ---------------------------------------------------------
 
-    paragraph_3 = (
-        f"The latest development gives market observers "
-        f"a new detail to monitor around {asset_name} "
-        f"and its ongoing crypto-market activity."
-    )
+    try:
 
-    body = "\n\n".join(
-        [
-            _trim_sentence(
-                paragraph_1,
-                430,
-            ),
-            _trim_sentence(
-                paragraph_2,
-                430,
-            ),
-            _trim_sentence(
-                paragraph_3,
-                430,
-            ),
-        ]
-    )
+        post = json.loads(
+            cleaned
+        )
 
-    return {
-        "title": title,
-        "body": body,
-        "url": article.get("url"),
-        "ticker": ticker,
-    }
+    except json.JSONDecodeError as err:
 
+        raise RuntimeError(
+            f"Model did not return valid JSON: {raw}"
+        ) from err
 
-# =============================================================
-# VALIDATE GENERATED POST
-# =============================================================
-
-def _validate_generated_post(
-    post: dict,
-    ticker: str,
-) -> dict:
+    # ---------------------------------------------------------
+    # Validate
+    # ---------------------------------------------------------
 
     title = str(
         post.get(
@@ -760,18 +820,14 @@ def _validate_generated_post(
         )
     ).strip()
 
-    if not title:
-        raise RuntimeError(
-            "Generated post has an empty title."
-        )
+    if not title or not body:
 
-    if not body:
         raise RuntimeError(
-            "Generated post has an empty body."
+            "AI returned an empty title or body."
         )
 
     # ---------------------------------------------------------
-    # Title ticker
+    # Verify ticker in title
     # ---------------------------------------------------------
 
     title_tickers = re.findall(
@@ -779,424 +835,51 @@ def _validate_generated_post(
         title.upper(),
     )
 
-    if not title_tickers:
-        raise RuntimeError(
-            f"Generated title is missing ${ticker}: {title}"
-        )
+    if title_tickers:
 
-    if title_tickers[0] != ticker:
-        raise RuntimeError(
-            f"Generated title used wrong ticker "
-            f"${title_tickers[0]} instead of ${ticker}"
-        )
+        if title_tickers[0] != ticker:
+
+            raise RuntimeError(
+                f"AI used wrong ticker in title: "
+                f"${title_tickers[0]} "
+                f"instead of ${ticker}"
+            )
+
+    # ---------------------------------------------------------
+    # Require correct ticker marker
+    # ---------------------------------------------------------
 
     expected_marker = f"(${ticker})"
 
     if expected_marker not in title.upper():
+
         raise RuntimeError(
-            f"Generated title does not contain "
-            f"verified ticker ${ticker}: {title}"
+            f"AI title does not contain verified "
+            f"ticker ${ticker}: {title}"
         )
 
     # ---------------------------------------------------------
-    # Body ticker validation
+    # Save final post
     # ---------------------------------------------------------
-
-    body_tickers = re.findall(
-        r"\$([A-Z][A-Z0-9]{1,14})\b",
-        body.upper(),
-    )
-
-    for body_ticker in body_tickers:
-
-        if body_ticker != ticker:
-            raise RuntimeError(
-                f"Generated body introduced another "
-                f"ticker ${body_ticker}."
-            )
-
-    # ---------------------------------------------------------
-    # Forbidden language
-    # ---------------------------------------------------------
-
-    combined_text = (
-        f"{title}\n{body}"
-    ).lower()
-
-    forbidden_patterns = [
-        r"#\w+",
-        r"\bbuy\b",
-        r"\bsell\b",
-        r"\blong\b",
-        r"\bshort\b",
-        r"\bentry\b",
-        r"\bstop[\s-]?loss\b",
-        r"\btake[\s-]?profit\b",
-    ]
-
-    for pattern in forbidden_patterns:
-
-        if re.search(
-            pattern,
-            combined_text,
-        ):
-
-            raise RuntimeError(
-                "Generated post contains forbidden "
-                f"content matching: {pattern}"
-            )
 
     post["title"] = title
     post["body"] = body
+    post["url"] = article.get(
+        "url"
+    )
     post["ticker"] = ticker
 
     return post
 
 
-# =============================================================
-# GENERATE NEWS POST
-# =============================================================
-
-def generate_news_post(
-    article: dict,
-) -> dict | None:
-
-    # =========================================================
-    # Get verified ticker
-    # =========================================================
-
-    ticker = article.get("ticker")
-
-    if not ticker:
-
-        ticker = _detect_ticker(article)
-
-    if not ticker:
-
-        raise RuntimeError(
-            "Article rejected: no Binance-listed "
-            "crypto ticker detected."
-        )
-
-    ticker = str(
-        ticker
-    ).upper().replace(
-        "$",
-        "",
-    ).strip()
-
-    # =========================================================
-    # Verify ticker AGAIN
-    # =========================================================
-
-    if not is_binance_crypto_ticker(
-        ticker
-    ):
-
-        raise RuntimeError(
-            f"Article rejected: ${ticker} is not "
-            "currently verified as a Binance Spot "
-            "crypto asset."
-        )
-
-    # =========================================================
-    # Asset name
-    # =========================================================
-
-    asset_name = _detect_asset_name(
-        ticker
-    )
-
-    if not asset_name:
-
-        raise RuntimeError(
-            f"Article rejected: unable to identify "
-            f"crypto asset ${ticker}."
-        )
-
-    # =========================================================
-    # Article
-    # =========================================================
-
-    headline = _get_article_title(
-        article
-    )
-
-    content = _get_article_content(
-        article
-    )
-
-    source = str(
-        article.get(
-            "source",
-            "unknown",
-        )
-    ).strip()
-
-    if not headline:
-
-        raise RuntimeError(
-            "Article rejected: missing headline."
-        )
-
-    if not content:
-        content = headline
-
-    # =========================================================
-    # Try Groq
-    # =========================================================
-
-    api_key = _get_groq_api_key()
-
-    if not api_key:
-
-        print(
-            "[news_post_generator] "
-            "Groq unavailable — using Python fallback."
-        )
-
-        return _python_fallback_post(
-            article,
-            ticker,
-        )
-
-    user_prompt = f"""
-Create a Binance Square crypto news post.
-
-VERIFIED CRYPTO ASSET:
-{asset_name}
-
-VERIFIED TICKER:
-${ticker}
-
-ARTICLE HEADLINE:
-{headline}
-
-ARTICLE CONTENT:
-{content}
-
-SOURCE:
-{source}
-
-The article is already verified by Python as being related to
-{asset_name} (${ticker}).
-
-Write ONLY about this verified asset.
-
-TITLE:
-{asset_name} (${ticker}): Hook
-
-The hook must be factual and attention-grabbing.
-
-BODY:
-Write exactly 3 short paragraphs.
-
-Use ONLY the supplied article information.
-
-Explain:
-1. What happened.
-2. The key development.
-3. Why the development matters according to the article.
-
-Do NOT add:
-- hashtags
-- emojis
-- bullet points
-- investment advice
-- buy/sell language
-- long/short language
-- target language
-- entry language
-- stop-loss language
-- take-profit language
-- unsupported predictions
-- invented statistics
-- invented events
-- invented quotes
-- outside knowledge
-
-Do not add a final ticker line.
-
-Return ONLY valid JSON:
-
-{{
-  "title": "string",
-  "body": "string"
-}}
-"""
-
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json",
-    }
-
-    payload = {
-        "model": getattr(
-            cfg,
-            "GROQ_MODEL",
-            "llama-3.3-70b-versatile",
-        ),
-        "messages": [
-            {
-                "role": "system",
-                "content": SYSTEM_PROMPT,
-            },
-            {
-                "role": "user",
-                "content": user_prompt,
-            },
-        ],
-        "temperature": 0.5,
-        "max_tokens": 400,
-    }
-
-    try:
-
-        print(
-            f"[news_post_generator] "
-            f"Generating post for ${ticker} via Groq API..."
-        )
-
-        response = requests.post(
-            GROQ_API_URL,
-            json=payload,
-            headers=headers,
-            timeout=30,
-        )
-
-        response.raise_for_status()
-
-        data = response.json()
-
-        raw = (
-            data.get(
-                "choices",
-                [{}],
-            )[0]
-            .get(
-                "message",
-                {},
-            )
-            .get(
-                "content",
-                "",
-            )
-            .strip()
-        )
-
-        if not raw:
-            raise RuntimeError(
-                "Groq returned an empty response."
-            )
-
-        # -----------------------------------------------------
-        # Remove markdown fences
-        # -----------------------------------------------------
-
-        cleaned = raw.strip()
-
-        if cleaned.startswith(
-            "```json"
-        ):
-
-            cleaned = cleaned[7:].strip()
-
-        elif cleaned.startswith(
-            "```"
-        ):
-
-            cleaned = cleaned[3:].strip()
-
-        if cleaned.endswith(
-            "```"
-        ):
-
-            cleaned = cleaned[:-3].strip()
-
-        # -----------------------------------------------------
-        # Parse JSON
-        # -----------------------------------------------------
-
-        try:
-
-            post = json.loads(
-                cleaned
-            )
-
-        except json.JSONDecodeError:
-
-            raise RuntimeError(
-                f"Groq did not return valid JSON: {raw}"
-            )
-
-        # -----------------------------------------------------
-        # Validate AI result
-        # -----------------------------------------------------
-
-        post = _validate_generated_post(
-            post,
-            ticker,
-        )
-
-        post["url"] = article.get(
-            "url"
-        )
-
-        print(
-            f"[news_post_generator] "
-            f"Groq post generated successfully "
-            f"({len(post['body'])} body chars)."
-        )
-
-        return post
-
-    except requests.RequestException as err:
-
-        print(
-            "[news_post_generator] "
-            f"Groq API request failed: {err}"
-        )
-
-        print(
-            "[news_post_generator] "
-            f"Using Python fallback for ${ticker}."
-        )
-
-        return _python_fallback_post(
-            article,
-            ticker,
-        )
-
-    except Exception as err:
-
-        print(
-            "[news_post_generator] "
-            f"Groq generation failed: {err}"
-        )
-
-        print(
-            "[news_post_generator] "
-            f"Using Python fallback for ${ticker}."
-        )
-
-        return _python_fallback_post(
-            article,
-            ticker,
-        )
-
-
-# =============================================================
-# FINAL BINANCE SQUARE FORMAT
-# =============================================================
-
 def format_news_post(
     post: dict,
 ) -> str:
+    """
+    Build final Binance Square post.
 
-    if not post:
-        raise RuntimeError(
-            "Refusing to publish: empty post."
-        )
+    Python generates the final ticker line.
+    """
 
     title = str(
         post.get(
@@ -1224,29 +907,21 @@ def format_news_post(
 
     ticker = str(
         ticker
-    ).upper().replace(
-        "$",
-        "",
-    ).strip()
-
-    if not is_binance_crypto_ticker(
-        ticker
-    ):
-
-        raise RuntimeError(
-            f"Refusing to publish: ${ticker} "
-            "is not a verified Binance crypto ticker."
-        )
+    ).upper().strip()
 
     parts = []
 
     if title:
-        parts.append(title)
+        parts.append(
+            title
+        )
 
     if body:
-        parts.append(body)
+        parts.append(
+            body
+        )
 
-    # Python-controlled ticker line
+    # Final ticker line
     parts.append(
         f"**${ticker}**"
     )
@@ -1255,18 +930,14 @@ def format_news_post(
         parts
     ).strip()
 
-    char_limit = int(
-        getattr(
-            cfg,
-            "CHAR_LIMIT",
-            2000,
-        )
-    )
+    # ---------------------------------------------------------
+    # Character limit
+    # ---------------------------------------------------------
 
-    if len(text) > char_limit:
+    if len(text) > cfg.CHAR_LIMIT:
 
         text = (
-            text[:char_limit]
+            text[:cfg.CHAR_LIMIT]
             .rstrip()
         )
 
