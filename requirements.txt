@@ -1,4 +1,3 @@
 requests
 groq
 python-dotenv
-feedparser
