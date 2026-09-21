@@ -1,6 +1,6 @@
 {
   "date": "2026-09-22",
-  "count": 6,
+  "count": 7,
   "seen_urls": [
     "https://cointelegraph.com/news/coinbase-files-to-bring-single-stock-perpetual-futures-to-us-market?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/markets/bitcoin-hits-81k-as-us-bond-yields-rebound-on-global-oil-woes?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -52,7 +52,8 @@
     "https://decrypt.co/378754/tom-lee-bitmine-adds-ethereum-crypto-bull-market",
     "https://decrypt.co/378667/zcash-upgrade-make-private-payments-3x-faster",
     "https://cointelegraph.com/markets/near-price-surge-intents-zcash-privacy?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://cointelegraph.com/news/ondo-lets-institutions-convert-stocks-directly-into-tokenized-shares?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+    "https://cointelegraph.com/news/ondo-lets-institutions-convert-stocks-directly-into-tokenized-shares?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+    "https://decrypt.co/videos/interviews/ZJJKjnAR/from-stellar-to-canton-how-franklin-templeton-adopted-tokenization"
   ],
   "posted_tickers": [
     "SOL",
@@ -60,6 +61,7 @@
     "ETH",
     "ZEC",
     "NEAR",
-    "ONDO"
+    "ONDO",
+    "WLD"
   ]
 }
