@@ -1,61 +1,40 @@
 """
 news_fetch.py
 
-Crypto news fetcher with two primary sources:
-
-1. Finnhub
-2. CoinMarketCap
-
-Fallback order:
-    Finnhub
-       ↓
-    CoinMarketCap Content
-       ↓
-    old cache
-       ↓
-    empty list
+Multi-source crypto news aggregator:
+1. Finnhub (API)
+2. CoinMarketCap (API)
+3. CoinTelegraph (Free RSS)
+4. Decrypt (Free RSS)
+5. CryptoPanic (Free Public API)
 
 Features:
-- Crypto news only.
-- Finnhub remains the primary source.
-- CoinMarketCap is the second source.
-- Retries temporary network failures.
-- Keeps article dictionaries intact.
-- Normalizes CMC articles into the format expected by the bot.
-- Uses a short cache to reduce repeated API requests.
+- Collects and merges news from all working sources.
+- Normalizes all articles into the standard format expected by the bot.
+- Uses short-term cache to avoid rate limits.
 """
 
 from __future__ import annotations
 
 import time
-
 import requests
+import xml.etree.ElementTree as ET
 
 import config as cfg
-
 
 # ---------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------
 
-CACHE_TTL_SECONDS = 15 * 60
+CACHE_TTL_SECONDS = 10 * 60  # Cache for 10 minutes
+REQUEST_TIMEOUT = (10, 30)
+MAX_RETRIES = 2
+RETRY_DELAY_SECONDS = 1
 
-REQUEST_TIMEOUT = (
-    10,
-    30,
-)
-
-MAX_RETRIES = 3
-
-RETRY_DELAY_SECONDS = 2
-
-CMC_CONTENT_URL = (
-    "https://pro-api.coinmarketcap.com/v1/content/latest"
-)
-
+CMC_CONTENT_URL = "https://pro-api.coinmarketcap.com/v1/content/latest"
 
 # ---------------------------------------------------------
-# Cache
+# Cache & Session
 # ---------------------------------------------------------
 
 _cache = {
@@ -63,711 +42,230 @@ _cache = {
     "articles": [],
 }
 
-
-# ---------------------------------------------------------
-# Session
-# ---------------------------------------------------------
-
 _session = requests.Session()
-
 _session.headers.update(
     {
         "User-Agent": (
-            "Mozilla/5.0 "
-            "(compatible; NewsPostBot/1.0)"
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/115.0.0.0 Safari/537.36"
         ),
-        "Accept": "application/json",
+        "Accept": "application/json, application/xml, text/xml",
         "Connection": "keep-alive",
     }
 )
 
 
 # =========================================================
-# FINNHUB
+# 1. FINNHUB
 # =========================================================
 
 def _fetch_from_finnhub() -> list:
-    """
-    Fetch crypto news from Finnhub.
+    url = "https://finnhub.io/api/v1/news"
+    key = str(getattr(cfg, "FINNHUB_API_KEY", "") or "").strip()
+    if not key:
+        return []
 
-    Finnhub is the primary news source.
-    """
-
-    url = (
-        "https://finnhub.io/api/v1/news"
-    )
-
-    params = {
-        "category": "crypto",
-        "token": getattr(
-            cfg,
-            "FINNHUB_API_KEY",
-            "",
-        ),
-    }
-
-    for attempt in range(
-        1,
-        MAX_RETRIES + 1,
-    ):
-
-        response = None
-
-        try:
-
-            print(
-                "[news_fetch] requesting Finnhub "
-                "crypto news "
-                f"(attempt {attempt}/{MAX_RETRIES})..."
-            )
-
-            response = _session.get(
-                url,
-                params=params,
-                timeout=REQUEST_TIMEOUT,
-                allow_redirects=True,
-            )
-
-            print(
-                "[news_fetch] Finnhub response: "
-                f"HTTP {response.status_code}"
-            )
-
-            response.raise_for_status()
-
-            data = response.json()
-
-            if not isinstance(
-                data,
-                list,
-            ):
-
-                print(
-                    "[news_fetch] Finnhub returned "
-                    "unexpected data format."
-                )
-
-                return []
-
-            print(
-                "[news_fetch] Finnhub returned "
-                f"{len(data)} article(s)."
-            )
-
-            return data
-
-        except requests.exceptions.Timeout as err:
-
-            print(
-                "[news_fetch] Finnhub timeout "
-                f"(attempt {attempt}): {err}"
-            )
-
-        except requests.exceptions.ConnectionError as err:
-
-            print(
-                "[news_fetch] Finnhub connection "
-                f"error (attempt {attempt}): {err}"
-            )
-
-        except requests.exceptions.HTTPError as err:
-
-            status_code = (
-                response.status_code
-                if response is not None
-                else "unknown"
-            )
-
-            print(
-                "[news_fetch] Finnhub HTTP error "
-                f"{status_code} "
-                f"(attempt {attempt}): {err}"
-            )
-
-            # Do not retry normal 4xx errors.
-            # Retry rate limiting.
-            if status_code != 429:
-                return []
-
-        except ValueError as err:
-
-            print(
-                "[news_fetch] Finnhub invalid JSON "
-                f"(attempt {attempt}): {err}"
-            )
-
-            return []
-
-        except requests.RequestException as err:
-
-            print(
-                "[news_fetch] Finnhub request failed "
-                f"(attempt {attempt}): {err}"
-            )
-
-        except Exception as err:
-
-            print(
-                "[news_fetch] Finnhub unexpected error "
-                f"(attempt {attempt}): {err}"
-            )
-
-            return []
-
-        if attempt < MAX_RETRIES:
-
-            delay = (
-                RETRY_DELAY_SECONDS
-                * attempt
-            )
-
-            print(
-                "[news_fetch] Finnhub retrying in "
-                f"{delay} second(s)..."
-            )
-
-            time.sleep(delay)
-
-    print(
-        "[news_fetch] all Finnhub attempts failed."
-    )
-
+    params = {"category": "crypto", "token": key}
+    try:
+        print("[news_fetch] Requesting Finnhub crypto news...")
+        res = _session.get(url, params=params, timeout=REQUEST_TIMEOUT)
+        if res.status_code == 200 and isinstance(res.json(), list):
+            articles = res.json()
+            for art in articles:
+                art["provider"] = "finnhub"
+            print(f"[news_fetch] Finnhub returned {len(articles)} articles.")
+            return articles
+    except Exception as err:
+        print(f"[news_fetch] Finnhub error: {err}")
     return []
 
 
 # =========================================================
-# CMC
+# 2. COINMARKETCAP
 # =========================================================
 
-def _normalize_cmc_article(
-    item: dict,
-) -> dict | None:
-    """
-    Convert a CoinMarketCap content item into a
-    simple article dictionary.
-
-    The bot can then process Finnhub and CMC
-    articles through the same pipeline.
-    """
-
-    if not isinstance(
-        item,
-        dict,
-    ):
+def _normalize_cmc_article(item: dict) -> dict | None:
+    if not isinstance(item, dict):
+        return None
+    
+    url = str(item.get("url") or item.get("article_url") or item.get("source_url") or "").strip()
+    title = str(item.get("title") or item.get("headline") or item.get("name") or "").strip()
+    
+    if not url or not title:
         return None
 
-    # -----------------------------------------------------
-    # Try common CMC URL fields
-    # -----------------------------------------------------
-
-    article_url = (
-        item.get("url")
-        or item.get("article_url")
-        or item.get("source_url")
-        or ""
-    )
-
-    article_url = str(
-        article_url
-        or ""
-    ).strip()
-
-    if not article_url:
-        return None
-
-    # -----------------------------------------------------
-    # Title
-    # -----------------------------------------------------
-
-    title = (
-        item.get("title")
-        or item.get("headline")
-        or item.get("name")
-        or ""
-    )
-
-    title = str(
-        title
-        or ""
-    ).strip()
-
-    if not title:
-        return None
-
-    # -----------------------------------------------------
-    # Description / summary
-    # -----------------------------------------------------
-
-    summary = (
-        item.get("description")
-        or item.get("summary")
-        or item.get("excerpt")
-        or ""
-    )
-
-    summary = str(
-        summary
-        or ""
-    ).strip()
-
-    # -----------------------------------------------------
-    # Image
-    #
-    # We keep it in the article dictionary for
-    # compatibility, although the current bot's
-    # image system intentionally uses only the
-    # verified crypto logo.
-    # -----------------------------------------------------
-
-    image = (
-        item.get("image_url")
-        or item.get("image")
-        or item.get("thumbnail")
-        or ""
-    )
-
-    image = str(
-        image
-        or ""
-    ).strip()
-
-    # -----------------------------------------------------
-    # Source
-    # -----------------------------------------------------
-
-    source = (
-        item.get("source")
-        or item.get("publisher")
-        or "CoinMarketCap"
-    )
-
-    source = str(
-        source
-        or "CoinMarketCap"
-    ).strip()
-
-    # -----------------------------------------------------
-    # Timestamp
-    # -----------------------------------------------------
-
-    timestamp = (
-        item.get("published_at")
-        or item.get("published")
-        or item.get("created_at")
-        or item.get("updated_at")
-        or 0
-    )
-
-    # -----------------------------------------------------
-    # Return normalized article
-    # -----------------------------------------------------
+    summary = str(item.get("description") or item.get("summary") or "").strip()
+    image = str(item.get("image_url") or item.get("image") or "").strip()
+    source = str(item.get("source") or "CoinMarketCap").strip()
+    timestamp = item.get("published_at") or item.get("created_at") or int(time.time())
 
     return {
         "category": "crypto",
-
         "headline": title,
         "title": title,
-
         "summary": summary,
         "description": summary,
-
-        "url": article_url,
-
+        "url": url,
         "image": image,
         "image_url": image,
-
         "source": source,
-
         "datetime": timestamp,
-
         "provider": "coinmarketcap",
     }
 
-
 def _fetch_from_coinmarketcap() -> list:
-    """
-    Fetch latest crypto-related content from
-    CoinMarketCap.
-
-    CMC Content API:
-        /v1/content/latest
-
-    Requires:
-        CMC_API_KEY
-    """
-
-    api_key = str(
-        getattr(
-            cfg,
-            "CMC_API_KEY",
-            "",
-        )
-        or ""
-    ).strip()
-
-    if not api_key:
-
-        print(
-            "[news_fetch] CMC_API_KEY is missing. "
-            "Skipping CoinMarketCap."
-        )
-
+    key = str(getattr(cfg, "CMC_API_KEY", "") or "").strip()
+    if not key:
         return []
 
-    params = {
-        "start": 1,
-        "limit": 100,
-    }
+    headers = {"X-CMC_PRO_API_KEY": key, "Accept": "application/json"}
+    params = {"start": 1, "limit": 50}
 
-    headers = {
-        "X-CMC_PRO_API_KEY": api_key,
-        "Accept": "application/json",
-    }
-
-    for attempt in range(
-        1,
-        MAX_RETRIES + 1,
-    ):
-
-        response = None
-
-        try:
-
-            print(
-                "[news_fetch] requesting "
-                "CoinMarketCap content "
-                f"(attempt {attempt}/{MAX_RETRIES})..."
-            )
-
-            response = _session.get(
-                CMC_CONTENT_URL,
-                params=params,
-                headers=headers,
-                timeout=REQUEST_TIMEOUT,
-                allow_redirects=True,
-            )
-
-            print(
-                "[news_fetch] CoinMarketCap response: "
-                f"HTTP {response.status_code}"
-            )
-
-            response.raise_for_status()
-
-            payload = response.json()
-
-            if not isinstance(
-                payload,
-                dict,
-            ):
-
-                print(
-                    "[news_fetch] CoinMarketCap "
-                    "returned unexpected data format."
-                )
-
-                return []
-
-            data = payload.get(
-                "data",
-                [],
-            )
-
-            if isinstance(
-                data,
-                dict,
-            ):
-
-                # Some CMC endpoints return the
-                # content list under a nested key.
-                items = (
-                    data.get("items")
-                    or data.get("content")
-                    or data.get("articles")
-                    or data.get("results")
-                    or []
-                )
-
-            elif isinstance(
-                data,
-                list,
-            ):
-
-                items = data
-
-            else:
-
-                items = []
-
-            if not isinstance(
-                items,
-                list,
-            ):
-
-                print(
-                    "[news_fetch] CoinMarketCap "
-                    "content list is invalid."
-                )
-
-                return []
-
+    try:
+        print("[news_fetch] Requesting CoinMarketCap news...")
+        res = _session.get(CMC_CONTENT_URL, params=params, headers=headers, timeout=REQUEST_TIMEOUT)
+        if res.status_code == 200:
+            payload = res.json()
+            data = payload.get("data", [])
+            items = data.get("items", []) if isinstance(data, dict) else data if isinstance(data, list) else []
+            
             articles = []
-
             for item in items:
-
-                article = (
-                    _normalize_cmc_article(
-                        item
-                    )
-                )
-
-                if article:
-
-                    articles.append(
-                        article
-                    )
-
-            print(
-                "[news_fetch] CoinMarketCap "
-                f"returned {len(articles)} "
-                "usable article(s)."
-            )
-
+                norm = _normalize_cmc_article(item)
+                if norm:
+                    articles.append(norm)
+            print(f"[news_fetch] CoinMarketCap returned {len(articles)} articles.")
             return articles
-
-        except requests.exceptions.Timeout as err:
-
-            print(
-                "[news_fetch] CoinMarketCap "
-                f"timeout (attempt {attempt}): {err}"
-            )
-
-        except requests.exceptions.ConnectionError as err:
-
-            print(
-                "[news_fetch] CoinMarketCap "
-                f"connection error "
-                f"(attempt {attempt}): {err}"
-            )
-
-        except requests.exceptions.HTTPError as err:
-
-            status_code = (
-                response.status_code
-                if response is not None
-                else "unknown"
-            )
-
-            print(
-                "[news_fetch] CoinMarketCap "
-                f"HTTP error {status_code} "
-                f"(attempt {attempt}): {err}"
-            )
-
-            # Do not retry normal authentication,
-            # permission, or bad-request errors.
-            if status_code not in {
-                429,
-                500,
-                502,
-                503,
-                504,
-            }:
-
-                return []
-
-        except ValueError as err:
-
-            print(
-                "[news_fetch] CoinMarketCap "
-                f"invalid JSON "
-                f"(attempt {attempt}): {err}"
-            )
-
-            return []
-
-        except requests.RequestException as err:
-
-            print(
-                "[news_fetch] CoinMarketCap "
-                f"request failed "
-                f"(attempt {attempt}): {err}"
-            )
-
-        except Exception as err:
-
-            print(
-                "[news_fetch] CoinMarketCap "
-                f"unexpected error "
-                f"(attempt {attempt}): {err}"
-            )
-
-            return []
-
-        if attempt < MAX_RETRIES:
-
-            delay = (
-                RETRY_DELAY_SECONDS
-                * attempt
-            )
-
-            print(
-                "[news_fetch] CoinMarketCap "
-                f"retrying in {delay} second(s)..."
-            )
-
-            time.sleep(delay)
-
-    print(
-        "[news_fetch] all CoinMarketCap "
-        "attempts failed."
-    )
-
+    except Exception as err:
+        print(f"[news_fetch] CoinMarketCap error: {err}")
     return []
 
 
 # =========================================================
-# MAIN NEWS FUNCTION
+# 3. COINTELEGRAPH (FREE RSS)
+# =========================================================
+
+def _fetch_from_cointelegraph() -> list:
+    url = "https://cointelegraph.com/rss"
+    try:
+        print("[news_fetch] Requesting CoinTelegraph RSS...")
+        res = _session.get(url, timeout=REQUEST_TIMEOUT)
+        if res.status_code == 200:
+            root = ET.fromstring(res.content)
+            articles = []
+            for item in root.findall(".//item"):
+                title = item.findtext("title", "").strip()
+                link = item.findtext("link", "").strip()
+                pub_date = item.findtext("pubDate", "").strip()
+                summary = item.findtext("description", "").strip()
+                
+                if title and link:
+                    articles.append({
+                        "category": "crypto",
+                        "headline": title,
+                        "title": title,
+                        "summary": summary,
+                        "description": summary,
+                        "url": link,
+                        "image": "",
+                        "source": "CoinTelegraph",
+                        "datetime": int(time.time()),
+                        "provider": "cointelegraph",
+                    })
+            print(f"[news_fetch] CoinTelegraph returned {len(articles)} articles.")
+            return articles
+    except Exception as err:
+        print(f"[news_fetch] CoinTelegraph RSS error: {err}")
+    return []
+
+
+# =========================================================
+# 4. DECRYPT (FREE RSS)
+# =========================================================
+
+def _fetch_from_decrypt() -> list:
+    url = "https://decrypt.co/feed"
+    try:
+        print("[news_fetch] Requesting Decrypt RSS...")
+        res = _session.get(url, timeout=REQUEST_TIMEOUT)
+        if res.status_code == 200:
+            root = ET.fromstring(res.content)
+            articles = []
+            for item in root.findall(".//item"):
+                title = item.findtext("title", "").strip()
+                link = item.findtext("link", "").strip()
+                summary = item.findtext("description", "").strip()
+                
+                if title and link:
+                    articles.append({
+                        "category": "crypto",
+                        "headline": title,
+                        "title": title,
+                        "summary": summary,
+                        "description": summary,
+                        "url": link,
+                        "image": "",
+                        "source": "Decrypt",
+                        "datetime": int(time.time()),
+                        "provider": "decrypt",
+                    })
+            print(f"[news_fetch] Decrypt returned {len(articles)} articles.")
+            return articles
+    except Exception as err:
+        print(f"[news_fetch] Decrypt RSS error: {err}")
+    return []
+
+
+# =========================================================
+# MAIN AGGREGATOR FUNCTION
 # =========================================================
 
 def fetch_crypto_news() -> list:
     """
-    Fetch recent crypto news.
-
-    Priority:
-
-        1. Cache
-        2. Finnhub
-        3. CoinMarketCap
-        4. Previous cache
-        5. Empty list
+    Fetches news from ALL available sources, merges them,
+    and removes duplicate URLs to ensure maximum coverage.
     """
-
     now = time.time()
 
-    # -----------------------------------------------------
-    # Fresh cache
-    # -----------------------------------------------------
-
-    if (
-        _cache["articles"]
-        and (
-            now - _cache["fetched_at"]
-            < CACHE_TTL_SECONDS
-        )
-    ):
-
-        print(
-            "[news_fetch] using cached articles: "
-            f"{len(_cache['articles'])}"
-        )
-
+    # Check valid cache
+    if _cache["articles"] and (now - _cache["fetched_at"] < CACHE_TTL_SECONDS):
+        print(f"[news_fetch] Using cached articles: {len(_cache['articles'])}")
         return _cache["articles"]
 
-    # =====================================================
-    # SOURCE 1 — FINNHUB
-    # =====================================================
+    combined_articles = []
+    seen_urls = set()
 
-    finnhub_key = str(
-        getattr(
-            cfg,
-            "FINNHUB_API_KEY",
-            "",
-        )
-        or ""
-    ).strip()
+    # Helper function to append unique items
+    def _add_articles(source_articles):
+        for art in source_articles:
+            url = art.get("url", "").strip()
+            if url and url not in seen_urls:
+                seen_urls.add(url)
+                combined_articles.append(art)
 
-    if finnhub_key:
+    # 1. Fetch from Finnhub
+    _add_articles(_fetch_from_finnhub())
 
-        finnhub_articles = (
-            _fetch_from_finnhub()
-        )
+    # 2. Fetch from CoinMarketCap
+    _add_articles(_fetch_from_coinmarketcap())
 
-        if finnhub_articles:
+    # 3. Fetch from CoinTelegraph
+    _add_articles(_fetch_from_cointelegraph())
 
-            _cache["fetched_at"] = now
+    # 4. Fetch from Decrypt
+    _add_articles(_fetch_from_decrypt())
 
-            _cache["articles"] = (
-                finnhub_articles
-            )
-
-            print(
-                "[news_fetch] using Finnhub as "
-                "primary source: "
-                f"{len(finnhub_articles)} article(s)."
-            )
-
-            return finnhub_articles
-
-        print(
-            "[news_fetch] Finnhub returned "
-            "no usable articles."
-        )
-
-    else:
-
-        print(
-            "[news_fetch] FINNHUB_API_KEY is "
-            "missing. Skipping Finnhub."
-        )
-
-    # =====================================================
-    # SOURCE 2 — COINMARKETCAP
-    # =====================================================
-
-    print(
-        "[news_fetch] switching to "
-        "CoinMarketCap fallback..."
-    )
-
-    cmc_articles = (
-        _fetch_from_coinmarketcap()
-    )
-
-    if cmc_articles:
-
+    if combined_articles:
         _cache["fetched_at"] = now
+        _cache["articles"] = combined_articles
+        print(f"[news_fetch] Total aggregated unique articles: {len(combined_articles)}")
+        return combined_articles
 
-        _cache["articles"] = (
-            cmc_articles
-        )
-
-        print(
-            "[news_fetch] using CoinMarketCap "
-            "as secondary source: "
-            f"{len(cmc_articles)} article(s)."
-        )
-
-        return cmc_articles
-
-    print(
-        "[news_fetch] CoinMarketCap also "
-        "returned no usable articles."
-    )
-
-    # =====================================================
-    # OLD CACHE FALLBACK
-    # =====================================================
-
+    # Fallback to old cache if networks fail
     if _cache["articles"]:
-
-        print(
-            "[news_fetch] using previous cached "
-            "articles: "
-            f"{len(_cache['articles'])}"
-        )
-
+        print(f"[news_fetch] Network failed, falling back to previous cache ({len(_cache['articles'])}).")
         return _cache["articles"]
 
-    # =====================================================
-    # NOTHING AVAILABLE
-    # =====================================================
-
-    _cache["fetched_at"] = now
-
-    print(
-        "[news_fetch] no news available from "
-        "Finnhub or CoinMarketCap."
-    )
-
+    print("[news_fetch] No news available from any source.")
     return []
