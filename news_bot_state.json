@@ -1,6 +1,6 @@
 {
-  "date": "2026-09-21",
-  "count": 14,
+  "date": "2026-09-22",
+  "count": 1,
   "seen_urls": [
     "https://cointelegraph.com/news/coinbase-files-to-bring-single-stock-perpetual-futures-to-us-market?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/markets/bitcoin-hits-81k-as-us-bond-yields-rebound-on-global-oil-woes?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -46,22 +46,10 @@
     "https://decrypt.co/resources/what-is-arc-the-stablecoin-blockchain-from-usdc-issuer-circle",
     "https://decrypt.co/378697/visa-close-meme-coin-credit-card-rewards-loophole",
     "https://www.coindesk.com/business/2026/09/19/robinhood-chain-fees-collapse-97-even-as-transactions-stay-near-record-highs",
-    "https://decrypt.co/378720/crypto-workers-children-held-hostage-in-latest-french-wrench-attack-46000-taken"
+    "https://decrypt.co/378720/crypto-workers-children-held-hostage-in-latest-french-wrench-attack-46000-taken",
+    "https://investinglive.com/cryptocurrency/solana-outperforms-large-cap-cryptocurrencies-on-positive-regulatory-developments-and-etf-inflows/"
   ],
   "posted_tickers": [
-    "BTC",
-    "ZEC",
-    "ETH",
-    "XRP",
-    "ACT",
-    "ARB",
-    "CYBER",
-    "BANK",
-    "SOL",
-    "HOME",
-    "LAYER",
-    "MEME",
-    "NEAR",
-    "WLD"
+    "SOL"
   ]
 }
