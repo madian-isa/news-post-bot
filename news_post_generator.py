@@ -11,6 +11,8 @@ Rules:
 - Same crypto ticker can only be posted ONCE per Bangladesh day.
 - AI cannot invent or change the verified ticker.
 - Standalone English words are NOT accepted as tickers.
+- Finnhub is checked first.
+- RSS is checked if Finnhub has no eligible article after filtering.
 """
 
 import re
@@ -22,6 +24,7 @@ from groq import Groq
 import config as cfg
 
 from news_fetch import fetch_crypto_news
+from rss_news import fetch_rss_crypto_news
 
 from binance_symbols import (
     get_binance_crypto_tickers,
@@ -160,8 +163,6 @@ KNOWN_ASSET_NAMES = {
 
 # =========================================================
 # COMMON ENGLISH WORDS
-#
-# These are NEVER accepted as standalone tickers.
 # =========================================================
 
 COMMON_WORD_TICKERS = {
@@ -246,7 +247,7 @@ COMMON_WORD_TICKERS = {
     "COULD",
     "SHOULD",
 
-    # Common words that have caused false detections
+    # False-positive words
     "BANK",
     "HOME",
     "NEWS",
@@ -308,63 +309,8 @@ COMMON_WORD_TICKERS = {
 
 
 # =========================================================
-# CRYPTO CONTEXT WORDS
-# =========================================================
-
-CRYPTO_CONTEXT_WORDS = (
-    "crypto",
-    "cryptocurrency",
-    "cryptocurrencies",
-    "token",
-    "tokens",
-    "coin",
-    "coins",
-    "blockchain",
-    "network",
-    "protocol",
-    "defi",
-    "stablecoin",
-    "stablecoins",
-    "wallet",
-    "exchange",
-    "onchain",
-    "on-chain",
-    "web3",
-    "layer",
-    "mainnet",
-    "testnet",
-    "dao",
-    "staking",
-    "ecosystem",
-    "altcoin",
-    "altcoins",
-    "digital asset",
-    "digital assets",
-)
-
-
-# =========================================================
 # HELPERS
 # =========================================================
-
-def _contains_crypto_context(
-    text: str,
-) -> bool:
-    """
-    Check whether the text contains an explicit
-    crypto-related context word.
-    """
-
-    if not text:
-        return False
-
-    lower_text = text.lower()
-
-    return any(
-        word in lower_text
-        for word in CRYPTO_CONTEXT_WORDS
-    )
-
 
 def _is_valid_binance_ticker(
     ticker: str,
@@ -401,197 +347,6 @@ def _is_valid_binance_ticker(
 
 
 # =========================================================
-# CANDIDATE ARTICLE
-# =========================================================
-
-def get_candidate_article(
-    seen_urls: set,
-    blocked_tickers: set | None = None,
-) -> dict | None:
-    """
-    Return ONE eligible crypto article.
-
-    Rules:
-    - Already-posted article URL is skipped.
-    - Already-posted ticker for today is skipped.
-    - Articles without a reliable crypto ticker are skipped.
-    - Ticker must be currently listed on Binance Spot.
-    """
-
-    if blocked_tickers is None:
-        blocked_tickers = set()
-
-    blocked_tickers = {
-        str(t).upper().strip()
-        for t in blocked_tickers
-        if t
-    }
-
-    articles = fetch_crypto_news()
-
-    if not articles:
-
-        print(
-            "[news] news source returned "
-            "no articles."
-        )
-
-        return None
-
-    candidates = []
-
-    # ---------------------------------------------------------
-    # Current Binance Spot tickers
-    # ---------------------------------------------------------
-
-    binance_tickers = (
-        get_binance_crypto_tickers()
-    )
-
-    if not binance_tickers:
-
-        print(
-            "[news] Binance symbol list unavailable."
-        )
-
-        return None
-
-    # ---------------------------------------------------------
-    # Process articles
-    # ---------------------------------------------------------
-
-    for article in articles:
-
-        if not isinstance(
-            article,
-            dict,
-        ):
-            continue
-
-        url = str(
-            article.get(
-                "url",
-                "",
-            )
-            or ""
-        ).strip()
-
-        headline = str(
-            article.get(
-                "headline",
-                "",
-            )
-            or ""
-        ).strip()
-
-        summary = str(
-            article.get(
-                "summary",
-                "",
-            )
-            or ""
-        ).strip()
-
-        # -----------------------------------------------------
-        # Basic validation
-        # -----------------------------------------------------
-
-        if not url:
-            continue
-
-        if url in seen_urls:
-
-            print(
-                "[news] SKIP — article already posted: "
-                f"{headline}"
-            )
-
-            continue
-
-        if not headline:
-            continue
-
-        # -----------------------------------------------------
-        # Detect ticker
-        # -----------------------------------------------------
-
-        ticker = _detect_ticker(
-            article,
-            binance_tickers,
-        )
-
-        if not ticker:
-
-            print(
-                "[news] SKIP — no reliable Binance "
-                f"crypto ticker: {headline}"
-            )
-
-            continue
-
-        ticker = (
-            ticker
-            .upper()
-            .strip()
-        )
-
-        # -----------------------------------------------------
-        # Daily ticker block
-        # -----------------------------------------------------
-
-        if ticker in blocked_tickers:
-
-            print(
-                f"[news] SKIP — ${ticker} already "
-                f"posted today: {headline}"
-            )
-
-            continue
-
-        # -----------------------------------------------------
-        # Save verified ticker
-        # -----------------------------------------------------
-
-        article["ticker"] = ticker
-
-        candidates.append(
-            article
-        )
-
-    # ---------------------------------------------------------
-    # No candidates
-    # ---------------------------------------------------------
-
-    if not candidates:
-
-        print(
-            "[news] no eligible crypto article found "
-            "after Binance + article history + "
-            "daily ticker filters."
-        )
-
-        return None
-
-    # ---------------------------------------------------------
-    # Recent candidate pool
-    # ---------------------------------------------------------
-
-    pool = candidates[:10]
-
-    article = random.choice(
-        pool
-    )
-
-    print(
-        "[news] selected crypto article: "
-        f"${article.get('ticker')} — "
-        f"{article.get('headline')}"
-    )
-
-    return article
-
-
-# =========================================================
 # TICKER DETECTION
 # =========================================================
 
@@ -614,10 +369,11 @@ def _detect_ticker(
     as a standalone English word.
 
     This prevents false detections such as:
+
         BANK
         HOME
-        CYBER
         ACT
+        CYBER
         etc.
     """
 
@@ -628,7 +384,6 @@ def _detect_ticker(
         )
 
     if not binance_tickers:
-
         return None
 
     headline = str(
@@ -674,7 +429,7 @@ def _detect_ticker(
             return ticker
 
     # =========================================================
-    # 2. FINNHUB "RELATED"
+    # 2. FINNHUB RELATED
     # =========================================================
 
     related = article.get(
@@ -764,9 +519,7 @@ def _detect_ticker(
         ):
             continue
 
-        ticker = (
-            ASSET_NAME_MAP[name]
-        )
+        ticker = ASSET_NAME_MAP[name]
 
         if _is_valid_binance_ticker(
             ticker,
@@ -776,21 +529,339 @@ def _detect_ticker(
             return ticker
 
     # =========================================================
-    # IMPORTANT
+    # NO STANDALONE TICKER SCAN
     # =========================================================
+
+    return None
+
+
+# =========================================================
+# PROCESS ARTICLES
+# =========================================================
+
+def _process_articles(
+    articles: list,
+    source_name: str,
+    seen_urls: set,
+    blocked_tickers: set,
+    binance_tickers: set[str],
+) -> list:
+    """
+    Apply all article/ticker filters to one news source.
+    """
+
+    candidates = []
+
+    print(
+        f"[news] checking {len(articles)} "
+        f"article(s) from {source_name}..."
+    )
+
+    for article in articles:
+
+        if not isinstance(
+            article,
+            dict,
+        ):
+            continue
+
+        url = str(
+            article.get(
+                "url",
+                "",
+            )
+            or ""
+        ).strip()
+
+        headline = str(
+            article.get(
+                "headline",
+                "",
+            )
+            or ""
+        ).strip()
+
+        if not url:
+            continue
+
+        if not headline:
+            continue
+
+        # -----------------------------------------------------
+        # Already posted URL
+        # -----------------------------------------------------
+
+        if url in seen_urls:
+
+            print(
+                "[news] SKIP — article already posted: "
+                f"{headline}"
+            )
+
+            continue
+
+        # -----------------------------------------------------
+        # Detect reliable ticker
+        # -----------------------------------------------------
+
+        ticker = _detect_ticker(
+            article,
+            binance_tickers,
+        )
+
+        if not ticker:
+
+            print(
+                "[news] SKIP — no reliable Binance "
+                f"crypto ticker: {headline}"
+            )
+
+            continue
+
+        ticker = (
+            ticker
+            .upper()
+            .strip()
+        )
+
+        # -----------------------------------------------------
+        # Already posted ticker today
+        # -----------------------------------------------------
+
+        if ticker in blocked_tickers:
+
+            print(
+                f"[news] SKIP — ${ticker} already "
+                f"posted today: {headline}"
+            )
+
+            continue
+
+        # -----------------------------------------------------
+        # Save verified ticker
+        # -----------------------------------------------------
+
+        article["ticker"] = ticker
+
+        candidates.append(
+            article
+        )
+
+    return candidates
+
+
+# =========================================================
+# CANDIDATE ARTICLE
+# =========================================================
+
+def get_candidate_article(
+    seen_urls: set,
+    blocked_tickers: set | None = None,
+) -> dict | None:
+    """
+    Return ONE eligible crypto article.
+
+    Source flow:
+
+        Finnhub
+           ↓
+        filters
+           ↓
+        if nothing eligible
+           ↓
+        RSS
+           ↓
+        filters
+           ↓
+        no result → stop
+
+    The existing news_fetch.py still handles:
+        Finnhub → RSS → CMC
+    when the source itself is empty.
+
+    This function additionally triggers RSS when Finnhub
+    has articles but ALL of them are rejected by the
+    ticker/history/daily filters.
+    """
+
+    if blocked_tickers is None:
+        blocked_tickers = set()
+
+    blocked_tickers = {
+        str(t).upper().strip()
+        for t in blocked_tickers
+        if t
+    }
+
+    # ---------------------------------------------------------
+    # Binance assets
+    # ---------------------------------------------------------
+
+    binance_tickers = (
+        get_binance_crypto_tickers()
+    )
+
+    if not binance_tickers:
+
+        print(
+            "[news] Binance symbol list unavailable."
+        )
+
+        return None
+
+    # ---------------------------------------------------------
+    # FIRST SOURCE
     #
-    # No standalone Binance ticker detection.
+    # news_fetch.py normally returns Finnhub first.
+    # ---------------------------------------------------------
+
+    print(
+        "[news] checking Finnhub first..."
+    )
+
+    articles = fetch_crypto_news()
+
+    if not articles:
+
+        print(
+            "[news] news source returned "
+            "no articles."
+        )
+
+        return None
+
+    # ---------------------------------------------------------
+    # Detect whether returned source is already RSS
     #
-    # Example:
+    # RSS articles created by rss_news.py have:
     #
-    # "Bank of Korea launches..."
+    #     provider = "rss"
     #
-    # BANK may exist as a Binance ticker, but the article
-    # does not explicitly identify BANK as a crypto asset.
+    # Finnhub normally has no provider field.
+    # ---------------------------------------------------------
+
+    returned_rss = any(
+        isinstance(article, dict)
+        and article.get("provider") == "rss"
+        for article in articles
+    )
+
+    # ---------------------------------------------------------
+    # Filter Finnhub/current source
+    # ---------------------------------------------------------
+
+    candidates = _process_articles(
+        articles,
+        "Finnhub/current source",
+        seen_urls,
+        blocked_tickers,
+        binance_tickers,
+    )
+
+    if candidates:
+
+        pool = candidates[:10]
+
+        article = random.choice(
+            pool
+        )
+
+        print(
+            "[news] selected crypto article: "
+            f"${article.get('ticker')} — "
+            f"{article.get('headline')}"
+        )
+
+        return article
+
+    # ---------------------------------------------------------
+    # RSS FALLBACK
     #
-    # Therefore it is rejected.
+    # This is the important new behavior.
     #
-    # =========================================================
+    # Finnhub can return 91 articles, but if all 91 are
+    # rejected, RSS is still queried.
+    # ---------------------------------------------------------
+
+    if returned_rss:
+
+        print(
+            "[news] current news source was already "
+            "RSS and produced no eligible article."
+        )
+
+    else:
+
+        print(
+            "[news] Finnhub has no eligible article "
+            "after Binance + article history + "
+            "daily ticker filters."
+        )
+
+        print(
+            "[news] triggering RSS fallback..."
+        )
+
+        try:
+
+            rss_articles = (
+                fetch_rss_crypto_news()
+            )
+
+        except Exception as err:
+
+            print(
+                f"[news] RSS fallback failed: {err}"
+            )
+
+            rss_articles = []
+
+        if rss_articles:
+
+            rss_candidates = _process_articles(
+                rss_articles,
+                "RSS",
+                seen_urls,
+                blocked_tickers,
+                binance_tickers,
+            )
+
+            if rss_candidates:
+
+                pool = rss_candidates[:10]
+
+                article = random.choice(
+                    pool
+                )
+
+                print(
+                    "[news] selected RSS crypto article: "
+                    f"${article.get('ticker')} — "
+                    f"{article.get('headline')}"
+                )
+
+                return article
+
+            print(
+                "[news] RSS returned articles, "
+                "but none passed the filters."
+            )
+
+        else:
+
+            print(
+                "[news] RSS returned no usable articles."
+            )
+
+    # ---------------------------------------------------------
+    # NOTHING AVAILABLE
+    # ---------------------------------------------------------
+
+    print(
+        "[news] no eligible crypto article found "
+        "after Binance + article history + "
+        "daily ticker filters."
+    )
 
     return None
 
@@ -810,7 +881,6 @@ def _detect_asset_name(
     """
 
     if not ticker:
-
         return None
 
     ticker = (
@@ -838,7 +908,7 @@ def generate_news_post(
     """
 
     # ---------------------------------------------------------
-    # Get verified ticker from candidate selector
+    # Get verified ticker
     # ---------------------------------------------------------
 
     ticker = article.get(
@@ -1031,7 +1101,7 @@ Return ONLY:
         ) from err
 
     # ---------------------------------------------------------
-    # Validate response object
+    # Validate response
     # ---------------------------------------------------------
 
     if not isinstance(
@@ -1164,16 +1234,10 @@ def format_news_post(
     parts = []
 
     if title:
-
-        parts.append(
-            title
-        )
+        parts.append(title)
 
     if body:
-
-        parts.append(
-            body
-        )
+        parts.append(body)
 
     # ---------------------------------------------------------
     # Final ticker line
