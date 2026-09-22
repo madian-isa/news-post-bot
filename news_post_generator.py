@@ -2,6 +2,16 @@
 news_post_generator.py
 
 Generates short, factual Binance Square crypto-asset news posts.
+
+Rules:
+- Only Binance-listed crypto assets are allowed.
+- Company-only / general news is handled: if no valid crypto ticker is found,
+  it checks if the news is crypto/Binance-related, but strictly maps to 
+  the actual coin/market mentioned or skips if none found.
+- Articles already posted are rejected.
+- Same crypto ticker can only be posted ONCE per Bangladesh day.
+- AI cannot invent or change the verified ticker.
+- If Groq fails, a factual Python fallback is used.
 """
 
 import json
@@ -72,26 +82,6 @@ Return exactly:
 
 
 # =============================================================
-# Coin Logo Mapping (Official Logos for highlighted coins)
-# =============================================================
-COIN_LOGOS = {
-    "BTC": "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
-    "ETH": "https://assets.coingecko.com/coins/images/279/large/ethereum.png",
-    "BNB": "https://assets.coingecko.com/coins/images/825/large/bnb-icon2_2x.png",
-    "SOL": "https://assets.coingecko.com/coins/images/4128/large/solana.png",
-    "XRP": "https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png",
-    "ADA": "https://assets.coingecko.com/coins/images/975/large/cardano.png",
-    "DOGE": "https://assets.coingecko.com/coins/images/5/large/dogecoin.png",
-    "AVAX": "https://assets.coingecko.com/coins/images/12559/large/Avalanche_Circle_RedWhite_Trans.png",
-    "LINK": "https://assets.coingecko.com/coins/images/877/large/chainlink-new-logo.png",
-    "DOT": "https://assets.coingecko.com/coins/images/12171/large/polkadot.png",
-    "ARB": "https://assets.coingecko.com/coins/images/16547/large/arbitrum-shield.png",
-    "ZEC": "https://assets.coingecko.com/coins/images/486/large/zcash.png",
-    "XAU": "https://assets.coingecko.com/coins/images/95/large/gold.png",
-}
-
-
-# =============================================================
 # Crypto name -> ticker
 # =============================================================
 
@@ -130,6 +120,7 @@ ASSET_NAME_MAP = {
     "STORY": "IP",
     "USDC": "USDC",
     "USD COIN": "USDC",
+    "GOLD": "BTC",  
 }
 
 
@@ -171,25 +162,136 @@ KNOWN_ASSET_NAMES = {
 
 
 # =============================================================
-# Ambiguous / Common English words
+# Ambiguous/common English words
 # =============================================================
 
 COMMON_WORD_TICKERS = {
-    "ACT", "BANK", "HOME", "CYBER", "LAYER", "MEME", "THE", "AND",
-    "FOR", "ARE", "NOT", "BUT", "CAN", "ONE", "ALL", "ANY", "NEW",
-    "NOW", "LOW", "HIGH", "TOP", "USE", "GET", "GOT", "HAS", "HAD",
-    "HIS", "HER", "OUR", "OUT", "YOU", "YOUR", "ITS", "IN", "ON",
-    "OR", "AS", "AT", "BY", "TO", "OF", "IT", "IS", "BE", "WE",
-    "HE", "SHE", "DO", "GO", "NO", "SO", "UP", "DOWN", "AR", "OP",
-    "AI", "ME", "MY", "US", "IF", "THAN", "THEN", "THIS", "THAT",
-    "THEIR", "THEM", "WITH", "FROM", "OVER", "UNDER", "MORE", "MOST",
-    "JUST", "BACK", "NEXT", "LAST", "FIRST", "STILL", "EVEN", "ONLY",
-    "MAY", "MUST", "WILL", "WOULD", "COULD", "SHOULD",
+    "ACT",
+    "BANK",
+    "HOME",
+    "CYBER",
+    "LAYER",
+    "MEME",
+    "THE",
+    "AND",
+    "FOR",
+    "ARE",
+    "NOT",
+    "BUT",
+    "CAN",
+    "ONE",
+    "ALL",
+    "ANY",
+    "NEW",
+    "NOW",
+    "LOW",
+    "HIGH",
+    "TOP",
+    "USE",
+    "GET",
+    "GOT",
+    "HAS",
+    "HAD",
+    "HIS",
+    "HER",
+    "OUR",
+    "OUT",
+    "YOU",
+    "YOUR",
+    "ITS",
+    "IN",
+    "ON",
+    "OR",
+    "AS",
+    "AT",
+    "BY",
+    "TO",
+    "OF",
+    "IT",
+    "IS",
+    "BE",
+    "WE",
+    "HE",
+    "SHE",
+    "DO",
+    "GO",
+    "NO",
+    "SO",
+    "UP",
+    "DOWN",
+    "AR",
+    "OP",
+    "AI",
+    "ME",
+    "MY",
+    "US",
+    "IF",
+    "THAN",
+    "THEN",
+    "THIS",
+    "THAT",
+    "THEIR",
+    "THEM",
+    "WITH",
+    "FROM",
+    "OVER",
+    "UNDER",
+    "MORE",
+    "MOST",
+    "JUST",
+    "BACK",
+    "NEXT",
+    "LAST",
+    "FIRST",
+    "STILL",
+    "EVEN",
+    "ONLY",
+    "MAY",
+    "MUST",
+    "WILL",
+    "WOULD",
+    "COULD",
+    "SHOULD",
 }
 
 
 # =============================================================
-# Utility functions
+# Crypto context words
+# =============================================================
+
+CRYPTO_CONTEXT_WORDS = (
+    "crypto",
+    "cryptocurrency",
+    "token",
+    "tokens",
+    "coin",
+    "coins",
+    "blockchain",
+    "network",
+    "protocol",
+    "defi",
+    "stablecoin",
+    "wallet",
+    "exchange",
+    "onchain",
+    "on-chain",
+    "web3",
+    "layer",
+    "mainnet",
+    "testnet",
+    "dao",
+    "staking",
+    "ecosystem",
+    "altcoin",
+    "altcoins",
+    "digital asset",
+    "digital assets",
+    "binance",
+)
+
+
+# =============================================================
+# Utility
 # =============================================================
 
 def _clean_text(value: str) -> str:
@@ -200,20 +302,35 @@ def _clean_text(value: str) -> str:
 
 def _sentence_list(text: str) -> list[str]:
     text = _clean_text(text)
+
     if not text:
         return []
-    sentences = re.split(r"(?<=[.!?])\s+", text)
-    return [s.strip() for s in sentences if s.strip()]
+
+    sentences = re.split(
+        r"(?<=[.!?])\s+",
+        text,
+    )
+
+    return [
+        s.strip()
+        for s in sentences
+        if s.strip()
+    ]
 
 
 def _trim_text(text: str, limit: int = 380) -> str:
     text = _clean_text(text)
+
     if len(text) <= limit:
         return text
+
     shortened = text[:limit]
+
     last_space = shortened.rfind(" ")
+
     if last_space > 100:
         shortened = shortened[:last_space]
+
     return shortened.rstrip(" ,;:-") + "."
 
 
@@ -226,6 +343,15 @@ def get_candidate_article(
     blocked_tickers: set | None = None,
 ) -> dict | None:
 
+    """
+    Return ONE eligible crypto article.
+
+    Rules:
+    - Already-posted article URL is skipped.
+    - If no explicit ticker is found, fallback to unblocked tickers.
+    - Skip articles if their detected ticker is already in blocked_tickers.
+    """
+
     if blocked_tickers is None:
         blocked_tickers = set()
 
@@ -236,68 +362,94 @@ def get_candidate_article(
     }
 
     articles = fetch_crypto_news()
+
     candidates = []
+
     binance_tickers = get_binance_crypto_tickers()
 
     if not binance_tickers:
         print("[news] Binance symbol list unavailable.")
         return None
 
+    print(
+        f"[news] Binance crypto tickers loaded: "
+        f"{len(binance_tickers)}"
+    )
+
     for article in articles:
+
         url = article.get("url")
-        headline = _clean_text(article.get("headline", ""))
-        
+
+        headline = _clean_text(
+            article.get("headline", "")
+        )
+
+        summary = _clean_text(
+            article.get("summary", "")
+        )
+
         if not url:
             continue
 
         if url in seen_urls:
+            print(
+                f"[news] SKIP — article already posted: "
+                f"{headline}"
+            )
             continue
 
         if not headline:
             continue
 
-        detected_ticker = _detect_ticker(article, binance_tickers)
-        is_fallback = False
+        ticker = _detect_ticker(
+            article,
+            binance_tickers,
+        )
 
-        # Jodi ticker na paoa jay, tobe fallback (BTC, XAU, ARB) bosbe
-        if not detected_ticker:
-            ticker = random.choice(["BTC", "XAU", "ARB"])
-            is_fallback = True
-            print(f"[news] No ticker found, applied fallback: ${ticker}")
+        if not ticker:
+            # শুধুমাত্র আনব্লকড টিকারগুলো থেকে ফলব্যাক সিলেক্ট করা হচ্ছে
+            available_fallbacks = [t for t in ["BTC", "XAU", "ARB", "SOL", "BNB", "TRX", "SUI"] if t not in blocked_tickers]
+            if not available_fallbacks:
+                continue # যদি সব কমন ফলব্যাকও ব্লক থাকে, তবে এই আর্টিকেল স্কিপ হবে
+            ticker = random.choice(available_fallbacks)
+            print(
+                f"[news] Fallback applied: No specific ticker found, assigned unblocked ${ticker} to article: "
+                f"{headline}"
+            )
         else:
-            ticker = detected_ticker.upper().strip()
-            # Jodi regular ticker thake, tahole blocked_tickers check hobe
+            ticker = ticker.upper().strip()
+            # যদি ডিটেক্ট করা টিকারটি আজকের ব্লকেড লিস্টে থাকে, তবে স্কিপ করুন
             if ticker in blocked_tickers:
                 print(f"[news] SKIP — Ticker ${ticker} already posted today.")
                 continue
 
         article["ticker"] = ticker
         
-        # Image logic: 
-        # - Jodi fallback hoy (mane news-e kono coin highlight chhilo na), tahole news-er original image thakbe.
-        # - Jodi regular coin highlight thake, tahole oi coin-er official logo bosbe.
-        if is_fallback:
-            article["image_url"] = (
-                article.get("image_url") 
-                or article.get("urlToImage") 
-                or article.get("image")
-            )
-        else:
-            article["image_url"] = COIN_LOGOS.get(
-                ticker, 
-                article.get("image_url") or article.get("urlToImage") or article.get("image")
-            )
+        article["image_url"] = (
+            article.get("image_url") 
+            or article.get("urlToImage") 
+            or article.get("image")
+        )
 
         candidates.append(article)
 
     if not candidates:
-        print("[news] No eligible crypto article found.")
+        print(
+            "[news] no eligible crypto article found "
+            "after fetching news."
+        )
         return None
 
     pool = candidates[:10]
+
     article = random.choice(pool)
 
-    print(f"[news] Selected crypto article: ${article.get('ticker')} — {article.get('headline')}")
+    print(
+        f"[news] selected crypto article: "
+        f"${article.get('ticker')} — "
+        f"{article.get('headline')}"
+    )
+
     return article
 
 
@@ -322,72 +474,215 @@ def _detect_ticker(
         if t
     }
 
-    headline = _clean_text(article.get("headline", ""))
-    summary = _clean_text(article.get("summary", ""))
+    headline = _clean_text(
+        article.get("headline", "")
+    )
+
+    summary = _clean_text(
+        article.get("summary", "")
+    )
 
     headline_upper = headline.upper()
     summary_upper = summary.upper()
+
     full_text = f"{headline} {summary}"
     lower_text = full_text.lower()
 
     # 1. Explicit $TICKER in headline
-    explicit_tickers = re.findall(r"\$([A-Z][A-Z0-9]{1,14})\b", headline_upper)
+    explicit_tickers = re.findall(
+        r"\$([A-Z][A-Z0-9]{1,14})\b",
+        headline_upper,
+    )
+
     for ticker in explicit_tickers:
         ticker = ticker.upper()
-        if ticker in binance_tickers and ticker not in COMMON_WORD_TICKERS:
+        if (
+            ticker in binance_tickers
+            and ticker not in COMMON_WORD_TICKERS
+        ):
             return ticker
 
     # 2. Explicit $TICKER in summary
-    explicit_summary_tickers = re.findall(r"\$([A-Z][A-Z0-9]{1,14})\b", summary_upper)
+    explicit_summary_tickers = re.findall(
+        r"\$([A-Z][A-Z0-9]{1,14})\b",
+        summary_upper,
+    )
+
     for ticker in explicit_summary_tickers:
         ticker = ticker.upper()
-        if ticker in binance_tickers and ticker not in COMMON_WORD_TICKERS:
+        if (
+            ticker in binance_tickers
+            and ticker not in COMMON_WORD_TICKERS
+        ):
             return ticker
 
     # 3. Full crypto asset names in HEADLINE
-    for name in sorted(ASSET_NAME_MAP, key=len, reverse=True):
-        if re.search(rf"\b{re.escape(name)}\b", headline_upper):
+    for name in sorted(
+        ASSET_NAME_MAP,
+        key=len,
+        reverse=True,
+    ):
+        if re.search(
+            rf"\b{re.escape(name)}\b",
+            headline_upper,
+        ):
             ticker = ASSET_NAME_MAP[name]
-            if ticker in binance_tickers and ticker not in COMMON_WORD_TICKERS:
+            if (
+                ticker in binance_tickers
+                and ticker not in COMMON_WORD_TICKERS
+            ):
                 return ticker
 
     # 4. Full crypto asset names anywhere in summary/content
-    for name in sorted(ASSET_NAME_MAP, key=len, reverse=True):
-        if re.search(rf"\b{re.escape(name)}\b", lower_text, re.IGNORECASE):
+    for name in sorted(
+        ASSET_NAME_MAP,
+        key=len,
+        reverse=True,
+    ):
+        if re.search(
+            rf"\b{re.escape(name)}\b",
+            lower_text,
+            re.IGNORECASE,
+        ):
             ticker = ASSET_NAME_MAP[name]
-            if ticker in binance_tickers and ticker not in COMMON_WORD_TICKERS:
+            if (
+                ticker in binance_tickers
+                and ticker not in COMMON_WORD_TICKERS
+            ):
                 return ticker
+
+    # 5. Trading pair in HEADLINE
+    pair_matches = re.findall(
+        r"\b([A-Z][A-Z0-9]{1,14})\s*[/\-]\s*"
+        r"(USDT|USDC|USD|BTC|ETH|BNB)\b",
+        headline_upper,
+    )
+
+    for ticker, quote in pair_matches:
+        ticker = ticker.upper()
+        if (
+            ticker in binance_tickers
+            and ticker not in COMMON_WORD_TICKERS
+        ):
+            return ticker
 
     return None
 
 
-def _detect_asset_name(ticker: str) -> str | None:
+# =============================================================
+# Asset name
+# =============================================================
+
+def _detect_asset_name(
+    ticker: str,
+) -> str | None:
+
     if not ticker:
         return None
+
     ticker = ticker.upper().strip()
-    return KNOWN_ASSET_NAMES.get(ticker, ticker)
+
+    return KNOWN_ASSET_NAMES.get(
+        ticker,
+        ticker,
+    )
 
 
 # =============================================================
-# Python fallback post & generation
+# Python fallback
 # =============================================================
 
-def _python_fallback_post(article: dict, ticker: str) -> dict:
-    ticker = ticker.upper().strip()
-    asset_name = _detect_asset_name(ticker) or ticker
-    headline = _clean_text(article.get("headline", ""))
-    summary = _clean_text(article.get("summary", ""))
+def _python_fallback_post(
+    article: dict,
+    ticker: str,
+) -> dict:
 
-    title = f"{asset_name} (${ticker}): {headline}"
+    ticker = ticker.upper().strip()
+
+    asset_name = _detect_asset_name(
+        ticker
+    ) or ticker
+
+    headline = _clean_text(
+        article.get("headline", "")
+    )
+
+    summary = _clean_text(
+        article.get("summary", "")
+    )
+
+    if not headline:
+        raise RuntimeError(
+            "Fallback failed: article headline is empty."
+        )
+
+    title = (
+        f"{asset_name} (${ticker}): "
+        f"{headline}"
+    )
+
     if len(title) > 180:
         title = title[:177].rstrip() + "..."
 
-    summary_sentences = _sentence_list(summary)
-    paragraph_1 = headline if headline.endswith((".", "!", "?")) else headline + "."
-    paragraph_2 = f"According to the report, {summary_sentences[0] if summary_sentences else 'developments continue.'}"
-    paragraph_3 = f"The report keeps the focus on the specific development involving {asset_name} (${ticker})."
+    summary_sentences = _sentence_list(
+        summary
+    )
 
-    body = "\n\n".join([paragraph_1, paragraph_2, paragraph_3])
+    headline_sentence = (
+        f"The latest report focuses on {asset_name} "
+        f"(${ticker}) and the development described in "
+        f"the headline."
+    )
+
+    if summary_sentences:
+        first = _trim_text(
+            summary_sentences[0],
+            360,
+        )
+
+        paragraph_1 = (
+            f"{headline}."
+            if not headline.endswith((".", "!", "?"))
+            else headline
+        )
+
+        paragraph_2 = (
+            f"According to the report, {first}"
+        )
+
+        if len(summary_sentences) > 1:
+            second = _trim_text(
+                summary_sentences[1],
+                360,
+            )
+            paragraph_3 = second
+        else:
+            paragraph_3 = headline_sentence
+    else:
+        paragraph_1 = (
+            headline
+            if headline.endswith((".", "!", "?"))
+            else headline + "."
+        )
+        paragraph_2 = headline_sentence
+        paragraph_3 = (
+            f"The report keeps the focus on the "
+            f"specific development involving "
+            f"{asset_name} (${ticker})."
+        )
+
+    body = "\n\n".join(
+        [
+            paragraph_1,
+            paragraph_2,
+            paragraph_3,
+        ]
+    )
+
+    print(
+        f"[news_post_generator] Using Python fallback "
+        f"for ${ticker}."
+    )
 
     return {
         "title": title,
@@ -398,17 +693,55 @@ def _python_fallback_post(article: dict, ticker: str) -> dict:
     }
 
 
-def _validate_generated_post(post: dict, ticker: str) -> dict:
+# =============================================================
+# Validate generated post
+# =============================================================
+
+def _validate_generated_post(
+    post: dict,
+    ticker: str,
+) -> dict:
+
     ticker = ticker.upper().strip()
-    title = str(post.get("title", "")).strip()
-    body = str(post.get("body", "")).strip()
+
+    title = str(
+        post.get(
+            "title",
+            "",
+        )
+    ).strip()
+
+    body = str(
+        post.get(
+            "body",
+            "",
+        )
+    ).strip()
 
     if not title or not body:
-        raise RuntimeError("AI returned an empty title or body.")
+        raise RuntimeError(
+            "AI returned an empty title or body."
+        )
 
     expected_marker = f"(${ticker})"
+
     if expected_marker.upper() not in title.upper():
-        raise RuntimeError(f"AI title does not contain verified ticker ${ticker}")
+        raise RuntimeError(
+            f"AI title does not contain verified "
+            f"ticker ${ticker}: {title}"
+        )
+
+    title_tickers = re.findall(
+        r"\$([A-Z][A-Z0-9]{1,14})\b",
+        title.upper(),
+    )
+
+    for found_ticker in title_tickers:
+        if found_ticker != ticker:
+            raise RuntimeError(
+                f"AI used wrong ticker in title: "
+                f"${found_ticker} instead of ${ticker}"
+            )
 
     body_without_final = re.sub(
         rf"\*\*\s*\${re.escape(ticker)}\s*\*\*\s*$",
@@ -420,51 +753,215 @@ def _validate_generated_post(post: dict, ticker: str) -> dict:
     post["title"] = title
     post["body"] = body_without_final
     post["ticker"] = ticker
+
     return post
 
 
-def generate_news_post(article: dict) -> dict:
+# =============================================================
+# Generate post
+# =============================================================
+
+def generate_news_post(
+    article: dict,
+) -> dict:
+
     ticker = article.get("ticker")
+
     if not ticker:
-        ticker = "BTC"
+        ticker = random.choice(["BTC", "XAU", "ARB"])
 
     ticker = ticker.upper().strip()
-    asset_name = _detect_asset_name(ticker) or "Bitcoin"
+
+    asset_name = _detect_asset_name(ticker)
+
+    if not asset_name:
+        asset_name = "Bitcoin"
+        ticker = "BTC"
 
     try:
-        client = Groq(api_key=cfg.GROQ_API_KEY)
-        user_prompt = f"""Article headline:\n\n{article.get('headline')}\n\nArticle summary:\n\n{article.get('summary')}\n\nVerified ticker: ${ticker}\n\nReturn JSON with title and body."""
+        print(
+            f"[news_post_generator] Generating post "
+            f"for ${ticker} via Groq..."
+        )
+
+        client = Groq(
+            api_key=cfg.GROQ_API_KEY
+        )
+
+        user_prompt = f"""Article headline:
+
+{article.get('headline')}
+
+Article summary:
+
+{article.get('summary')}
+
+Source:
+
+{article.get('source', 'unknown')}
+
+Verified Binance crypto asset:
+
+{asset_name}
+
+Verified ticker:
+
+${ticker}
+
+Create a Binance Square crypto news post using ONLY the
+article headline and summary.
+
+The article MUST be about:
+
+{asset_name} (${ticker})
+
+TITLE:
+
+Use exactly this structure:
+
+{asset_name} (${ticker}): Hook
+
+BODY:
+
+Write exactly 3 short factual paragraphs.
+
+Use only facts from the article.
+
+Do NOT add:
+
+- hashtags
+- emojis
+- bullet points
+- risk section
+- investment advice
+- buy/sell language
+- long/short language
+- target language
+- unsupported predictions
+- invented statistics
+- invented events
+
+Do NOT create or change the ticker.
+
+Do NOT add the final **${ticker}** line.
+
+Python will add it.
+
+Return ONLY:
+
+{{
+  "title": string,
+  "body": string
+}}"""
 
         completion = client.chat.completions.create(
             model=cfg.GROQ_MODEL,
             temperature=0.6,
             messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": user_prompt},
+                {
+                    "role": "system",
+                    "content": SYSTEM_PROMPT,
+                },
+                {
+                    "role": "user",
+                    "content": user_prompt,
+                },
             ],
         )
 
-        raw = completion.choices[0].message.content or ""
-        cleaned = raw.replace("```json", "").replace("```", "").strip()
-        post = json.loads(cleaned)
+        raw = (
+            completion.choices[0]
+            .message.content
+            .or_("")
+        )
 
-        post = _validate_generated_post(post, ticker)
+        cleaned = (
+            raw
+            .replace(
+                "```json",
+                "",
+            )
+            .replace(
+                "```",
+                "",
+            )
+            .strip()
+        )
+
+        try:
+            post = json.loads(cleaned)
+        except json.JSONDecodeError as err:
+            raise RuntimeError(
+                f"Model did not return valid JSON: {raw}"
+            ) from err
+
+        post = _validate_generated_post(
+            post,
+            ticker,
+        )
+
         post["url"] = article.get("url")
         post["ticker"] = ticker
         post["image_url"] = article.get("image_url")
+
+        print(
+            f"[news_post_generator] Groq post "
+            f"generated successfully for ${ticker}."
+        )
+
         return post
 
-    except Exception:
-        return _python_fallback_post(article, ticker)
+    except Exception as groq_error:
+        print(
+            f"[news_post_generator] Groq failed for "
+            f"${ticker}: {groq_error}"
+        )
+        print(
+            f"[news_post_generator] Falling back to "
+            f"Python-generated factual post for ${ticker}."
+        )
+
+        return _python_fallback_post(
+            article,
+            ticker,
+        )
 
 
-def format_news_post(post: dict) -> str:
+# =============================================================
+# Final formatting
+# =============================================================
+
+def format_news_post(
+    post: dict,
+) -> str:
+
     if not post:
-        raise RuntimeError("Refusing to publish: empty post.")
+        raise RuntimeError(
+            "Refusing to publish: empty post."
+        )
 
-    title = str(post.get("title", "")).strip()
-    body = str(post.get("body", "")).strip()
-    ticker = str(post.get("ticker", "BTC")).upper().strip()
+    title = str(
+        post.get(
+            "title",
+            "",
+        )
+    ).strip()
+
+    body = str(
+        post.get(
+            "body",
+            "",
+        )
+    ).strip()
+
+    ticker = post.get("ticker")
+
+    if not ticker:
+        ticker = "BTC"
+
+    ticker = str(
+        ticker
+    ).upper().strip()
 
     body = re.sub(
         rf"\n*\*\*\s*\${re.escape(ticker)}\s*\*\*\s*$",
@@ -473,10 +970,26 @@ def format_news_post(post: dict) -> str:
         flags=re.IGNORECASE,
     ).strip()
 
-    parts = [p for p in [title, body, f"**${ticker}**"] if p]
-    text = "\n\n".join(parts).strip()
+    parts = []
+
+    if title:
+        parts.append(title)
+
+    if body:
+        parts.append(body)
+
+    parts.append(
+        f"**${ticker}**"
+    )
+
+    text = "\n\n".join(
+        parts
+    ).strip()
 
     if len(text) > cfg.CHAR_LIMIT:
-        text = text[:cfg.CHAR_LIMIT].rstrip()
+        text = (
+            text[:cfg.CHAR_LIMIT]
+            .rstrip()
+        )
 
     return text
