@@ -90,6 +90,7 @@ Return exactly:
 ASSET_NAME_MAP = {
     "BITCOIN CASH": "BCH",
     "BINANCE COIN": "BNB",
+    "BNB": "BNB",
     "DOGECOIN": "DOGE",
     "SHIBA INU": "SHIB",
     "INTERNET COMPUTER": "ICP",
@@ -119,6 +120,8 @@ ASSET_NAME_MAP = {
     "AAVE": "AAVE",
     "ZKSYNC": "ZK",
     "STORY": "IP",
+    "USDC": "USDC",
+    "USD COIN": "USDC",
 }
 
 
@@ -154,6 +157,7 @@ KNOWN_ASSET_NAMES = {
     "PEPE": "Pepe",
     "SHIB": "Shiba Inu",
     "BONK": "Bonk",
+    "USDC": "USD Coin",
 }
 
 
@@ -402,7 +406,7 @@ def get_candidate_article(
             binance_tickers,
         )
 
-        # যদি সঠিক কোনো টিকার বা মার্কেট কন্টেন্ট থেকে না পাওয়া যায়, তবে স্কিপ করব (রেন্ডম বসাব না)
+        # যদি সঠিক কোনো টিকার বা মার্কেট কন্টেন্ট থেকে না পাওয়া যায়, তবে স্কিপ করব
         if not ticker:
             print(
                 f"[news] SKIP — no specific verified Binance crypto or relevant market target found: "
