@@ -1,6 +1,6 @@
 {
   "date": "2026-09-22",
-  "count": 16,
+  "count": 17,
   "seen_urls": [
     "https://cointelegraph.com/news/coinbase-files-to-bring-single-stock-perpetual-futures-to-us-market?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/markets/bitcoin-hits-81k-as-us-bond-yields-rebound-on-global-oil-woes?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -62,7 +62,8 @@
     "https://cointelegraph.com/news/binance-stake-circle-expanded-usdc-deal?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/21shares-zcash-etp-europe-etherfi?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/policy/2026/09/22/next-for-the-u-s-sec-agency-s-chief-crypto-counsel-illuminates-path-for-custody",
-    "https://www.coindesk.com/daybook-us/2026/09/22/a-usd3-2-million-bitcoin-butterfly-option-trade-bets-on-usd95-000-by-the-end-of-october"
+    "https://www.coindesk.com/daybook-us/2026/09/22/a-usd3-2-million-bitcoin-butterfly-option-trade-bets-on-usd95-000-by-the-end-of-october",
+    "https://cointelegraph.com/news/escb-new-stablecoin-liquidity-rules-bank-risks?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
   ],
   "posted_tickers": [
     "SOL",
@@ -77,6 +78,7 @@
     "SUPER",
     "ADA",
     "DOGE",
-    "USDC"
+    "USDC",
+    "XAU"
   ]
 }
