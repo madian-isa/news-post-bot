@@ -122,6 +122,8 @@ ASSET_NAME_MAP = {
     "STORY": "IP",
     "USDC": "USDC",
     "USD COIN": "USDC",
+    # Gold/XAU fallback mapping if needed
+    "GOLD": "BTC", 
 }
 
 
@@ -158,6 +160,7 @@ KNOWN_ASSET_NAMES = {
     "SHIB": "Shiba Inu",
     "BONK": "Bonk",
     "USDC": "USD Coin",
+    "XAU": "Gold",
 }
 
 
@@ -348,8 +351,7 @@ def get_candidate_article(
 
     Rules:
     - Already-posted article URL is skipped.
-    - Already-posted ticker for today is skipped.
-    - If no explicit ticker is found, strictly checks for actual asset/market mentioned.
+    - If no explicit ticker is found, fallback to fixed BTC, XAU, or ARB.
     """
 
     if blocked_tickers is None:
@@ -406,22 +408,17 @@ def get_candidate_article(
             binance_tickers,
         )
 
-        # যদি সঠিক কোনো টিকার বা মার্কেট কন্টেন্ট থেকে না পাওয়া যায়, তবে স্কিপ করব
+        # যদি কোনো নির্দিষ্ট টিকার না পাওয়া যায়, তবে ফিক্সড ফলব্যাক হিসেবে BTC, XAU বা ARB বসিয়ে দেওয়া হবে
         if not ticker:
+            ticker = random.choice(["BTC", "XAU", "ARB"])
             print(
-                f"[news] SKIP — no specific verified Binance crypto or relevant market target found: "
+                f"[news] Fallback applied: No specific ticker found, assigned ${ticker} to article: "
                 f"{headline}"
             )
-            continue
-
-        ticker = ticker.upper().strip()
-
-        if ticker in blocked_tickers:
-            print(
-                f"[news] SKIP — ${ticker} already posted today: "
-                f"{headline}"
-            )
-            continue
+        else:
+            ticker = ticker.upper().strip()
+            # যদি টিকার থাকে কিন্তু সেটি blocked_tickers এ থাকে, তবুও আপনার চাহিদা অনুযায়ী আমরা এখানে স্কিপ করব না, বা চাইলে এলাও করতে পারি।
+            # যেহেতু আপনি বলেছেন "জডিও আগulah akber post hoya takah", তাই ডেইলি ব্লকেড চেকটি টিকার পাওয়ার পর বাইপাস করা হলো।
 
         article["ticker"] = ticker
         
@@ -436,8 +433,7 @@ def get_candidate_article(
     if not candidates:
         print(
             "[news] no eligible crypto article found "
-            "after Binance + article history + "
-            "daily ticker filters."
+            "after fetching news."
         )
         return None
 
@@ -772,23 +768,15 @@ def generate_news_post(
         ticker = _detect_ticker(article)
 
     if not ticker:
-        raise RuntimeError("Generation failed: No verified coin ticker associated with this article.")
+        ticker = random.choice(["BTC", "XAU", "ARB"])
 
     ticker = ticker.upper().strip()
-
-    if not is_binance_crypto_ticker(ticker):
-        raise RuntimeError(
-            f"Article rejected: ${ticker} is not currently "
-            "verified as a Binance Spot crypto asset."
-        )
 
     asset_name = _detect_asset_name(ticker)
 
     if not asset_name:
-        raise RuntimeError(
-            f"Article rejected: unable to identify "
-            f"crypto asset ${ticker}."
-        )
+        asset_name = "Bitcoin"
+        ticker = "BTC"
 
     try:
         print(
@@ -884,7 +872,7 @@ Return ONLY:
         raw = (
             completion.choices[0]
             .message.content
-            or ""
+            .or_("")
         )
 
         cleaned = (
@@ -969,9 +957,7 @@ def format_news_post(
     ticker = post.get("ticker")
 
     if not ticker:
-        raise RuntimeError(
-            "Refusing to publish: no crypto ticker."
-        )
+        ticker = "BTC"
 
     ticker = str(
         ticker
