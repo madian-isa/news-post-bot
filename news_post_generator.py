@@ -5,9 +5,9 @@ Generates short, factual Binance Square crypto-asset news posts.
 
 Rules:
 - Only Binance-listed crypto assets are allowed.
-- Company-only news is handled: if no valid crypto ticker is found,
-  it checks if the news is crypto/Binance-related, and if so,
-  assigns a default ticker (BTC) so it won't be dropped.
+- Company-only / general news is handled: if no valid crypto ticker is found,
+  it checks if the news is crypto/Binance-related, but strictly maps to 
+  the actual coin/market mentioned or skips if none found.
 - Articles already posted are rejected.
 - Same crypto ticker can only be posted ONCE per Bangladesh day.
 - AI cannot invent or change the verified ticker.
@@ -345,8 +345,7 @@ def get_candidate_article(
     Rules:
     - Already-posted article URL is skipped.
     - Already-posted ticker for today is skipped.
-    - If no ticker is found, checks if crypto/Binance related,
-      assigns default BTC ticker if relevant instead of skipping.
+    - If no explicit ticker is found, strictly checks for actual asset/market mentioned.
     """
 
     if blocked_tickers is None:
@@ -403,22 +402,13 @@ def get_candidate_article(
             binance_tickers,
         )
 
-        # যদি সরাসরি টিকার না পাওয়া যায়, তবে ক্রিপ্টো/বিন্যান্স রিলেটেড কিনা চেক করব
+        # যদি সঠিক কোনো টিকার বা মার্কেট কন্টেন্ট থেকে না পাওয়া যায়, তবে স্কিপ করব (রেন্ডম বসাব না)
         if not ticker:
-            full_text_check = f"{headline} {summary}".lower()
-            
-            if any(word in full_text_check for word in CRYPTO_CONTEXT_WORDS):
-                ticker = "BTC"  # ডিফল্ট টিকার হিসেবে BTC অ্যাসাইন করা হলো
-                print(
-                    f"[news] No direct ticker, but crypto/binance-related. "
-                    f"Assigning default ticker: ${ticker} — {headline}"
-                )
-            else:
-                print(
-                    f"[news] SKIP — no verified Binance crypto or relevant context: "
-                    f"{headline}"
-                )
-                continue
+            print(
+                f"[news] SKIP — no specific verified Binance crypto or relevant market target found: "
+                f"{headline}"
+            )
+            continue
 
         ticker = ticker.upper().strip()
 
@@ -431,7 +421,6 @@ def get_candidate_article(
 
         article["ticker"] = ticker
         
-        # ইমেজ ইউআরএল ক্যাপচার করা (যদি news_fetch থেকে আসে)
         article["image_url"] = (
             article.get("image_url") 
             or article.get("urlToImage") 
@@ -494,10 +483,9 @@ def _detect_ticker(
     summary_upper = summary.upper()
 
     full_text = f"{headline} {summary}"
-
     lower_text = full_text.lower()
 
-    # 1. Explicit $TICKER
+    # 1. Explicit $TICKER in headline
     explicit_tickers = re.findall(
         r"\$([A-Z][A-Z0-9]{1,14})\b",
         headline_upper,
@@ -511,6 +499,7 @@ def _detect_ticker(
         ):
             return ticker
 
+    # 2. Explicit $TICKER in summary
     explicit_summary_tickers = re.findall(
         r"\$([A-Z][A-Z0-9]{1,14})\b",
         summary_upper,
@@ -524,7 +513,7 @@ def _detect_ticker(
         ):
             return ticker
 
-    # 2. Full crypto asset names in HEADLINE
+    # 3. Full crypto asset names in HEADLINE
     for name in sorted(
         ASSET_NAME_MAP,
         key=len,
@@ -541,90 +530,7 @@ def _detect_ticker(
             ):
                 return ticker
 
-    # 3. Trading pair in HEADLINE
-    pair_matches = re.findall(
-        r"\b([A-Z][A-Z0-9]{1,14})\s*[/\-]\s*"
-        r"(USDT|USDC|USD|BTC|ETH|BNB)\b",
-        headline_upper,
-    )
-
-    for ticker, quote in pair_matches:
-        ticker = ticker.upper()
-        if (
-            ticker in binance_tickers
-            and ticker not in COMMON_WORD_TICKERS
-        ):
-            return ticker
-
-    compact_pair_matches = re.findall(
-        r"\b([A-Z][A-Z0-9]{1,14})(USDT|USDC|USD|BTC|ETH|BNB)\b",
-        headline_upper,
-    )
-
-    for ticker, quote in compact_pair_matches:
-        ticker = ticker.upper()
-        if (
-            ticker in binance_tickers
-            and ticker not in COMMON_WORD_TICKERS
-        ):
-            return ticker
-
-    # 4. Known ticker in HEADLINE
-    headline_candidates = []
-
-    for ticker in binance_tickers:
-        if len(ticker) < 2:
-            continue
-        if ticker in COMMON_WORD_TICKERS:
-            continue
-        if ticker in KNOWN_ASSET_NAMES:
-            if re.search(
-                rf"\b{re.escape(ticker)}\b",
-                headline_upper,
-            ):
-                headline_candidates.append(ticker)
-
-    if headline_candidates:
-        headline_candidates.sort(
-            key=len,
-            reverse=True,
-        )
-        return headline_candidates[0]
-
-    # 5. Finnhub related field
-    related = article.get(
-        "related",
-        "",
-    )
-
-    related_items = []
-
-    if isinstance(related, str):
-        related_items = re.split(
-            r"[,;|\s]+",
-            related,
-        )
-    elif isinstance(related, list):
-        related_items = [
-            str(x)
-            for x in related
-        ]
-
-    for item in related_items:
-        ticker = item.strip().upper()
-        if not ticker:
-            continue
-        if ticker in COMMON_WORD_TICKERS:
-            continue
-        if ticker not in binance_tickers:
-            continue
-        if re.search(
-            rf"\b{re.escape(ticker)}\b",
-            headline_upper,
-        ):
-            return ticker
-
-    # 6. Full asset names anywhere
+    # 4. Full crypto asset names anywhere in summary/content
     for name in sorted(
         ASSET_NAME_MAP,
         key=len,
@@ -642,31 +548,18 @@ def _detect_ticker(
             ):
                 return ticker
 
-    # 7. Standalone Binance ticker
-    has_crypto_context = any(
-        word in lower_text
-        for word in CRYPTO_CONTEXT_WORDS
+    # 5. Trading pair in HEADLINE
+    pair_matches = re.findall(
+        r"\b([A-Z][A-Z0-9]{1,14})\s*[/\-]\s*"
+        r"(USDT|USDC|USD|BTC|ETH|BNB)\b",
+        headline_upper,
     )
 
-    if not has_crypto_context:
-        return None
-
-    possible_tickers = sorted(
-        binance_tickers,
-        key=len,
-        reverse=True,
-    )
-
-    for ticker in possible_tickers:
-        if len(ticker) < 2:
-            continue
-        if ticker in COMMON_WORD_TICKERS:
-            continue
-        if len(ticker) <= 2 and ticker not in KNOWN_ASSET_NAMES:
-            continue
-        if re.search(
-            rf"\b{re.escape(ticker)}\b",
-            headline_upper,
+    for ticker, quote in pair_matches:
+        ticker = ticker.upper()
+        if (
+            ticker in binance_tickers
+            and ticker not in COMMON_WORD_TICKERS
         ):
             return ticker
 
@@ -875,7 +768,7 @@ def generate_news_post(
         ticker = _detect_ticker(article)
 
     if not ticker:
-        ticker = "BTC"  # সেফটি ফলব্যাক হিসেবে BTC
+        raise RuntimeError("Generation failed: No verified coin ticker associated with this article.")
 
     ticker = ticker.upper().strip()
 
