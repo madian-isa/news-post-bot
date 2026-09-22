@@ -103,15 +103,6 @@ def run_once():
 
     # =========================================================
     # 5. Find eligible article
-    #
-    # Same ticker already posted today:
-    #     SKIP
-    #
-    # Same article URL already posted:
-    #     SKIP
-    #
-    # Different ticker + new article:
-    #     eligible
     # =========================================================
 
     article = get_candidate_article(
