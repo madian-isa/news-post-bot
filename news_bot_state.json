@@ -1,6 +1,6 @@
 {
   "date": "2026-09-22",
-  "count": 10,
+  "count": 11,
   "seen_urls": [
     "https://cointelegraph.com/news/coinbase-files-to-bring-single-stock-perpetual-futures-to-us-market?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/markets/bitcoin-hits-81k-as-us-bond-yields-rebound-on-global-oil-woes?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -56,7 +56,8 @@
     "https://decrypt.co/videos/interviews/ZJJKjnAR/from-stellar-to-canton-how-franklin-templeton-adopted-tokenization",
     "https://decrypt.co/videos/interviews/OS1PGiAq/global-crypto-mcap-up-to-322-trillion-xrp-up-12-japan-endorse-crypto-fear-greed-back-to-neutral",
     "https://decrypt.co/videos/interviews/EmmJkWJn/crypto-is-green-up-6-9-memes-outperform-pepe-up-67-infinex-founder-interview",
-    "https://decrypt.co/378891/clarity-act-crypto-super-pac-fairshake-sherrod-brown-30-million"
+    "https://decrypt.co/378891/clarity-act-crypto-super-pac-fairshake-sherrod-brown-30-million",
+    "https://www.coindesk.com/tech/2026/09/21/cardano-joins-solana-xrp-ledger-in-race-to-power-ai-agent-payments"
   ],
   "posted_tickers": [
     "SOL",
@@ -68,6 +69,7 @@
     "WLD",
     "XRP",
     "PEPE",
-    "SUPER"
+    "SUPER",
+    "ADA"
   ]
 }
