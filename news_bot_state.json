@@ -1,6 +1,6 @@
 {
   "date": "2026-09-25",
-  "count": 8,
+  "count": 9,
   "seen_urls": [
     "https://www.coindesk.com/markets/2026/09/23/zcash-leads-crypto-majors-with-a-10-gain-as-bitcoin-holds-near-usd87-000",
     "https://cointelegraph.com/magazine/kyle-samani-predicts-sol-flippening-claims-no-one-uses-eth?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -41,7 +41,8 @@
     "https://www.coindesk.com/business/2026/09/24/uk-s-largest-banks-complete-world-s-first-interbank-transactions-using-tokenized-deposits",
     "https://www.coindesk.com/markets/2026/09/24/dogecoin-down-8-bitcoin-under-usd84-000-as-treasury-yields-hit-highest-level-since-2007",
     "https://decrypt.co/videos/interviews/GVQVX2ND/first-2026-dip-btc-at-92k-morgan-stanley-file-for-btc-eth-sol-etfs-hyperliquid-airdrop-speculation",
-    "https://www.coindesk.com/business/2026/09/24/bullish-alpaca-and-apex-fintech-form-coalition-to-push-issuer-backed-tokenized-stocks"
+    "https://www.coindesk.com/business/2026/09/24/bullish-alpaca-and-apex-fintech-form-coalition-to-push-issuer-backed-tokenized-stocks",
+    "https://investinglive.com/cryptocurrency/hackers-drain-351-6-million-from-bitget-in-possibly-2026-s-biggest-crypto-heist/"
   ],
   "posted_tickers": [
     "BTC",
@@ -51,6 +52,7 @@
     "WLD",
     "DOGE",
     "ETH",
-    "FORM"
+    "FORM",
+    "ARB"
   ]
 }
