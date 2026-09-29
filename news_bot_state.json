@@ -1,6 +1,6 @@
 {
   "date": "2026-09-30",
-  "count": 6,
+  "count": 7,
   "seen_urls": [
     "https://www.coindesk.com/markets/2026/09/23/zcash-leads-crypto-majors-with-a-10-gain-as-bitcoin-holds-near-usd87-000",
     "https://cointelegraph.com/magazine/kyle-samani-predicts-sol-flippening-claims-no-one-uses-eth?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -80,7 +80,8 @@
     "https://decrypt.co/379461/vitalik-buterin-outlines-cryptographic-world-computer-plan-for-ethereum",
     "https://www.coindesk.com/tech/2026/09/29/zcash-s-faster-private-payment-code-is-being-rebuilt-for-its-bigger-scaling-plan",
     "https://cointelegraph.com/news/kakaopay-securities-dinari-ondo-tokenized-korean-stocks-push?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://decrypt.co/379619/cboes-sp-deal-tokenized-options"
+    "https://decrypt.co/379619/cboes-sp-deal-tokenized-options",
+    "https://decrypt.co/videos/interviews/Iv1NIhI4/are-we-back-crypto-is-green-solana-intern-goes-rogue-pump-up-13-monero-hits-another-ath"
   ],
   "posted_tickers": [
     "BTC",
@@ -88,6 +89,7 @@
     "ETH",
     "ZEC",
     "ONDO",
-    "AMP"
+    "AMP",
+    "SOL"
   ]
 }
