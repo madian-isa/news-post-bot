@@ -1,6 +1,6 @@
 {
   "date": "2026-09-30",
-  "count": 9,
+  "count": 10,
   "seen_urls": [
     "https://www.coindesk.com/markets/2026/09/23/zcash-leads-crypto-majors-with-a-10-gain-as-bitcoin-holds-near-usd87-000",
     "https://cointelegraph.com/magazine/kyle-samani-predicts-sol-flippening-claims-no-one-uses-eth?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -83,7 +83,8 @@
     "https://decrypt.co/379619/cboes-sp-deal-tokenized-options",
     "https://decrypt.co/videos/interviews/Iv1NIhI4/are-we-back-crypto-is-green-solana-intern-goes-rogue-pump-up-13-monero-hits-another-ath",
     "https://cointelegraph.com/news/cryptocom-ai-agent-stealth-mode-nearly-8-months-after-super-bowl-debut?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://www.coindesk.com/tech/2026/09/30/xrp-ledger-starts-carrying-fund-records-from-brazil-operator-overseeing-usd4-trillion"
+    "https://www.coindesk.com/tech/2026/09/30/xrp-ledger-starts-carrying-fund-records-from-brazil-operator-overseeing-usd4-trillion",
+    "https://investinglive.com/cryptocurrency/iran-sanctions-fight-moves-into-crypto-as-usdt-becomes-part-of-the-financial-plumbing/"
   ],
   "posted_tickers": [
     "BTC",
@@ -94,6 +95,7 @@
     "AMP",
     "SOL",
     "SUPER",
-    "XRP"
+    "XRP",
+    "USDT"
   ]
 }
