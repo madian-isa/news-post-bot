@@ -1,6 +1,6 @@
 {
   "date": "2026-10-01",
-  "count": 8,
+  "count": 9,
   "seen_urls": [
     "https://www.coindesk.com/markets/2026/09/23/zcash-leads-crypto-majors-with-a-10-gain-as-bitcoin-holds-near-usd87-000",
     "https://cointelegraph.com/magazine/kyle-samani-predicts-sol-flippening-claims-no-one-uses-eth?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -95,7 +95,8 @@
     "https://decrypt.co/379612/bitwise-launches-first-spot-near-etf",
     "https://www.coindesk.com/tech/2026/09/30/winklevoss-owned-gemini-switches-zcash-software-ahead-of-faster-25-second-blocks",
     "https://cointelegraph.com/markets/standard-chartered-ethena-usde-growth-40b?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://decrypt.co/379772/dogecoin-getting-apps-dogeos-public-testnet"
+    "https://decrypt.co/379772/dogecoin-getting-apps-dogeos-public-testnet",
+    "https://investinglive.com/cryptocurrency/hype-alert-redcoin-named-but-hsbc-stablecoin-is-not-yet-live-and-no-launch-date-is-set/"
   ],
   "posted_tickers": [
     "BTC",
@@ -105,6 +106,7 @@
     "NEAR",
     "ZEC",
     "USDE",
-    "DOGE"
+    "DOGE",
+    "HYPE"
   ]
 }
