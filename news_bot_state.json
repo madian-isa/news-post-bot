@@ -1,8 +1,7 @@
 {
   "date": "2026-10-04",
-  "count": 4,
+  "count": 5,
   "seen_urls": [
-    "https://www.coindesk.com/policy/2026/09/22/democrats-chose-visceral-hatred-for-donald-trump-over-crypto-clarity-act-lummis-says",
     "https://cointelegraph.com/markets/bitcoin-long-liquidations-hit-280m-as-btc-price-dips-under-84k?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/378986/openai-launches-gpt-6-sol-luna-anthropic-claude-opus-5-5",
     "https://cointelegraph.com/news/zcash-nu7-upgrade-sprout-funds-unspendable?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -101,12 +100,14 @@
     "https://cointelegraph.com/markets/bitcoin-briefly-taps-87k-as-bond-yields-drop-on-low-us-nonfarm-payrolls-data?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/near-intents-recovers-entire-stolen-38m-after-ultimatum-to-exploiter?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/tech/2026/10/02/once-a-usd2-billion-ethereum-layer-2-blast-is-shutting-down-after-assets-plunge-98",
-    "https://decrypt.co/380002/trump-third-meme-coin-dinner-details"
+    "https://decrypt.co/380002/trump-third-meme-coin-dinner-details",
+    "https://decrypt.co/379901/zcash-price-drops-etf-flows-rally"
   ],
   "posted_tickers": [
     "BTC",
     "NEAR",
     "ETH",
-    "TRUMP"
+    "TRUMP",
+    "ZEC"
   ]
 }
