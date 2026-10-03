@@ -1,8 +1,7 @@
 {
-  "date": "2026-10-03",
-  "count": 7,
+  "date": "2026-10-04",
+  "count": 1,
   "seen_urls": [
-    "https://www.coindesk.com/tech/2026/09/21/cardano-joins-solana-xrp-ledger-in-race-to-power-ai-agent-payments",
     "https://decrypt.co/videos/interviews/EmmJkWJn/crypto-is-green-up-6-9-memes-outperform-pepe-up-67-infinex-founder-interview",
     "https://cointelegraph.com/magazine/winners-and-losers-of-the-secs-new-tokenized-stocks-rules?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/eu-watchdogs-quantum-computers-crypto-locks?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -101,15 +100,10 @@
     "https://cointelegraph.com/news/evernorth-clears-shareholder-vote-ahead-nasdaq-debut-473m-xrp-treasury?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/379759/bitget-hacker-zcash-private-pool-near-thorchain",
     "https://www.coindesk.com/tech/2026/10/01/metamask-security-incident-forces-ethereum-staking-exits-with-lido-warning-of-lost-rewards",
-    "https://investinglive.com/cryptocurrency/solana-extends-gains-as-traders-reduce-fed-rate-hike-bets-following-dovish-fed-comments/"
+    "https://investinglive.com/cryptocurrency/solana-extends-gains-as-traders-reduce-fed-rate-hike-bets-following-dovish-fed-comments/",
+    "https://cointelegraph.com/markets/bitcoin-briefly-taps-87k-as-bond-yields-drop-on-low-us-nonfarm-payrolls-data?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
   ],
   "posted_tickers": [
-    "BTC",
-    "TRUMP",
-    "NEAR",
-    "XRP",
-    "ZEC",
-    "ETH",
-    "SOL"
+    "BTC"
   ]
 }
