@@ -1,8 +1,7 @@
 {
   "date": "2026-10-04",
-  "count": 6,
+  "count": 7,
   "seen_urls": [
-    "https://decrypt.co/378986/openai-launches-gpt-6-sol-luna-anthropic-claude-opus-5-5",
     "https://cointelegraph.com/news/zcash-nu7-upgrade-sprout-funds-unspendable?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/markets/2026/09/22/dogecoin-leads-market-rebound-with-15-pump-bitcoin-steady-above-usd85-000",
     "https://decrypt.co/379070/blackrock-ai-agents-crypto-next-demand-wave",
@@ -101,7 +100,8 @@
     "https://www.coindesk.com/tech/2026/10/02/once-a-usd2-billion-ethereum-layer-2-blast-is-shutting-down-after-assets-plunge-98",
     "https://decrypt.co/380002/trump-third-meme-coin-dinner-details",
     "https://decrypt.co/379901/zcash-price-drops-etf-flows-rally",
-    "https://decrypt.co/videos/interviews/EmmJkWJn/crypto-is-green-up-6-9-memes-outperform-pepe-up-67-infinex-founder-interview"
+    "https://decrypt.co/videos/interviews/EmmJkWJn/crypto-is-green-up-6-9-memes-outperform-pepe-up-67-infinex-founder-interview",
+    "https://cointelegraph.com/news/trump-taps-jay-clayton-to-lead-new-super-intelligence-force?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
   ],
   "posted_tickers": [
     "BTC",
@@ -109,6 +109,7 @@
     "ETH",
     "TRUMP",
     "ZEC",
-    "PEPE"
+    "PEPE",
+    "TRX"
   ]
 }
