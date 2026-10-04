@@ -1,8 +1,7 @@
 {
   "date": "2026-10-04",
-  "count": 7,
+  "count": 8,
   "seen_urls": [
-    "https://cointelegraph.com/news/zcash-nu7-upgrade-sprout-funds-unspendable?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/markets/2026/09/22/dogecoin-leads-market-rebound-with-15-pump-bitcoin-steady-above-usd85-000",
     "https://decrypt.co/379070/blackrock-ai-agents-crypto-next-demand-wave",
     "https://decrypt.co/videos/interviews/OS1PGiAq/global-crypto-mcap-up-to-322-trillion-xrp-up-12-japan-endorse-crypto-fear-greed-back-to-neutral",
@@ -101,7 +100,8 @@
     "https://decrypt.co/380002/trump-third-meme-coin-dinner-details",
     "https://decrypt.co/379901/zcash-price-drops-etf-flows-rally",
     "https://decrypt.co/videos/interviews/EmmJkWJn/crypto-is-green-up-6-9-memes-outperform-pepe-up-67-infinex-founder-interview",
-    "https://cointelegraph.com/news/trump-taps-jay-clayton-to-lead-new-super-intelligence-force?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+    "https://cointelegraph.com/news/trump-taps-jay-clayton-to-lead-new-super-intelligence-force?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+    "https://decrypt.co/380019/trump-jay-clayton-sec-ripple-ai-push-super-intelligence"
   ],
   "posted_tickers": [
     "BTC",
@@ -110,6 +110,7 @@
     "TRUMP",
     "ZEC",
     "PEPE",
-    "TRX"
+    "TRX",
+    "XRP"
   ]
 }
