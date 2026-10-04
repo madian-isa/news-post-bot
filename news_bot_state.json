@@ -1,8 +1,7 @@
 {
-  "date": "2026-10-04",
-  "count": 8,
+  "date": "2026-10-05",
+  "count": 1,
   "seen_urls": [
-    "https://www.coindesk.com/markets/2026/09/22/dogecoin-leads-market-rebound-with-15-pump-bitcoin-steady-above-usd85-000",
     "https://decrypt.co/379070/blackrock-ai-agents-crypto-next-demand-wave",
     "https://decrypt.co/videos/interviews/OS1PGiAq/global-crypto-mcap-up-to-322-trillion-xrp-up-12-japan-endorse-crypto-fear-greed-back-to-neutral",
     "https://cointelegraph.com/news/era-pure-crypto-exchanges-end-bybit-ceo?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -101,16 +100,10 @@
     "https://decrypt.co/379901/zcash-price-drops-etf-flows-rally",
     "https://decrypt.co/videos/interviews/EmmJkWJn/crypto-is-green-up-6-9-memes-outperform-pepe-up-67-infinex-founder-interview",
     "https://cointelegraph.com/news/trump-taps-jay-clayton-to-lead-new-super-intelligence-force?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://decrypt.co/380019/trump-jay-clayton-sec-ripple-ai-push-super-intelligence"
+    "https://decrypt.co/380019/trump-jay-clayton-sec-ripple-ai-push-super-intelligence",
+    "https://investinglive.com/cryptocurrency/bitcoin-sellers-defend-87-334-key-support-comes-into-focus-ahead-of-the-weekend/"
   ],
   "posted_tickers": [
-    "BTC",
-    "NEAR",
-    "ETH",
-    "TRUMP",
-    "ZEC",
-    "PEPE",
-    "TRX",
-    "XRP"
+    "BTC"
   ]
 }
