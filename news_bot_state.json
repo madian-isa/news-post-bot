@@ -1,8 +1,7 @@
 {
   "date": "2026-10-06",
-  "count": 6,
+  "count": 7,
   "seen_urls": [
-    "https://decrypt.co/379105/zcash-wall-street-europe-first-etp",
     "https://cointelegraph.com/news/trump-discloses-up-to-100k-strategy-stock-purchase?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/business/2026/09/24/uk-s-largest-banks-complete-world-s-first-interbank-transactions-using-tokenized-deposits",
     "https://www.coindesk.com/markets/2026/09/24/dogecoin-down-8-bitcoin-under-usd84-000-as-treasury-yields-hit-highest-level-since-2007",
@@ -101,7 +100,8 @@
     "https://www.coindesk.com/tech/2026/10/05/zcash-s-25-second-blocks-go-live-on-public-testnet-ahead-of-schedule",
     "https://decrypt.co/379929/morning-minute-near-intents-hacked-for-3-8m-was-it-a-bullish-hack",
     "https://www.coindesk.com/markets/2026/10/05/xrp-treasury-spac-surges-nearly-300-ahead-of-evernorth-merger",
-    "https://decrypt.co/videos/interviews/O1HZN4PH/trump-tariffs-3-return-of-the-bull-market-nyse-tokenising-what-that-means-for-hype-claude-meme-meta"
+    "https://decrypt.co/videos/interviews/O1HZN4PH/trump-tariffs-3-return-of-the-bull-market-nyse-tokenising-what-that-means-for-hype-claude-meme-meta",
+    "https://decrypt.co/380125/defi-development-corp-adds-3m-solana"
   ],
   "posted_tickers": [
     "BTC",
@@ -109,6 +109,7 @@
     "ZEC",
     "NEAR",
     "XRP",
-    "HYPE"
+    "HYPE",
+    "SOL"
   ]
 }
