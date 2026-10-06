@@ -1,8 +1,7 @@
 {
   "date": "2026-10-06",
-  "count": 8,
+  "count": 9,
   "seen_urls": [
-    "https://www.coindesk.com/business/2026/09/24/uk-s-largest-banks-complete-world-s-first-interbank-transactions-using-tokenized-deposits",
     "https://www.coindesk.com/markets/2026/09/24/dogecoin-down-8-bitcoin-under-usd84-000-as-treasury-yields-hit-highest-level-since-2007",
     "https://decrypt.co/videos/interviews/GVQVX2ND/first-2026-dip-btc-at-92k-morgan-stanley-file-for-btc-eth-sol-etfs-hyperliquid-airdrop-speculation",
     "https://www.coindesk.com/business/2026/09/24/bullish-alpaca-and-apex-fintech-form-coalition-to-push-issuer-backed-tokenized-stocks",
@@ -101,7 +100,8 @@
     "https://www.coindesk.com/markets/2026/10/05/xrp-treasury-spac-surges-nearly-300-ahead-of-evernorth-merger",
     "https://decrypt.co/videos/interviews/O1HZN4PH/trump-tariffs-3-return-of-the-bull-market-nyse-tokenising-what-that-means-for-hype-claude-meme-meta",
     "https://decrypt.co/380125/defi-development-corp-adds-3m-solana",
-    "https://www.coindesk.com/policy/2026/10/06/u-s-scraps-proposed-usd10-000-reporting-rule-for-for-crypto-sent-to-private-wallets"
+    "https://www.coindesk.com/policy/2026/10/06/u-s-scraps-proposed-usd10-000-reporting-rule-for-for-crypto-sent-to-private-wallets",
+    "https://cointelegraph.com/news/ondo-private-markets-tokenized-pre-ipo-ai?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
   ],
   "posted_tickers": [
     "BTC",
@@ -111,6 +111,7 @@
     "XRP",
     "HYPE",
     "SOL",
-    "SENT"
+    "SENT",
+    "ONDO"
   ]
 }
