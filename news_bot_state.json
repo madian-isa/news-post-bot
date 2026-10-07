@@ -1,8 +1,7 @@
 {
-  "date": "2026-10-07",
-  "count": 13,
+  "date": "2026-10-08",
+  "count": 1,
   "seen_urls": [
-    "https://cointelegraph.com/markets/bitcoin-etf-six-day-streak-2-8-billion?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/markets/2026/09/26/bitget-hacker-moves-usd83-million-in-stolen-xrp-that-ripple-cannot-freeze",
     "https://decrypt.co/videos/interviews/dBDZqp65/2026-crypto-predictions-tom-lee-still-buying-eth-rekt-tease-worldstar-collab",
     "https://decrypt.co/videos/interviews/ZJJKjnAR/from-stellar-to-canton-how-franklin-templeton-adopted-tokenization",
@@ -101,21 +100,10 @@
     "https://www.coindesk.com/markets/2026/10/07/u-s-government-moves-over-usd100-million-in-btc-and-bnb-a-sale-hasn-t-been-confirmed",
     "https://cointelegraph.com/news/trump-backed-wlfi-plans-usd1-payments-for-online-businesses?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://investinglive.com/cryptocurrency/hyperliquid-tests-a-key-trendline-as-macro-headwinds-drag-the-crypto-market-down-what-s-next/",
-    "https://www.coindesk.com/business/2026/10/07/polygon-and-tron-partner-to-bridge-usd94-billion-usdt-ecosystem-with-u-s-banking-rails"
+    "https://www.coindesk.com/business/2026/10/07/polygon-and-tron-partner-to-bridge-usd94-billion-usdt-ecosystem-with-u-s-banking-rails",
+    "https://www.coindesk.com/markets/2026/10/07/bitcoin-s-recovery-stalls-just-short-of-rescuing-its-last-underwater-cohort"
   ],
   "posted_tickers": [
-    "BTC",
-    "SOL",
-    "ZEC",
-    "ETH",
-    "ARB",
-    "XRP",
-    "NEAR",
-    "USDC",
-    "ADA",
-    "BNB",
-    "WLD",
-    "APT",
-    "TRX"
+    "BTC"
   ]
 }
