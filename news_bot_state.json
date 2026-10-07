@@ -1,8 +1,7 @@
 {
   "date": "2026-10-07",
-  "count": 11,
+  "count": 12,
   "seen_urls": [
-    "https://cointelegraph.com/news/fed-requests-comment-on-two-proposals-for-stablecoin-issuers-under-genius-act?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/tech/2026/09/26/solana-s-150-millisecond-settlement-upgrade-reaches-second-public-test-network",
     "https://cointelegraph.com/markets/bitcoin-etf-six-day-streak-2-8-billion?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/markets/2026/09/26/bitget-hacker-moves-usd83-million-in-stolen-xrp-that-ripple-cannot-freeze",
@@ -101,7 +100,8 @@
     "https://decrypt.co/380240/circle-dj-khaled-team-usdc-crypto-twitter-furious",
     "https://www.coindesk.com/tech/2026/10/07/cardano-gives-token-issuers-power-to-freeze-seize-and-restrict-assets",
     "https://www.coindesk.com/markets/2026/10/07/u-s-government-moves-over-usd100-million-in-btc-and-bnb-a-sale-hasn-t-been-confirmed",
-    "https://cointelegraph.com/news/trump-backed-wlfi-plans-usd1-payments-for-online-businesses?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+    "https://cointelegraph.com/news/trump-backed-wlfi-plans-usd1-payments-for-online-businesses?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+    "https://investinglive.com/cryptocurrency/hyperliquid-tests-a-key-trendline-as-macro-headwinds-drag-the-crypto-market-down-what-s-next/"
   ],
   "posted_tickers": [
     "BTC",
@@ -114,6 +114,7 @@
     "USDC",
     "ADA",
     "BNB",
-    "WLD"
+    "WLD",
+    "APT"
   ]
 }
