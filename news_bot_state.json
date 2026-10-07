@@ -1,8 +1,7 @@
 {
   "date": "2026-10-08",
-  "count": 6,
+  "count": 7,
   "seen_urls": [
-    "https://decrypt.co/videos/interviews/mefbKZgQ/psyopanime-meme-up-30x-are-memes-back-monero-ath-interview-w-joseph-chalom-ceo-of-sharplink",
     "https://www.coindesk.com/tech/2026/09/27/vitalik-buterin-maps-ethereum-s-shift-beyond-a-blockchain-in-sweeping-2030-vision",
     "https://cointelegraph.com/news/solana-foundation-binance-cmo-payments-executive?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/videos/interviews/wmsgKRFW/the-zcash-situation-explained-interview-with-zec-bull-mert-btc-below-90k-zec-falls-19",
@@ -101,7 +100,8 @@
     "https://decrypt.co/380210/another-zcash-etf-coming-winklevoss-twins-wink",
     "https://cointelegraph.com/news/solana-foundation-settlement-seconds-dvp?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/sui-offchain-network-hits-40m-tps-in-live-ai-focused-stress-test?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://decrypt.co/380157/circle-ripple-and-standard-chartered-back-okx-at-flat-25b-valuation"
+    "https://decrypt.co/380157/circle-ripple-and-standard-chartered-back-okx-at-flat-25b-valuation",
+    "https://cointelegraph.com/news/tether-kazakhstan-central-bank-to-explore-tenge-stablecoin-and-asset-tokenization?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
   ],
   "posted_tickers": [
     "BTC",
@@ -109,6 +109,7 @@
     "ZEC",
     "SOL",
     "SUI",
-    "XRP"
+    "XRP",
+    "WLD"
   ]
 }
