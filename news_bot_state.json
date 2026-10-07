@@ -1,8 +1,7 @@
 {
   "date": "2026-10-07",
-  "count": 8,
+  "count": 9,
   "seen_urls": [
-    "https://www.coindesk.com/markets/2026/09/24/trump-administration-weighs-a-global-stablecoin-plan-to-cement-dollar-s-dominance",
     "https://cointelegraph.com/news/bitget-clarifies-assets-affected-security-breach?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/tech/2026/09/26/xrp-ledger-s-batch-upgrade-slips-to-oct-9-after-validator-support-resets",
     "https://cointelegraph.com/news/fed-requests-comment-on-two-proposals-for-stablecoin-issuers-under-genius-act?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -101,7 +100,8 @@
     "https://www.coindesk.com/business/2026/10/05/arbitrum-joins-paxos-led-stablecoin-group-global-dollar-to-capture-digital-dollar-growth",
     "https://www.coindesk.com/business/2026/10/06/okx-draws-investment-from-stanchart-circle-ripple-as-it-pushes-beyond-crypto-exchange-roots",
     "https://decrypt.co/380014/near-intents-recovers-3-8-million-after-48-hour-ultimatum",
-    "https://decrypt.co/380240/circle-dj-khaled-team-usdc-crypto-twitter-furious"
+    "https://decrypt.co/380240/circle-dj-khaled-team-usdc-crypto-twitter-furious",
+    "https://www.coindesk.com/tech/2026/10/07/cardano-gives-token-issuers-power-to-freeze-seize-and-restrict-assets"
   ],
   "posted_tickers": [
     "BTC",
@@ -111,6 +111,7 @@
     "ARB",
     "XRP",
     "NEAR",
-    "USDC"
+    "USDC",
+    "ADA"
   ]
 }
