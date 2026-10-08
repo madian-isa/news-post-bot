@@ -1,8 +1,7 @@
 {
   "date": "2026-10-08",
-  "count": 8,
+  "count": 9,
   "seen_urls": [
-    "https://cointelegraph.com/news/solana-foundation-binance-cmo-payments-executive?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/videos/interviews/wmsgKRFW/the-zcash-situation-explained-interview-with-zec-bull-mert-btc-below-90k-zec-falls-19",
     "https://www.coindesk.com/markets/2026/09/28/california-s-newsom-signs-memecoin-ban-and-calls-it-the-opposite-of-trump",
     "https://investinglive.com/cryptocurrency/ai-agents-may-need-crypto-more-than-humans-ever-did/",
@@ -101,7 +100,8 @@
     "https://cointelegraph.com/news/sui-offchain-network-hits-40m-tps-in-live-ai-focused-stress-test?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/380157/circle-ripple-and-standard-chartered-back-okx-at-flat-25b-valuation",
     "https://cointelegraph.com/news/tether-kazakhstan-central-bank-to-explore-tenge-stablecoin-and-asset-tokenization?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://cointelegraph.com/news/circle-usdc-eurc-payments-sap-enterprise-ecosystem?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+    "https://cointelegraph.com/news/circle-usdc-eurc-payments-sap-enterprise-ecosystem?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+    "https://cointelegraph.com/markets/near-enters-crypto-top-20-token-surge?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
   ],
   "posted_tickers": [
     "BTC",
@@ -111,6 +111,7 @@
     "SUI",
     "XRP",
     "WLD",
-    "USDC"
+    "USDC",
+    "NEAR"
   ]
 }
