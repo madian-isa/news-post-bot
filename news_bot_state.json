@@ -1,8 +1,7 @@
 {
   "date": "2026-10-09",
-  "count": 2,
+  "count": 3,
   "seen_urls": [
-    "https://cointelegraph.com/news/bitget-btc-withdrawal-hacker-eth-swap-thorchain?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/magazine/thorchain-under-fire-over-bitget-hack-eth-is-beyond-blockchain-now?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/379463/chainlink-institutions-add-bridge-checks-kelp-hack",
     "https://www.coindesk.com/markets/2026/09/28/solana-etfs-draw-record-usd188-million-in-a-week-as-bitwise-takes-two-thirds-of-inflows",
@@ -101,10 +100,12 @@
     "https://decrypt.co/380401/uranium-finance-hacker-who-bought-pokemon-and-magic-cards-convicted-over-50m-theft",
     "https://www.coindesk.com/business/2026/10/08/cardano-foundation-spins-out-veridian-tokenizes-its-shares-on-new-standard",
     "https://www.coindesk.com/daybook-us/2026/10/08/bitcoin-etf-investors-head-for-the-exit-and-it-s-the-biggest-rush-in-months",
-    "https://www.coindesk.com/markets/2026/10/08/bitcoin-slips-below-usd83-000-as-ethereum-researcher-s-bunker-mode-call-divides-crypto"
+    "https://www.coindesk.com/markets/2026/10/08/bitcoin-slips-below-usd83-000-as-ethereum-researcher-s-bunker-mode-call-divides-crypto",
+    "https://decrypt.co/380522/solana-defi-firms-orca-and-loopscale-merge-under-new-formation-brand"
   ],
   "posted_tickers": [
     "BTC",
-    "ETH"
+    "ETH",
+    "SOL"
   ]
 }
