@@ -1,8 +1,7 @@
 {
   "date": "2026-10-09",
-  "count": 4,
+  "count": 5,
   "seen_urls": [
-    "https://decrypt.co/379463/chainlink-institutions-add-bridge-checks-kelp-hack",
     "https://www.coindesk.com/markets/2026/09/28/solana-etfs-draw-record-usd188-million-in-a-week-as-bitwise-takes-two-thirds-of-inflows",
     "https://cointelegraph.com/news/near-intents-says-it-blocked-50m-tied-to-bitget-hackers?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://investinglive.com/cryptocurrency/icymi-senate-report-says-iran-relied-on-tether-s-usdt-to-bypass-sanctions-wsj-reports/",
@@ -101,12 +100,14 @@
     "https://www.coindesk.com/daybook-us/2026/10/08/bitcoin-etf-investors-head-for-the-exit-and-it-s-the-biggest-rush-in-months",
     "https://www.coindesk.com/markets/2026/10/08/bitcoin-slips-below-usd83-000-as-ethereum-researcher-s-bunker-mode-call-divides-crypto",
     "https://decrypt.co/380522/solana-defi-firms-orca-and-loopscale-merge-under-new-formation-brand",
-    "https://www.coindesk.com/coindesk-indices/2026/10/07/crypto-long-and-short-zcash-and-the-case-for-privacy-in-the-age-of-ai"
+    "https://www.coindesk.com/coindesk-indices/2026/10/07/crypto-long-and-short-zcash-and-the-case-for-privacy-in-the-age-of-ai",
+    "https://decrypt.co/380281/morning-minute-okx-raises-at-25b-from-circle-ripple-and-stanchart"
   ],
   "posted_tickers": [
     "BTC",
     "ETH",
     "SOL",
-    "ZEC"
+    "ZEC",
+    "XRP"
   ]
 }
