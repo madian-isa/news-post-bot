@@ -1,8 +1,7 @@
 {
   "date": "2026-10-09",
-  "count": 7,
+  "count": 8,
   "seen_urls": [
-    "https://investinglive.com/cryptocurrency/icymi-senate-report-says-iran-relied-on-tether-s-usdt-to-bypass-sanctions-wsj-reports/",
     "https://cointelegraph.com/news/tether-says-it-helped-freeze-550m-in-iran-linked-usdt-this-year?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/markets/2026/09/29/aave-leads-defi-higher-as-crypto-shrugs-off-surging-treasury-yields",
     "https://investinglive.com/cryptocurrency/zcash-remains-supported-by-idiosyncratic-catalysts-but-macro-headwinds-limit-further-gains-what-s-next/",
@@ -101,7 +100,8 @@
     "https://www.coindesk.com/coindesk-indices/2026/10/07/crypto-long-and-short-zcash-and-the-case-for-privacy-in-the-age-of-ai",
     "https://decrypt.co/380281/morning-minute-okx-raises-at-25b-from-circle-ripple-and-stanchart",
     "https://decrypt.co/380347/tether-kazakhstan-central-bank-stablecoin-tokenized-assets",
-    "https://cointelegraph.com/news/samsung-wallet-usdc-transfers-us-galaxy-users-october?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+    "https://cointelegraph.com/news/samsung-wallet-usdc-transfers-us-galaxy-users-october?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+    "https://cointelegraph.com/news/trump-administration-quantum-computing-ai-6-billion-science-push?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
   ],
   "posted_tickers": [
     "BTC",
@@ -110,6 +110,7 @@
     "ZEC",
     "XRP",
     "WLD",
-    "USDC"
+    "USDC",
+    "TRUMP"
   ]
 }
