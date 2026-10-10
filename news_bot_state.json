@@ -1,8 +1,7 @@
 {
   "date": "2026-10-11",
-  "count": 5,
+  "count": 6,
   "seen_urls": [
-    "https://www.coindesk.com/business/2026/09/24/open-usd-takes-on-tether-circle-with-a-different-stablecoin-model-that-s-building-money",
     "https://cointelegraph.com/news/bitget-operations-protection-fund-security-breach?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/markets/2026/09/30/live-updates-bitcoin-below-usd84-000-ahead-of-pce-inflation-data-micron-earnings",
     "https://decrypt.co/379655/introducing-the-information-exchange-powered-by-decrypt-and-myr",
@@ -101,13 +100,15 @@
     "https://www.coindesk.com/markets/2026/10/09/bitcoin-steadies-near-usd82-500-after-trump-rules-out-iran-strike-before-midterms",
     "https://cointelegraph.com/news/securitize-stock-jumps-launching-tokenized-us-equities-solana?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/380538/ethereum-test-raises-block-limit-3x-current-capacity",
-    "https://www.coindesk.com/business/2026/10/05/tokenized-commodities-look-beyond-gold-as-lending-and-oil-open-new-markets"
+    "https://www.coindesk.com/business/2026/10/05/tokenized-commodities-look-beyond-gold-as-lending-and-oil-open-new-markets",
+    "https://decrypt.co/videos/interviews/wmsgKRFW/the-zcash-situation-explained-interview-with-zec-bull-mert-btc-below-90k-zec-falls-19"
   ],
   "posted_tickers": [
     "XRP",
     "BTC",
     "SOL",
     "ETH",
-    "OPEN"
+    "OPEN",
+    "ZEC"
   ]
 }
