@@ -1,8 +1,7 @@
 {
   "date": "2026-10-12",
-  "count": 5,
+  "count": 6,
   "seen_urls": [
-    "https://cointelegraph.com/markets/standard-chartered-ethena-usde-growth-40b?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/379772/dogecoin-getting-apps-dogeos-public-testnet",
     "https://investinglive.com/cryptocurrency/hype-alert-redcoin-named-but-hsbc-stablecoin-is-not-yet-live-and-no-launch-date-is-set/",
     "https://decrypt.co/379813/minecraft-candy-crush-among-11-games-in-eu-virtual-currency-crackdown",
@@ -101,13 +100,15 @@
     "https://www.coindesk.com/tech/2026/10/09/solana-is-about-to-halve-its-block-times-as-final-200-millisecond-upgrade-nears",
     "https://decrypt.co/380640/bitcoin-ethereum-solana-etfs-red-october",
     "https://decrypt.co/380637/zcash-plans-hide-keys-ai-quantum-attacks",
-    "https://www.coindesk.com/business/2026/10/09/live-updates-xrp-etfs-the-only-ones-in-green-as-btc-eth-zec-funds-post-outflows"
+    "https://www.coindesk.com/business/2026/10/09/live-updates-xrp-etfs-the-only-ones-in-green-as-btc-eth-zec-funds-post-outflows",
+    "https://decrypt.co/videos/interviews/ZJJKjnAR/from-stellar-to-canton-how-franklin-templeton-adopted-tokenization"
   ],
   "posted_tickers": [
     "BTC",
     "SOL",
     "ETH",
     "ZEC",
-    "XRP"
+    "XRP",
+    "WLD"
   ]
 }
