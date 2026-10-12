@@ -1,8 +1,7 @@
 {
   "date": "2026-10-12",
-  "count": 6,
+  "count": 7,
   "seen_urls": [
-    "https://decrypt.co/379772/dogecoin-getting-apps-dogeos-public-testnet",
     "https://investinglive.com/cryptocurrency/hype-alert-redcoin-named-but-hsbc-stablecoin-is-not-yet-live-and-no-launch-date-is-set/",
     "https://decrypt.co/379813/minecraft-candy-crush-among-11-games-in-eu-virtual-currency-crackdown",
     "https://cointelegraph.com/news/new-york-wyoming-regulators-sign-pact-coordinate-crypto-oversight?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -101,7 +100,8 @@
     "https://decrypt.co/380640/bitcoin-ethereum-solana-etfs-red-october",
     "https://decrypt.co/380637/zcash-plans-hide-keys-ai-quantum-attacks",
     "https://www.coindesk.com/business/2026/10/09/live-updates-xrp-etfs-the-only-ones-in-green-as-btc-eth-zec-funds-post-outflows",
-    "https://decrypt.co/videos/interviews/ZJJKjnAR/from-stellar-to-canton-how-franklin-templeton-adopted-tokenization"
+    "https://decrypt.co/videos/interviews/ZJJKjnAR/from-stellar-to-canton-how-franklin-templeton-adopted-tokenization",
+    "https://cointelegraph.com/news/data-network-to-migrate-to-sui-retire-its-own-chain?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
   ],
   "posted_tickers": [
     "BTC",
@@ -109,6 +109,7 @@
     "ETH",
     "ZEC",
     "XRP",
-    "WLD"
+    "WLD",
+    "SUI"
   ]
 }
