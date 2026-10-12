@@ -1,8 +1,7 @@
 {
   "date": "2026-10-13",
-  "count": 4,
+  "count": 5,
   "seen_urls": [
-    "https://decrypt.co/379621/ethereum-privacy-aztec-brings-back-zk-money",
     "https://www.coindesk.com/tech/2026/10/01/dogecoin-gets-defi-testnet-as-dogeos-bets-miners-will-eventually-secure-its-apps",
     "https://www.coindesk.com/markets/2026/09/30/bitget-hackers-move-usd4-million-into-zcash-s-private-pool-making-funds-harder-to-trace",
     "https://decrypt.co/379856/the-largest-pure-play-xrp-treasury-is-about-to-go-public",
@@ -101,12 +100,14 @@
     "https://cointelegraph.com/news/michael-saylor-strategy-250-btc-buy?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/380693/xrp-ledger-payment-engine-counterfeiting-bug-hiding",
     "https://www.coindesk.com/markets/2026/10/12/u-s-inflation-ethereum-upgrade-talks-crypto-week-ahead",
-    "https://decrypt.co/380752/solana-treasury-firm-defi-development-keeps-buying-sol"
+    "https://decrypt.co/380752/solana-treasury-firm-defi-development-keeps-buying-sol",
+    "https://decrypt.co/videos/interviews/IuLdmgP6/pump-memes-heating-up-xmr-vs-zec-how-important-are-these-rate-cuts-under-exposed"
   ],
   "posted_tickers": [
     "BTC",
     "XRP",
     "ETH",
-    "SOL"
+    "SOL",
+    "ZEC"
   ]
 }
