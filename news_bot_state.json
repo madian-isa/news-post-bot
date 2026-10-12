@@ -1,8 +1,7 @@
 {
   "date": "2026-10-13",
-  "count": 2,
+  "count": 3,
   "seen_urls": [
-    "https://www.coindesk.com/tech/2026/10/01/live-updates-bitcoin-flat-near-usd84-000-after-best-quarter-since-2024",
     "https://decrypt.co/379822/near-intents-hacked-days-after-denying-bitget-hacker",
     "https://decrypt.co/379621/ethereum-privacy-aztec-brings-back-zk-money",
     "https://www.coindesk.com/tech/2026/10/01/dogecoin-gets-defi-testnet-as-dogeos-bets-miners-will-eventually-secure-its-apps",
@@ -101,10 +100,12 @@
     "https://cointelegraph.com/news/data-network-to-migrate-to-sui-retire-its-own-chain?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/business/2026/10/12/standard-chartered-offers-rlusd-custody-in-dubai-and-plans-lmax-collateral-link",
     "https://cointelegraph.com/news/michael-saylor-strategy-250-btc-buy?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://decrypt.co/380693/xrp-ledger-payment-engine-counterfeiting-bug-hiding"
+    "https://decrypt.co/380693/xrp-ledger-payment-engine-counterfeiting-bug-hiding",
+    "https://www.coindesk.com/markets/2026/10/12/u-s-inflation-ethereum-upgrade-talks-crypto-week-ahead"
   ],
   "posted_tickers": [
     "BTC",
-    "XRP"
+    "XRP",
+    "ETH"
   ]
 }
