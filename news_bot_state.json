@@ -1,8 +1,7 @@
 {
   "date": "2026-10-13",
-  "count": 1,
+  "count": 2,
   "seen_urls": [
-    "https://cointelegraph.com/news/new-york-wyoming-regulators-sign-pact-coordinate-crypto-oversight?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/tech/2026/10/01/live-updates-bitcoin-flat-near-usd84-000-after-best-quarter-since-2024",
     "https://decrypt.co/379822/near-intents-hacked-days-after-denying-bitget-hacker",
     "https://decrypt.co/379621/ethereum-privacy-aztec-brings-back-zk-money",
@@ -101,9 +100,11 @@
     "https://decrypt.co/videos/interviews/ZJJKjnAR/from-stellar-to-canton-how-franklin-templeton-adopted-tokenization",
     "https://cointelegraph.com/news/data-network-to-migrate-to-sui-retire-its-own-chain?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/business/2026/10/12/standard-chartered-offers-rlusd-custody-in-dubai-and-plans-lmax-collateral-link",
-    "https://cointelegraph.com/news/michael-saylor-strategy-250-btc-buy?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+    "https://cointelegraph.com/news/michael-saylor-strategy-250-btc-buy?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+    "https://decrypt.co/380693/xrp-ledger-payment-engine-counterfeiting-bug-hiding"
   ],
   "posted_tickers": [
-    "BTC"
+    "BTC",
+    "XRP"
   ]
 }
