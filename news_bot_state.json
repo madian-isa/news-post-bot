@@ -1,8 +1,7 @@
 {
   "date": "2026-10-13",
-  "count": 7,
+  "count": 8,
   "seen_urls": [
-    "https://decrypt.co/379856/the-largest-pure-play-xrp-treasury-is-about-to-go-public",
     "https://www.coindesk.com/policy/2026/10/01/another-trump-memecoin-dinner-advertised-for-token-s-top-investors",
     "https://decrypt.co/videos/interviews/MqZOhomP/crypto-rebounds-after-trump-tacos-on-tariffs-bitgo-21b-ipo-solanas-skr-token-soars-250-fdv",
     "https://cointelegraph.com/news/aave-v3-third-party-adapter-exploit-305k?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -101,7 +100,8 @@
     "https://decrypt.co/380752/solana-treasury-firm-defi-development-keeps-buying-sol",
     "https://decrypt.co/videos/interviews/IuLdmgP6/pump-memes-heating-up-xmr-vs-zec-how-important-are-these-rate-cuts-under-exposed",
     "https://investinglive.com/cryptocurrency/more-on-standard-chartered-adds-rlusd-custody-in-dubai-eyes-lmax-collateral-link-for-clients/",
-    "https://cointelegraph.com/news/aptos-rolls-out-encrypted-mempool-to-curb-frontrunning-sandwich-attacks?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+    "https://cointelegraph.com/news/aptos-rolls-out-encrypted-mempool-to-curb-frontrunning-sandwich-attacks?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+    "https://cointelegraph.com/news/blur-is-shutting-down-its-website-so-why-are-nft-collectors-cheering?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
   ],
   "posted_tickers": [
     "BTC",
@@ -110,6 +110,7 @@
     "SOL",
     "ZEC",
     "LINK",
-    "APT"
+    "APT",
+    "BLUR"
   ]
 }
