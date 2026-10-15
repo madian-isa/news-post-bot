@@ -1,8 +1,7 @@
 {
   "date": "2026-10-15",
-  "count": 9,
+  "count": 10,
   "seen_urls": [
-    "https://decrypt.co/379901/zcash-price-drops-etf-flows-rally",
     "https://decrypt.co/videos/interviews/EmmJkWJn/crypto-is-green-up-6-9-memes-outperform-pepe-up-67-infinex-founder-interview",
     "https://cointelegraph.com/news/trump-taps-jay-clayton-to-lead-new-super-intelligence-force?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/380019/trump-jay-clayton-sec-ripple-ai-push-super-intelligence",
@@ -101,7 +100,8 @@
     "https://cointelegraph.com/news/australia-seeks-feedback-on-crypto-platform-rules-ahead-of-2027-rollout?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/381015/zcash-tanks-double-digits-after-meteoric-rise-sees-leverage-build-up",
     "https://decrypt.co/381023/ledger-announces-atom-touchscreen-android-device",
-    "https://cointelegraph.com/news/nasdaq-tron-200m-atm-offering-fuel-trx-acquisitions?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+    "https://cointelegraph.com/news/nasdaq-tron-200m-atm-offering-fuel-trx-acquisitions?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+    "https://cointelegraph.com/news/bo-hines-donald-trump-crypto-advisor-nxum-tether-conflict?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
   ],
   "posted_tickers": [
     "BTC",
@@ -112,6 +112,7 @@
     "WLD",
     "ZEC",
     "ATOM",
-    "TRX"
+    "TRX",
+    "TRUMP"
   ]
 }
