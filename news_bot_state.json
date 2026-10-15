@@ -1,8 +1,7 @@
 {
   "date": "2026-10-15",
-  "count": 7,
+  "count": 8,
   "seen_urls": [
-    "https://www.coindesk.com/tech/2026/10/02/once-a-usd2-billion-ethereum-layer-2-blast-is-shutting-down-after-assets-plunge-98",
     "https://decrypt.co/380002/trump-third-meme-coin-dinner-details",
     "https://decrypt.co/379901/zcash-price-drops-etf-flows-rally",
     "https://decrypt.co/videos/interviews/EmmJkWJn/crypto-is-green-up-6-9-memes-outperform-pepe-up-67-infinex-founder-interview",
@@ -101,7 +100,8 @@
     "https://www.coindesk.com/tech/2026/10/14/solana-sets-oct-21-for-alpenglow-upgrade-targeting-150-millisecond-finality",
     "https://cointelegraph.com/news/eba-circle-usdc-stablecoin-significant-token-mica?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/australia-seeks-feedback-on-crypto-platform-rules-ahead-of-2027-rollout?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://decrypt.co/381015/zcash-tanks-double-digits-after-meteoric-rise-sees-leverage-build-up"
+    "https://decrypt.co/381015/zcash-tanks-double-digits-after-meteoric-rise-sees-leverage-build-up",
+    "https://decrypt.co/381023/ledger-announces-atom-touchscreen-android-device"
   ],
   "posted_tickers": [
     "BTC",
@@ -110,6 +110,7 @@
     "SOL",
     "USDC",
     "WLD",
-    "ZEC"
+    "ZEC",
+    "ATOM"
   ]
 }
