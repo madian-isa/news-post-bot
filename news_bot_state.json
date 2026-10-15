@@ -1,8 +1,7 @@
 {
   "date": "2026-10-16",
-  "count": 2,
+  "count": 3,
   "seen_urls": [
-    "https://decrypt.co/380019/trump-jay-clayton-sec-ripple-ai-push-super-intelligence",
     "https://investinglive.com/cryptocurrency/bitcoin-sellers-defend-87-334-key-support-comes-into-focus-ahead-of-the-weekend/",
     "https://cointelegraph.com/news/near-intents-says-its-identified-the-hacker-gives-48-hour-ultimatum?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/blast-to-wind-down-ethereum-l2-after-costs-outpace-revenue?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -101,10 +100,12 @@
     "https://cointelegraph.com/news/nasdaq-tron-200m-atm-offering-fuel-trx-acquisitions?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/bo-hines-donald-trump-crypto-advisor-nxum-tether-conflict?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/business/2026/10/15/live-updates-bitcoin-back-under-usd81-000-as-ai-selloff-worsens",
-    "https://investinglive.com/cryptocurrency/ethereum-extends-losses-after-the-us-cpi-as-risk-sentiment-deteriorates-further-what-s-next/"
+    "https://investinglive.com/cryptocurrency/ethereum-extends-losses-after-the-us-cpi-as-risk-sentiment-deteriorates-further-what-s-next/",
+    "https://decrypt.co/381018/morning-minute-solana-is-about-to-get-faster"
   ],
   "posted_tickers": [
     "BTC",
-    "ETH"
+    "ETH",
+    "SOL"
   ]
 }
