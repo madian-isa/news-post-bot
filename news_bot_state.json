@@ -1,8 +1,7 @@
 {
-  "date": "2026-10-15",
-  "count": 10,
+  "date": "2026-10-16",
+  "count": 1,
   "seen_urls": [
-    "https://decrypt.co/videos/interviews/EmmJkWJn/crypto-is-green-up-6-9-memes-outperform-pepe-up-67-infinex-founder-interview",
     "https://cointelegraph.com/news/trump-taps-jay-clayton-to-lead-new-super-intelligence-force?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/380019/trump-jay-clayton-sec-ripple-ai-push-super-intelligence",
     "https://investinglive.com/cryptocurrency/bitcoin-sellers-defend-87-334-key-support-comes-into-focus-ahead-of-the-weekend/",
@@ -101,18 +100,10 @@
     "https://decrypt.co/381015/zcash-tanks-double-digits-after-meteoric-rise-sees-leverage-build-up",
     "https://decrypt.co/381023/ledger-announces-atom-touchscreen-android-device",
     "https://cointelegraph.com/news/nasdaq-tron-200m-atm-offering-fuel-trx-acquisitions?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://cointelegraph.com/news/bo-hines-donald-trump-crypto-advisor-nxum-tether-conflict?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+    "https://cointelegraph.com/news/bo-hines-donald-trump-crypto-advisor-nxum-tether-conflict?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+    "https://www.coindesk.com/business/2026/10/15/live-updates-bitcoin-back-under-usd81-000-as-ai-selloff-worsens"
   ],
   "posted_tickers": [
-    "BTC",
-    "ETH",
-    "XRP",
-    "SOL",
-    "USDC",
-    "WLD",
-    "ZEC",
-    "ATOM",
-    "TRX",
-    "TRUMP"
+    "BTC"
   ]
 }
