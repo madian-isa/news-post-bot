@@ -1,8 +1,7 @@
 {
   "date": "2026-10-16",
-  "count": 5,
+  "count": 6,
   "seen_urls": [
-    "https://cointelegraph.com/news/blast-to-wind-down-ethereum-l2-after-costs-outpace-revenue?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/videos/interviews/OS1PGiAq/global-crypto-mcap-up-to-322-trillion-xrp-up-12-japan-endorse-crypto-fear-greed-back-to-neutral",
     "https://cointelegraph.com/news/zcash-gets-a-washington-lobbyist-to-push-crypto-policy?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/markets/2026/10/05/cardano-s-ada-leads-gains-in-narrow-range-bound-market",
@@ -101,13 +100,15 @@
     "https://investinglive.com/cryptocurrency/ethereum-extends-losses-after-the-us-cpi-as-risk-sentiment-deteriorates-further-what-s-next/",
     "https://decrypt.co/381018/morning-minute-solana-is-about-to-get-faster",
     "https://www.coindesk.com/tech/2026/10/14/ripple-adds-stripe-owned-wallets-to-xrp-ledger-as-ai-payments-pass-14-million",
-    "https://decrypt.co/videos/interviews/EmmJkWJn/crypto-is-green-up-6-9-memes-outperform-pepe-up-67-infinex-founder-interview"
+    "https://decrypt.co/videos/interviews/EmmJkWJn/crypto-is-green-up-6-9-memes-outperform-pepe-up-67-infinex-founder-interview",
+    "https://investinglive.com/cryptocurrency/stablecoin-transactions-are-booming-but-why-isn-t-more-money-flowing-into-crypto/"
   ],
   "posted_tickers": [
     "BTC",
     "ETH",
     "SOL",
     "XRP",
-    "PEPE"
+    "PEPE",
+    "WLD"
   ]
 }
