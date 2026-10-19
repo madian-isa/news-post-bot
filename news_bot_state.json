@@ -1,8 +1,7 @@
 {
   "date": "2026-10-20",
-  "count": 1,
+  "count": 2,
   "seen_urls": [
-    "https://www.coindesk.com/markets/2026/10/07/u-s-government-moves-over-usd100-million-in-btc-and-bnb-a-sale-hasn-t-been-confirmed",
     "https://cointelegraph.com/news/trump-backed-wlfi-plans-usd1-payments-for-online-businesses?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://investinglive.com/cryptocurrency/hyperliquid-tests-a-key-trendline-as-macro-headwinds-drag-the-crypto-market-down-what-s-next/",
     "https://www.coindesk.com/business/2026/10/07/polygon-and-tron-partner-to-bridge-usd94-billion-usdt-ecosystem-with-u-s-banking-rails",
@@ -101,9 +100,11 @@
     "https://www.coindesk.com/tech/2026/10/19/cardano-founder-charles-hoskinson-is-building-a-new-programming-language-for-the-network",
     "https://www.coindesk.com/business/2026/10/19/zerohash-rolls-out-a-new-tool-to-move-crypto-without-copying-wallet-addresses",
     "https://cointelegraph.com/news/public-companies-object-okx-ice-tokenized-stock?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://cointelegraph.com/news/strategy-btc-22-million-buy-strc-buyback-193-million?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+    "https://cointelegraph.com/news/strategy-btc-22-million-buy-strc-buyback-193-million?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+    "https://decrypt.co/381343/jpmorgan-jpm-coin-ethereum-bank-dollars"
   ],
   "posted_tickers": [
-    "BTC"
+    "BTC",
+    "ETH"
   ]
 }
