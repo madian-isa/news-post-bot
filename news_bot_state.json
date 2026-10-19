@@ -1,8 +1,7 @@
 {
   "date": "2026-10-20",
-  "count": 3,
+  "count": 4,
   "seen_urls": [
-    "https://investinglive.com/cryptocurrency/hyperliquid-tests-a-key-trendline-as-macro-headwinds-drag-the-crypto-market-down-what-s-next/",
     "https://www.coindesk.com/business/2026/10/07/polygon-and-tron-partner-to-bridge-usd94-billion-usdt-ecosystem-with-u-s-banking-rails",
     "https://www.coindesk.com/markets/2026/10/07/bitcoin-s-recovery-stalls-just-short-of-rescuing-its-last-underwater-cohort",
     "https://cointelegraph.com/magazine/weaker-dollar-crypto-green-light-raoul-pal-trade-secrets?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -101,11 +100,13 @@
     "https://cointelegraph.com/news/public-companies-object-okx-ice-tokenized-stock?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/strategy-btc-22-million-buy-strc-buyback-193-million?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/381343/jpmorgan-jpm-coin-ethereum-bank-dollars",
-    "https://cointelegraph.com/news/solana-shows-resilience-but-some-areas-need-continued-observation-fidelity-says?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+    "https://cointelegraph.com/news/solana-shows-resilience-but-some-areas-need-continued-observation-fidelity-says?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+    "https://decrypt.co/381257/zcash-developer-zakura-proposes-fix-to-stop-quantum-computers-linking-shielded-swaps"
   ],
   "posted_tickers": [
     "BTC",
     "ETH",
-    "SOL"
+    "SOL",
+    "ZEC"
   ]
 }
