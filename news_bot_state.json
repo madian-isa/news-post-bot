@@ -1,8 +1,7 @@
 {
   "date": "2026-10-19",
-  "count": 6,
+  "count": 7,
   "seen_urls": [
-    "https://www.coindesk.com/business/2026/10/05/arbitrum-joins-paxos-led-stablecoin-group-global-dollar-to-capture-digital-dollar-growth",
     "https://www.coindesk.com/business/2026/10/06/okx-draws-investment-from-stanchart-circle-ripple-as-it-pushes-beyond-crypto-exchange-roots",
     "https://decrypt.co/380014/near-intents-recovers-3-8-million-after-48-hour-ultimatum",
     "https://decrypt.co/380240/circle-dj-khaled-team-usdc-crypto-twitter-furious",
@@ -101,7 +100,8 @@
     "https://decrypt.co/videos/interviews/GVQVX2ND/first-2026-dip-btc-at-92k-morgan-stanley-file-for-btc-eth-sol-etfs-hyperliquid-airdrop-speculation",
     "https://www.coindesk.com/tech/2026/10/19/xrp-ledger-is-set-to-fix-its-lending-code-before-anyone-can-use-it",
     "https://cointelegraph.com/news/zoom-proof-of-human-badges-world-id-ai-deepfakes?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://www.coindesk.com/tech/2026/10/19/zcash-developers-plan-a-fix-to-keep-zec-swaps-private-from-future-quantum-computers"
+    "https://www.coindesk.com/tech/2026/10/19/zcash-developers-plan-a-fix-to-keep-zec-swaps-private-from-future-quantum-computers",
+    "https://www.coindesk.com/markets/2026/10/19/cme-s-bitcoin-cash-uniswap-futures-global-pmis-crypto-week-ahead"
   ],
   "posted_tickers": [
     "BTC",
@@ -109,6 +109,7 @@
     "SOL",
     "XRP",
     "WLD",
-    "ZEC"
+    "ZEC",
+    "BCH"
   ]
 }
