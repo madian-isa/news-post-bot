@@ -1,8 +1,7 @@
 {
   "date": "2026-10-19",
-  "count": 8,
+  "count": 9,
   "seen_urls": [
-    "https://decrypt.co/380014/near-intents-recovers-3-8-million-after-48-hour-ultimatum",
     "https://decrypt.co/380240/circle-dj-khaled-team-usdc-crypto-twitter-furious",
     "https://www.coindesk.com/tech/2026/10/07/cardano-gives-token-issuers-power-to-freeze-seize-and-restrict-assets",
     "https://www.coindesk.com/markets/2026/10/07/u-s-government-moves-over-usd100-million-in-btc-and-bnb-a-sale-hasn-t-been-confirmed",
@@ -101,7 +100,8 @@
     "https://cointelegraph.com/news/zoom-proof-of-human-badges-world-id-ai-deepfakes?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/tech/2026/10/19/zcash-developers-plan-a-fix-to-keep-zec-swaps-private-from-future-quantum-computers",
     "https://www.coindesk.com/markets/2026/10/19/cme-s-bitcoin-cash-uniswap-futures-global-pmis-crypto-week-ahead",
-    "https://www.coindesk.com/tech/2026/10/19/cardano-founder-charles-hoskinson-is-building-a-new-programming-language-for-the-network"
+    "https://www.coindesk.com/tech/2026/10/19/cardano-founder-charles-hoskinson-is-building-a-new-programming-language-for-the-network",
+    "https://www.coindesk.com/business/2026/10/19/zerohash-rolls-out-a-new-tool-to-move-crypto-without-copying-wallet-addresses"
   ],
   "posted_tickers": [
     "BTC",
@@ -111,6 +111,7 @@
     "WLD",
     "ZEC",
     "BCH",
-    "ADA"
+    "ADA",
+    "MOVE"
   ]
 }
