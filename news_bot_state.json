@@ -1,8 +1,7 @@
 {
   "date": "2026-10-20",
-  "count": 6,
+  "count": 7,
   "seen_urls": [
-    "https://cointelegraph.com/magazine/weaker-dollar-crypto-green-light-raoul-pal-trade-secrets?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/380210/another-zcash-etf-coming-winklevoss-twins-wink",
     "https://cointelegraph.com/news/solana-foundation-settlement-seconds-dvp?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/sui-offchain-network-hits-40m-tps-in-live-ai-focused-stress-test?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -101,7 +100,8 @@
     "https://cointelegraph.com/news/solana-shows-resilience-but-some-areas-need-continued-observation-fidelity-says?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/381257/zcash-developer-zakura-proposes-fix-to-stop-quantum-computers-linking-shielded-swaps",
     "https://cointelegraph.com/news/world-liberty-usd1-stablecoin-market-cap-drops-400-million?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://decrypt.co/381358/xrp-ledger-repairs-lending-protocol-before-live"
+    "https://decrypt.co/381358/xrp-ledger-repairs-lending-protocol-before-live",
+    "https://decrypt.co/381399/morning-minute-nine-blue-chip-companies-say-no-to-tokenized-stocks"
   ],
   "posted_tickers": [
     "BTC",
@@ -109,6 +109,7 @@
     "SOL",
     "ZEC",
     "WLD",
-    "XRP"
+    "XRP",
+    "CHIP"
   ]
 }
