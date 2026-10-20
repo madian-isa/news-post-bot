@@ -1,8 +1,7 @@
 {
-  "date": "2026-10-20",
-  "count": 7,
+  "date": "2026-10-21",
+  "count": 1,
   "seen_urls": [
-    "https://decrypt.co/380210/another-zcash-etf-coming-winklevoss-twins-wink",
     "https://cointelegraph.com/news/solana-foundation-settlement-seconds-dvp?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/sui-offchain-network-hits-40m-tps-in-live-ai-focused-stress-test?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/380157/circle-ripple-and-standard-chartered-back-okx-at-flat-25b-valuation",
@@ -101,15 +100,10 @@
     "https://decrypt.co/381257/zcash-developer-zakura-proposes-fix-to-stop-quantum-computers-linking-shielded-swaps",
     "https://cointelegraph.com/news/world-liberty-usd1-stablecoin-market-cap-drops-400-million?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/381358/xrp-ledger-repairs-lending-protocol-before-live",
-    "https://decrypt.co/381399/morning-minute-nine-blue-chip-companies-say-no-to-tokenized-stocks"
+    "https://decrypt.co/381399/morning-minute-nine-blue-chip-companies-say-no-to-tokenized-stocks",
+    "https://www.coindesk.com/markets/2026/10/20/blackrock-seeks-to-shield-bitcoin-investors-from-losses-after-rival-fund-weathers-50-crash"
   ],
   "posted_tickers": [
-    "BTC",
-    "ETH",
-    "SOL",
-    "ZEC",
-    "WLD",
-    "XRP",
-    "CHIP"
+    "BTC"
   ]
 }
