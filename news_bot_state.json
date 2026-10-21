@@ -1,8 +1,7 @@
 {
   "date": "2026-10-22",
-  "count": 2,
+  "count": 3,
   "seen_urls": [
-    "https://decrypt.co/380281/morning-minute-okx-raises-at-25b-from-circle-ripple-and-stanchart",
     "https://decrypt.co/380347/tether-kazakhstan-central-bank-stablecoin-tokenized-assets",
     "https://cointelegraph.com/news/samsung-wallet-usdc-transfers-us-galaxy-users-october?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/trump-administration-quantum-computing-ai-6-billion-science-push?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -101,10 +100,12 @@
     "https://www.coindesk.com/business/2026/10/21/how-a16z-backed-data-is-rethinking-its-blockchain-strategy-after-usd30-million-sui-deal",
     "https://www.coindesk.com/policy/2026/10/21/trump-to-throw-spotlight-on-overseas-crypto-abuses-in-white-house-event",
     "https://cointelegraph.com/markets/bitcoin-price-tags-846k-as-us-stocks-head-higher-on-spacex-q3-earnings-beat?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://cointelegraph.com/news/occ-finalizes-stablecoin-rules-genius-act-bessent?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+    "https://cointelegraph.com/news/occ-finalizes-stablecoin-rules-genius-act-bessent?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+    "https://investinglive.com/cryptocurrency/zcash-jumps-after-us-iran-deal-hopes-improve-crypto-market-sentiment-what-to-watch-next/"
   ],
   "posted_tickers": [
     "BTC",
-    "GENIUS"
+    "GENIUS",
+    "ZEC"
   ]
 }
