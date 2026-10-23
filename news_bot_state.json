@@ -1,8 +1,7 @@
 {
   "date": "2026-10-24",
-  "count": 3,
+  "count": 4,
   "seen_urls": [
-    "https://www.coindesk.com/policy/2026/10/09/thailand-opens-door-to-locally-listed-bitcoin-and-ether-etfs",
     "https://www.coindesk.com/tech/2026/10/09/solana-is-about-to-halve-its-block-times-as-final-200-millisecond-upgrade-nears",
     "https://decrypt.co/380640/bitcoin-ethereum-solana-etfs-red-october",
     "https://decrypt.co/380637/zcash-plans-hide-keys-ai-quantum-attacks",
@@ -101,11 +100,13 @@
     "https://www.coindesk.com/markets/2026/10/23/cardano-holders-are-being-asked-to-bet-usd5-million-on-copper-hitting-a-new-record",
     "https://cointelegraph.com/markets/bitcoin-seeks-support-above-81k-as-brent-crude-oil-hits-highest-level-since-march?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/ethereum-delays-glamsterdam-testnet-fork-gas-security-risks?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://decrypt.co/381502/occ-finalizes-genius-act-stablecoin-rules-ahead-of-january-deadline"
+    "https://decrypt.co/381502/occ-finalizes-genius-act-stablecoin-rules-ahead-of-january-deadline",
+    "https://cointelegraph.com/news/us-senator-probe-bo-hines-trump-crypto-adviser-tether-deal?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
   ],
   "posted_tickers": [
     "BTC",
     "ETH",
-    "GENIUS"
+    "GENIUS",
+    "TRUMP"
   ]
 }
