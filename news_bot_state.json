@@ -1,8 +1,7 @@
 {
   "date": "2026-10-24",
-  "count": 5,
+  "count": 6,
   "seen_urls": [
-    "https://decrypt.co/380640/bitcoin-ethereum-solana-etfs-red-october",
     "https://decrypt.co/380637/zcash-plans-hide-keys-ai-quantum-attacks",
     "https://www.coindesk.com/business/2026/10/09/live-updates-xrp-etfs-the-only-ones-in-green-as-btc-eth-zec-funds-post-outflows",
     "https://decrypt.co/videos/interviews/ZJJKjnAR/from-stellar-to-canton-how-franklin-templeton-adopted-tokenization",
@@ -101,13 +100,15 @@
     "https://cointelegraph.com/news/ethereum-delays-glamsterdam-testnet-fork-gas-security-risks?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/381502/occ-finalizes-genius-act-stablecoin-rules-ahead-of-january-deadline",
     "https://cointelegraph.com/news/us-senator-probe-bo-hines-trump-crypto-adviser-tether-deal?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://decrypt.co/videos/interviews/Iv1NIhI4/are-we-back-crypto-is-green-solana-intern-goes-rogue-pump-up-13-monero-hits-another-ath"
+    "https://decrypt.co/videos/interviews/Iv1NIhI4/are-we-back-crypto-is-green-solana-intern-goes-rogue-pump-up-13-monero-hits-another-ath",
+    "https://investinglive.com/cryptocurrency/zcash-falls-sharply-as-intensifying-growth-concerns-weigh-on-the-crypto-market/"
   ],
   "posted_tickers": [
     "BTC",
     "ETH",
     "GENIUS",
     "TRUMP",
-    "SOL"
+    "SOL",
+    "ZEC"
   ]
 }
