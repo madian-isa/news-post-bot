@@ -1,8 +1,7 @@
 {
   "date": "2026-10-24",
-  "count": 7,
+  "count": 8,
   "seen_urls": [
-    "https://www.coindesk.com/business/2026/10/09/live-updates-xrp-etfs-the-only-ones-in-green-as-btc-eth-zec-funds-post-outflows",
     "https://decrypt.co/videos/interviews/ZJJKjnAR/from-stellar-to-canton-how-franklin-templeton-adopted-tokenization",
     "https://cointelegraph.com/news/data-network-to-migrate-to-sui-retire-its-own-chain?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/business/2026/10/12/standard-chartered-offers-rlusd-custody-in-dubai-and-plans-lmax-collateral-link",
@@ -101,7 +100,8 @@
     "https://cointelegraph.com/news/us-senator-probe-bo-hines-trump-crypto-adviser-tether-deal?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/videos/interviews/Iv1NIhI4/are-we-back-crypto-is-green-solana-intern-goes-rogue-pump-up-13-monero-hits-another-ath",
     "https://investinglive.com/cryptocurrency/zcash-falls-sharply-as-intensifying-growth-concerns-weigh-on-the-crypto-market/",
-    "https://decrypt.co/381745/sec-ai-super-intelligence-tokenization-2027-exam-list"
+    "https://decrypt.co/381745/sec-ai-super-intelligence-tokenization-2027-exam-list",
+    "https://decrypt.co/videos/interviews/mefbKZgQ/psyopanime-meme-up-30x-are-memes-back-monero-ath-interview-w-joseph-chalom-ceo-of-sharplink"
   ],
   "posted_tickers": [
     "BTC",
@@ -110,6 +110,7 @@
     "TRUMP",
     "SOL",
     "ZEC",
-    "SUPER"
+    "SUPER",
+    "WLD"
   ]
 }
