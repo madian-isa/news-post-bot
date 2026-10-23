@@ -1,8 +1,7 @@
 {
   "date": "2026-10-24",
-  "count": 6,
+  "count": 7,
   "seen_urls": [
-    "https://decrypt.co/380637/zcash-plans-hide-keys-ai-quantum-attacks",
     "https://www.coindesk.com/business/2026/10/09/live-updates-xrp-etfs-the-only-ones-in-green-as-btc-eth-zec-funds-post-outflows",
     "https://decrypt.co/videos/interviews/ZJJKjnAR/from-stellar-to-canton-how-franklin-templeton-adopted-tokenization",
     "https://cointelegraph.com/news/data-network-to-migrate-to-sui-retire-its-own-chain?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -101,7 +100,8 @@
     "https://decrypt.co/381502/occ-finalizes-genius-act-stablecoin-rules-ahead-of-january-deadline",
     "https://cointelegraph.com/news/us-senator-probe-bo-hines-trump-crypto-adviser-tether-deal?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/videos/interviews/Iv1NIhI4/are-we-back-crypto-is-green-solana-intern-goes-rogue-pump-up-13-monero-hits-another-ath",
-    "https://investinglive.com/cryptocurrency/zcash-falls-sharply-as-intensifying-growth-concerns-weigh-on-the-crypto-market/"
+    "https://investinglive.com/cryptocurrency/zcash-falls-sharply-as-intensifying-growth-concerns-weigh-on-the-crypto-market/",
+    "https://decrypt.co/381745/sec-ai-super-intelligence-tokenization-2027-exam-list"
   ],
   "posted_tickers": [
     "BTC",
@@ -109,6 +109,7 @@
     "GENIUS",
     "TRUMP",
     "SOL",
-    "ZEC"
+    "ZEC",
+    "SUPER"
   ]
 }
