@@ -1,8 +1,7 @@
 {
   "date": "2026-10-25",
-  "count": 3,
+  "count": 4,
   "seen_urls": [
-    "https://decrypt.co/380693/xrp-ledger-payment-engine-counterfeiting-bug-hiding",
     "https://www.coindesk.com/markets/2026/10/12/u-s-inflation-ethereum-upgrade-talks-crypto-week-ahead",
     "https://decrypt.co/380752/solana-treasury-firm-defi-development-keeps-buying-sol",
     "https://decrypt.co/videos/interviews/IuLdmgP6/pump-memes-heating-up-xmr-vs-zec-how-important-are-these-rate-cuts-under-exposed",
@@ -101,11 +100,13 @@
     "https://www.coindesk.com/markets/2026/10/24/franklin-templeton-adds-usd150-million-in-fund-shares-to-xrp-ledger-all-in-one-wallet",
     "https://www.coindesk.com/business/2026/10/24/strategy-strive-face-balancing-act-between-bitcoin-buying-and-preferred-stock-dividends",
     "https://decrypt.co/videos/interviews/MqZOhomP/crypto-rebounds-after-trump-tacos-on-tariffs-bitgo-21b-ipo-solanas-skr-token-soars-250-fdv",
-    "https://decrypt.co/381681/ethereum-delays-glamsterdam-testnet-fork-over-gas-security-flaws"
+    "https://decrypt.co/381681/ethereum-delays-glamsterdam-testnet-fork-over-gas-security-flaws",
+    "https://decrypt.co/videos/interviews/ZJJKjnAR/from-stellar-to-canton-how-franklin-templeton-adopted-tokenization"
   ],
   "posted_tickers": [
     "BTC",
     "SOL",
-    "ETH"
+    "ETH",
+    "WLD"
   ]
 }
