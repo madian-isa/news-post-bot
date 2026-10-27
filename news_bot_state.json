@@ -1,8 +1,7 @@
 {
   "date": "2026-10-28",
-  "count": 5,
+  "count": 6,
   "seen_urls": [
-    "https://decrypt.co/381015/zcash-tanks-double-digits-after-meteoric-rise-sees-leverage-build-up",
     "https://decrypt.co/381023/ledger-announces-atom-touchscreen-android-device",
     "https://cointelegraph.com/news/nasdaq-tron-200m-atm-offering-fuel-trx-acquisitions?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/bo-hines-donald-trump-crypto-advisor-nxum-tether-conflict?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -101,13 +100,15 @@
     "https://decrypt.co/381982/circle-pushes-deeper-latin-america-usdc-settlement-colombia",
     "https://www.coindesk.com/business/2026/10/27/ripple-s-rlusd-stablecoin-is-coming-to-robinhood-s-28-6-million-customer-platform",
     "https://decrypt.co/381956/opena-eth-false-crypto-twitter-has-questions",
-    "https://cointelegraph.com/news/zcash-co-founder-ending-zcg-funding-125m?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+    "https://cointelegraph.com/news/zcash-co-founder-ending-zcg-funding-125m?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+    "https://www.coindesk.com/tech/2026/10/27/solana-bug-reports-now-cost-1-sol-as-ai-floods-security-teams-with-spam"
   ],
   "posted_tickers": [
     "BTC",
     "USDC",
     "XRP",
     "ETH",
-    "ZEC"
+    "ZEC",
+    "SOL"
   ]
 }
