@@ -1,8 +1,7 @@
 {
   "date": "2026-10-29",
-  "count": 3,
+  "count": 4,
   "seen_urls": [
-    "https://investinglive.com/cryptocurrency/ethereum-extends-losses-after-the-us-cpi-as-risk-sentiment-deteriorates-further-what-s-next/",
     "https://decrypt.co/381018/morning-minute-solana-is-about-to-get-faster",
     "https://www.coindesk.com/tech/2026/10/14/ripple-adds-stripe-owned-wallets-to-xrp-ledger-as-ai-payments-pass-14-million",
     "https://decrypt.co/videos/interviews/EmmJkWJn/crypto-is-green-up-6-9-memes-outperform-pepe-up-67-infinex-founder-interview",
@@ -101,11 +100,13 @@
     "https://decrypt.co/382061/aptos-advisor-leaves-post-moves-meme-fueled-campaign-to-meta-stock",
     "https://cointelegraph.com/news/google-cloud-mpc-service-bitcoin-custody?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/euronext-suspends-coinshares-zcash-etp-debut?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://www.coindesk.com/tech/2026/10/28/xrp-ledger-developers-propose-creating-wallets-with-zero-xrp-for-stablecoin-payments"
+    "https://www.coindesk.com/tech/2026/10/28/xrp-ledger-developers-propose-creating-wallets-with-zero-xrp-for-stablecoin-payments",
+    "https://www.coindesk.com/tech/2026/10/27/ethereum-fixes-glamsterdam-bug-that-could-have-sent-staking-deposits-to-builders"
   ],
   "posted_tickers": [
     "BTC",
     "ZEC",
-    "XRP"
+    "XRP",
+    "ETH"
   ]
 }
