@@ -1,8 +1,7 @@
 {
   "date": "2026-10-29",
-  "count": 8,
+  "count": 9,
   "seen_urls": [
-    "https://www.coindesk.com/tech/2026/10/16/experts-agree-quantum-computers-could-put-satoshi-s-bitcoin-at-risk-but-not-on-what-s-next",
     "https://decrypt.co/resources/what-is-a-hardware-wallet-crypto-cold-storage-explained",
     "https://decrypt.co/380974/solana-alpenglow-upgrade-date",
     "https://decrypt.co/videos/interviews/OS1PGiAq/global-crypto-mcap-up-to-322-trillion-xrp-up-12-japan-endorse-crypto-fear-greed-back-to-neutral",
@@ -101,7 +100,8 @@
     "https://cointelegraph.com/news/mirae-asset-securities-tokenized-notes-solana?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cryptocurrencynews.com/crypto/spacex-continues-to-drive-strong-trading-activity-as-mexc-spcx-futures-daily-trading-volume-surpasses-800-million-usdt/",
     "https://investinglive.com/cryptocurrency/hype-token-skyrockets-as-nyse-owner-moves-to-bring-hyperliquid-perpetual-futures-to-us-traders/",
-    "https://decrypt.co/videos/interviews/EmmJkWJn/crypto-is-green-up-6-9-memes-outperform-pepe-up-67-infinex-founder-interview"
+    "https://decrypt.co/videos/interviews/EmmJkWJn/crypto-is-green-up-6-9-memes-outperform-pepe-up-67-infinex-founder-interview",
+    "https://decrypt.co/382138/justin-suns-htx-agrees-to-leave-uk-in-settlement-with-financial-watchdog"
   ],
   "posted_tickers": [
     "BTC",
@@ -111,6 +111,7 @@
     "SOL",
     "USDT",
     "HYPE",
-    "PEPE"
+    "PEPE",
+    "SUN"
   ]
 }
