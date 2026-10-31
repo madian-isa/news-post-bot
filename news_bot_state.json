@@ -1,8 +1,7 @@
 {
   "date": "2026-11-01",
-  "count": 5,
+  "count": 6,
   "seen_urls": [
-    "https://decrypt.co/381257/zcash-developer-zakura-proposes-fix-to-stop-quantum-computers-linking-shielded-swaps",
     "https://cointelegraph.com/news/world-liberty-usd1-stablecoin-market-cap-drops-400-million?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/381358/xrp-ledger-repairs-lending-protocol-before-live",
     "https://decrypt.co/381399/morning-minute-nine-blue-chip-companies-say-no-to-tokenized-stocks",
@@ -101,13 +100,15 @@
     "https://cointelegraph.com/news/polygon-brings-open-money-stack-payments-services-to-solana?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/382194/binance-hack-exit-ramps-defi-exchange-ethereum",
     "https://decrypt.co/382306/binance-hack-everything-you-need-to-know",
-    "https://decrypt.co/videos/interviews/O1HZN4PH/trump-tariffs-3-return-of-the-bull-market-nyse-tokenising-what-that-means-for-hype-claude-meme-meta"
+    "https://decrypt.co/videos/interviews/O1HZN4PH/trump-tariffs-3-return-of-the-bull-market-nyse-tokenising-what-that-means-for-hype-claude-meme-meta",
+    "https://decrypt.co/videos/interviews/OS1PGiAq/global-crypto-mcap-up-to-322-trillion-xrp-up-12-japan-endorse-crypto-fear-greed-back-to-neutral"
   ],
   "posted_tickers": [
     "BTC",
     "SOL",
     "ETH",
     "WLD",
-    "HYPE"
+    "HYPE",
+    "XRP"
   ]
 }
