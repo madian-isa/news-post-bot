@@ -1,8 +1,7 @@
 {
   "date": "2026-11-01",
-  "count": 3,
+  "count": 4,
   "seen_urls": [
-    "https://decrypt.co/381343/jpmorgan-jpm-coin-ethereum-bank-dollars",
     "https://cointelegraph.com/news/solana-shows-resilience-but-some-areas-need-continued-observation-fidelity-says?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/381257/zcash-developer-zakura-proposes-fix-to-stop-quantum-computers-linking-shielded-swaps",
     "https://cointelegraph.com/news/world-liberty-usd1-stablecoin-market-cap-drops-400-million?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -101,11 +100,13 @@
     "https://cointelegraph.com/news/blockchain-investigator-chainalysis-hit-by-cybersecurity-incident?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/markets/2026/10/31/a-nasdaq-listed-company-may-sell-usd450-million-bitcoin-citing-binance-hack-and-quantum-fears",
     "https://cointelegraph.com/news/polygon-brings-open-money-stack-payments-services-to-solana?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://decrypt.co/382194/binance-hack-exit-ramps-defi-exchange-ethereum"
+    "https://decrypt.co/382194/binance-hack-exit-ramps-defi-exchange-ethereum",
+    "https://decrypt.co/382306/binance-hack-everything-you-need-to-know"
   ],
   "posted_tickers": [
     "BTC",
     "SOL",
-    "ETH"
+    "ETH",
+    "WLD"
   ]
 }
