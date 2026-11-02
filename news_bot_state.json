@@ -1,8 +1,7 @@
 {
   "date": "2026-11-02",
-  "count": 7,
+  "count": 8,
   "seen_urls": [
-    "https://investinglive.com/cryptocurrency/solana-remains-under-pressure-as-macro-and-geopolitical-headwinds-overshadow-alpenglow-upgrade/",
     "https://www.coindesk.com/markets/2026/10/21/zcash-developers-confirm-november-date-for-upgrade-that-triples-payment-speed",
     "https://www.coindesk.com/policy/2026/10/21/occ-s-final-rule-to-start-fresh-in-weighing-stablecoin-rewards-against-genius-act-ban",
     "https://www.coindesk.com/tech/2026/10/21/dogecoin-wallet-app-teams-unite-in-push-to-give-doge-more-everyday-uses",
@@ -101,7 +100,8 @@
     "https://cointelegraph.com/magazine/36b-flees-binance-on-reopen-thorchain-co-founder-opposes-coin-freeze-hodlers-digest?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/btcpay-server-hot-wallet-thefts-older-versions?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://investinglive.com/cryptocurrency/zcash-extends-consolidation-as-macro-headwinds-continue-to-limit-the-upside-what-to-watch-next/",
-    "https://www.coindesk.com/tech/2026/11/02/xrp-ledger-set-to-fix-flaw-that-could-let-stablecoin-partners-print-new-tokens"
+    "https://www.coindesk.com/tech/2026/11/02/xrp-ledger-set-to-fix-flaw-that-could-let-stablecoin-partners-print-new-tokens",
+    "https://decrypt.co/382147/how-t7x-is-building-the-infrastructure-for-a-new-era-of-capital-markets"
   ],
   "posted_tickers": [
     "BTC",
@@ -110,6 +110,7 @@
     "WLD",
     "HOT",
     "ZEC",
-    "XRP"
+    "XRP",
+    "ERA"
   ]
 }
