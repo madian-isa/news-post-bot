@@ -1,8 +1,7 @@
 {
   "date": "2026-11-02",
-  "count": 6,
+  "count": 7,
   "seen_urls": [
-    "https://cointelegraph.com/markets/xrp-30-day-exchange-inflows-pass-6b-tokens-as-whales-move-to-the-sidelines?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://investinglive.com/cryptocurrency/solana-remains-under-pressure-as-macro-and-geopolitical-headwinds-overshadow-alpenglow-upgrade/",
     "https://www.coindesk.com/markets/2026/10/21/zcash-developers-confirm-november-date-for-upgrade-that-triples-payment-speed",
     "https://www.coindesk.com/policy/2026/10/21/occ-s-final-rule-to-start-fresh-in-weighing-stablecoin-rewards-against-genius-act-ban",
@@ -101,7 +100,8 @@
     "https://decrypt.co/videos/interviews/GVQVX2ND/first-2026-dip-btc-at-92k-morgan-stanley-file-for-btc-eth-sol-etfs-hyperliquid-airdrop-speculation",
     "https://cointelegraph.com/magazine/36b-flees-binance-on-reopen-thorchain-co-founder-opposes-coin-freeze-hodlers-digest?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/btcpay-server-hot-wallet-thefts-older-versions?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://investinglive.com/cryptocurrency/zcash-extends-consolidation-as-macro-headwinds-continue-to-limit-the-upside-what-to-watch-next/"
+    "https://investinglive.com/cryptocurrency/zcash-extends-consolidation-as-macro-headwinds-continue-to-limit-the-upside-what-to-watch-next/",
+    "https://www.coindesk.com/tech/2026/11/02/xrp-ledger-set-to-fix-flaw-that-could-let-stablecoin-partners-print-new-tokens"
   ],
   "posted_tickers": [
     "BTC",
@@ -109,6 +109,7 @@
     "SOL",
     "WLD",
     "HOT",
-    "ZEC"
+    "ZEC",
+    "XRP"
   ]
 }
