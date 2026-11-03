@@ -1,8 +1,7 @@
 {
   "date": "2026-11-04",
-  "count": 2,
+  "count": 3,
   "seen_urls": [
-    "https://decrypt.co/381484/solana-alpenglow-goes-live-in-most-ambitious-upgrade-since-ethereums-merge",
     "https://cointelegraph.com/news/cardano-foundation-urges-eu-against-expanding-mica-rules-to-defi-and-staking?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/381541/dogecoin-gets-dedicated-company-build-ecosystem",
     "https://www.coindesk.com/tech/2026/10/21/solana-s-alpenglow-its-biggest-network-overhaul-since-2020-goes-live-wednesday",
@@ -101,10 +100,12 @@
     "https://decrypt.co/382401/binance-misses-monthly-luna-classic-burn-for-first-time-since-2023",
     "https://cointelegraph.com/markets/near-sinks-7-proposal-cut-annual-token-issuance-passes?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/daybook-us/2026/11/03/bitcoin-is-breaking-a-midterm-election-pattern-going-back-to-2014",
-    "https://www.coindesk.com/policy/2026/11/03/justin-sun-seeks-sanctions-against-trump-linked-world-liberty-financial-over-uae-ties"
+    "https://www.coindesk.com/policy/2026/11/03/justin-sun-seeks-sanctions-against-trump-linked-world-liberty-financial-over-uae-ties",
+    "https://decrypt.co/382387/ethereum-privacy-network-aztec-security-speed-upgrade"
   ],
   "posted_tickers": [
     "BTC",
-    "WLD"
+    "WLD",
+    "ETH"
   ]
 }
