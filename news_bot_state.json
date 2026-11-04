@@ -1,8 +1,7 @@
 {
   "date": "2026-11-05",
-  "count": 3,
+  "count": 4,
   "seen_urls": [
-    "https://cointelegraph.com/news/tether-backs-bolivian-fintech-bringing-usdt-payments-to-food-delivery-and-banking?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/move-over-memecoins-crypto-meme-games-coming-bagholders-and-all?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/business/2026/10/22/live-updates-bitcoin-s-round-trip-to-usd85-000-burns-traders-on-both-sides",
     "https://investinglive.com/cryptocurrency/solana-plunges-as-geopolitical-tensions-overshadow-alpenglow-upgrade-amid-macroeconomic-concerns/",
@@ -101,11 +100,13 @@
     "https://cointelegraph.com/news/binance-hackers-move-81-stolen-solana-route-thorchain?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/markets/bitcoin-bounces-from-7-week-low-under-76k-as-democrats-eye-congress-sweep?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/business/2026/11/04/global-asset-manager-schroders-brings-emerging-market-bond-fund-to-solana",
-    "https://cointelegraph.com/news/circles-arc-token-sale-earnings-yields-usdc-income?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+    "https://cointelegraph.com/news/circles-arc-token-sale-earnings-yields-usdc-income?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+    "https://decrypt.co/382469/justin-sun-sanctions-trump-backed-world-liberty-uae-ties"
   ],
   "posted_tickers": [
     "BTC",
     "SOL",
-    "USDC"
+    "USDC",
+    "WLD"
   ]
 }
