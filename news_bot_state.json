@@ -1,8 +1,7 @@
 {
   "date": "2026-11-04",
-  "count": 3,
+  "count": 4,
   "seen_urls": [
-    "https://cointelegraph.com/news/cardano-foundation-urges-eu-against-expanding-mica-rules-to-defi-and-staking?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/381541/dogecoin-gets-dedicated-company-build-ecosystem",
     "https://www.coindesk.com/tech/2026/10/21/solana-s-alpenglow-its-biggest-network-overhaul-since-2020-goes-live-wednesday",
     "https://www.coindesk.com/coindesk-indices/2026/10/21/crypto-long-and-short-why-real-world-assets-need-fixed-rate-loans-onchain",
@@ -101,11 +100,13 @@
     "https://cointelegraph.com/markets/near-sinks-7-proposal-cut-annual-token-issuance-passes?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/daybook-us/2026/11/03/bitcoin-is-breaking-a-midterm-election-pattern-going-back-to-2014",
     "https://www.coindesk.com/policy/2026/11/03/justin-sun-seeks-sanctions-against-trump-linked-world-liberty-financial-over-uae-ties",
-    "https://decrypt.co/382387/ethereum-privacy-network-aztec-security-speed-upgrade"
+    "https://decrypt.co/382387/ethereum-privacy-network-aztec-security-speed-upgrade",
+    "https://cointelegraph.com/news/1inch-lawyer-sees-agencies-driving-us-crypto-regulation-as-midterms-unfold?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
   ],
   "posted_tickers": [
     "BTC",
     "WLD",
-    "ETH"
+    "ETH",
+    "1INCH"
   ]
 }
