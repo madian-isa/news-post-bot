@@ -1,8 +1,7 @@
 {
   "date": "2026-11-10",
-  "count": 5,
+  "count": 6,
   "seen_urls": [
-    "https://www.coindesk.com/tech/2026/10/27/solana-bug-reports-now-cost-1-sol-as-ai-floods-security-teams-with-spam",
     "https://decrypt.co/382061/aptos-advisor-leaves-post-moves-meme-fueled-campaign-to-meta-stock",
     "https://cointelegraph.com/news/google-cloud-mpc-service-bitcoin-custody?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/euronext-suspends-coinshares-zcash-etp-debut?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -101,13 +100,15 @@
     "https://www.coindesk.com/tech/2026/11/09/two-rival-ethereum-proposals-aim-to-stop-glamsterdam-breaking-old-contracts",
     "https://cointelegraph.com/news/zcash-developers-propose-20-second-blocks-nu7-upgrade?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/382833/nyse-avalanche-settle-tokenized-stock-platform",
-    "https://decrypt.co/382859/solana-tokenized-stock-venue-formation-sec"
+    "https://decrypt.co/382859/solana-tokenized-stock-venue-formation-sec",
+    "https://www.coindesk.com/business/2026/11/09/trump-says-he-knows-nothing-about-world-liberty-s-uae-ties-as-justin-sun-challenges-filings"
   ],
   "posted_tickers": [
     "BTC",
     "ETH",
     "ZEC",
     "AVAX",
-    "SOL"
+    "SOL",
+    "WLD"
   ]
 }
