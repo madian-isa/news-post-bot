@@ -1,8 +1,7 @@
 {
   "date": "2026-11-10",
-  "count": 4,
+  "count": 5,
   "seen_urls": [
-    "https://cointelegraph.com/news/zcash-co-founder-ending-zcg-funding-125m?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/tech/2026/10/27/solana-bug-reports-now-cost-1-sol-as-ai-floods-security-teams-with-spam",
     "https://decrypt.co/382061/aptos-advisor-leaves-post-moves-meme-fueled-campaign-to-meta-stock",
     "https://cointelegraph.com/news/google-cloud-mpc-service-bitcoin-custody?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -101,12 +100,14 @@
     "https://investinglive.com/cryptocurrency/bitcoin-is-doing-it-s-abcs-technically-what-will-the-buyers-and-selllers-do-at-the-old-support/",
     "https://www.coindesk.com/tech/2026/11/09/two-rival-ethereum-proposals-aim-to-stop-glamsterdam-breaking-old-contracts",
     "https://cointelegraph.com/news/zcash-developers-propose-20-second-blocks-nu7-upgrade?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://decrypt.co/382833/nyse-avalanche-settle-tokenized-stock-platform"
+    "https://decrypt.co/382833/nyse-avalanche-settle-tokenized-stock-platform",
+    "https://decrypt.co/382859/solana-tokenized-stock-venue-formation-sec"
   ],
   "posted_tickers": [
     "BTC",
     "ETH",
     "ZEC",
-    "AVAX"
+    "AVAX",
+    "SOL"
   ]
 }
