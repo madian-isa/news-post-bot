@@ -1,8 +1,7 @@
 {
   "date": "2026-11-09",
-  "count": 7,
+  "count": 8,
   "seen_urls": [
-    "https://www.coindesk.com/markets/2026/10/27/zcash-co-founder-proposes-ending-grants-funding-citing-usd125-million-treasury",
     "https://cointelegraph.com/news/usdc-overtakes-usdt-euro-stablecoin-trading-mica-kaiko?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/magazine/crypto-could-outperform-ai-stocks-wall-street-veteran-jordi-visser?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/381982/circle-pushes-deeper-latin-america-usdc-settlement-colombia",
@@ -101,7 +100,8 @@
     "https://cointelegraph.com/news/tbtc-bridge-resumes-aave-120m-reserve-frozen?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/tech/2026/11/09/solana-moves-to-scrap-the-transaction-feature-used-in-the-usd270-million-drift-hack",
     "https://cointelegraph.com/news/binance-tether-wlfi-senate-crypto-investigation-records-deadline?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://decrypt.co/382813/trump-says-he-knows-nothing-about-world-liberty-financial-as-he-defends-uae-ties"
+    "https://decrypt.co/382813/trump-says-he-knows-nothing-about-world-liberty-financial-as-he-defends-uae-ties",
+    "https://decrypt.co/382816/coinbase-joins-circle-ripple-with-final-occ-approval-for-federal-trust-bank-charter"
   ],
   "posted_tickers": [
     "BTC",
@@ -110,6 +110,7 @@
     "AAVE",
     "SOL",
     "TRUMP",
-    "WLD"
+    "WLD",
+    "XRP"
   ]
 }
