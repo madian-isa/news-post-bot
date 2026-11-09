@@ -1,8 +1,7 @@
 {
-  "date": "2026-11-09",
-  "count": 9,
+  "date": "2026-11-10",
+  "count": 1,
   "seen_urls": [
-    "https://cointelegraph.com/magazine/crypto-could-outperform-ai-stocks-wall-street-veteran-jordi-visser?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/381982/circle-pushes-deeper-latin-america-usdc-settlement-colombia",
     "https://www.coindesk.com/business/2026/10/27/ripple-s-rlusd-stablecoin-is-coming-to-robinhood-s-28-6-million-customer-platform",
     "https://decrypt.co/381956/opena-eth-false-crypto-twitter-has-questions",
@@ -101,17 +100,10 @@
     "https://cointelegraph.com/news/binance-tether-wlfi-senate-crypto-investigation-records-deadline?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/382813/trump-says-he-knows-nothing-about-world-liberty-financial-as-he-defends-uae-ties",
     "https://decrypt.co/382816/coinbase-joins-circle-ripple-with-final-occ-approval-for-federal-trust-bank-charter",
-    "https://www.coindesk.com/business/2026/11/09/nyse-picks-avalanche-to-settle-tokenized-stocks-amid-wall-street-s-blockchain-race"
+    "https://www.coindesk.com/business/2026/11/09/nyse-picks-avalanche-to-settle-tokenized-stocks-amid-wall-street-s-blockchain-race",
+    "https://investinglive.com/cryptocurrency/bitcoin-is-doing-it-s-abcs-technically-what-will-the-buyers-and-selllers-do-at-the-old-support/"
   ],
   "posted_tickers": [
-    "BTC",
-    "ZEC",
-    "ETH",
-    "AAVE",
-    "SOL",
-    "TRUMP",
-    "WLD",
-    "XRP",
-    "AVAX"
+    "BTC"
   ]
 }
