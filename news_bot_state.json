@@ -1,8 +1,7 @@
 {
   "date": "2026-11-10",
-  "count": 10,
+  "count": 11,
   "seen_urls": [
-    "https://www.coindesk.com/tech/2026/10/27/ethereum-fixes-glamsterdam-bug-that-could-have-sent-staking-deposits-to-builders",
     "https://cointelegraph.com/news/mirae-asset-securities-tokenized-notes-solana?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cryptocurrencynews.com/crypto/spacex-continues-to-drive-strong-trading-activity-as-mexc-spcx-futures-daily-trading-volume-surpasses-800-million-usdt/",
     "https://investinglive.com/cryptocurrency/hype-token-skyrockets-as-nyse-owner-moves-to-bring-hyperliquid-perpetual-futures-to-us-traders/",
@@ -101,7 +100,8 @@
     "https://decrypt.co/382873/binance-hack-elon-musk-animal-meme-coins-launder-stolen-crypto",
     "https://cointelegraph.com/news/crypto-exchanges-need-dollar-caps-on-hot-wallets-certik?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/tech/2026/11/10/xrp-ledger-maps-out-quantum-proof-accounts-with-no-extra-fees-for-users",
-    "https://decrypt.co/382910/tough-questions-ahead-warren-targets-prediction-markets-trump-crypto-as-banking-chair"
+    "https://decrypt.co/382910/tough-questions-ahead-warren-targets-prediction-markets-trump-crypto-as-banking-chair",
+    "https://decrypt.co/382888/moodys-chainlink-credit-ratings-across-multiple-blockchains"
   ],
   "posted_tickers": [
     "BTC",
@@ -113,6 +113,7 @@
     "MOVE",
     "HOT",
     "XRP",
-    "TRUMP"
+    "TRUMP",
+    "LINK"
   ]
 }
