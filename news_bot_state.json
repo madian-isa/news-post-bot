@@ -1,8 +1,7 @@
 {
   "date": "2026-11-10",
-  "count": 7,
+  "count": 8,
   "seen_urls": [
-    "https://cointelegraph.com/news/google-cloud-mpc-service-bitcoin-custody?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/euronext-suspends-coinshares-zcash-etp-debut?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/tech/2026/10/28/xrp-ledger-developers-propose-creating-wallets-with-zero-xrp-for-stablecoin-payments",
     "https://www.coindesk.com/tech/2026/10/27/ethereum-fixes-glamsterdam-bug-that-could-have-sent-staking-deposits-to-builders",
@@ -101,7 +100,8 @@
     "https://decrypt.co/382833/nyse-avalanche-settle-tokenized-stock-platform",
     "https://decrypt.co/382859/solana-tokenized-stock-venue-formation-sec",
     "https://www.coindesk.com/business/2026/11/09/trump-says-he-knows-nothing-about-world-liberty-s-uae-ties-as-justin-sun-challenges-filings",
-    "https://decrypt.co/382873/binance-hack-elon-musk-animal-meme-coins-launder-stolen-crypto"
+    "https://decrypt.co/382873/binance-hack-elon-musk-animal-meme-coins-launder-stolen-crypto",
+    "https://cointelegraph.com/news/crypto-exchanges-need-dollar-caps-on-hot-wallets-certik?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
   ],
   "posted_tickers": [
     "BTC",
@@ -110,6 +110,7 @@
     "AVAX",
     "SOL",
     "WLD",
-    "MOVE"
+    "MOVE",
+    "HOT"
   ]
 }
