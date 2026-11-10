@@ -1,8 +1,7 @@
 {
   "date": "2026-11-11",
-  "count": 7,
+  "count": 8,
   "seen_urls": [
-    "https://decrypt.co/382002/robinhood-taps-ripple-stablecoin-treasury-software-trading-loans",
     "https://decrypt.co/381850/polygon-stablecoin-payments-open-money-stack-solana",
     "https://cointelegraph.com/markets/hype-price-all-time-high-ice-us-hyperliquid-perps?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/public-companies-double-share-of-blockchain-revenue-since-2022-report?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -101,7 +100,8 @@
     "https://cointelegraph.com/news/hot-us-inflation-raises-rate-hike-crypto?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/business/2026/11/06/solana-lset-for-its-first-tokenized-stock-venue-under-sec-framework-listing-galaxy",
     "https://cointelegraph.com/news/avalanche-avax-crypto-nyse-tokenization-deal?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://www.coindesk.com/business/2026/11/09/ripple-prime-head-marc-asch-to-step-down-noel-kimmel-named-successor"
+    "https://www.coindesk.com/business/2026/11/09/ripple-prime-head-marc-asch-to-step-down-noel-kimmel-named-successor",
+    "https://decrypt.co/382965/near-ai-breach-exposes-user-details-data-ai-agents"
   ],
   "posted_tickers": [
     "ZEC",
@@ -110,6 +110,7 @@
     "HOT",
     "SOL",
     "AVAX",
-    "XRP"
+    "XRP",
+    "NEAR"
   ]
 }
