@@ -1,8 +1,7 @@
 {
   "date": "2026-11-13",
-  "count": 5,
+  "count": 6,
   "seen_urls": [
-    "https://decrypt.co/382306/binance-hack-everything-you-need-to-know",
     "https://decrypt.co/videos/interviews/O1HZN4PH/trump-tariffs-3-return-of-the-bull-market-nyse-tokenising-what-that-means-for-hype-claude-meme-meta",
     "https://decrypt.co/videos/interviews/OS1PGiAq/global-crypto-mcap-up-to-322-trillion-xrp-up-12-japan-endorse-crypto-fear-greed-back-to-neutral",
     "https://www.coindesk.com/markets/2026/11/01/binance-opens-crypto-withdrawals-in-phases-starting-with-bitcoin-following-usd6-3-billion-hack",
@@ -101,13 +100,15 @@
     "https://www.coindesk.com/tech/2026/11/12/ethereum-researchers-drop-faster-blocks-to-race-toward-quantum-defenses-in-2027",
     "https://decrypt.co/resources/what-are-solana-privacy-rings-inside-helius-privacy-protocol-for-solana",
     "https://investinglive.com/cryptocurrency/zcash-tumbles-as-hawkish-fed-repricing-weighs-on-the-crypto-market-focus-remains-on-the-fed-and-us-iran-negotiations/",
-    "https://decrypt.co/383144/illinois-crypto-tax-draws-alliance-doj-banks-defi"
+    "https://decrypt.co/383144/illinois-crypto-tax-draws-alliance-doj-banks-defi",
+    "https://decrypt.co/383139/tron-tether-chainalysis-new-crypto-crime-task-force-replacing-trm"
   ],
   "posted_tickers": [
     "BTC",
     "ETH",
     "SOL",
     "ZEC",
-    "UNI"
+    "UNI",
+    "TRX"
   ]
 }
