@@ -1,8 +1,7 @@
 {
   "date": "2026-11-14",
-  "count": 3,
+  "count": 4,
   "seen_urls": [
-    "https://cointelegraph.com/magazine/36b-flees-binance-on-reopen-thorchain-co-founder-opposes-coin-freeze-hodlers-digest?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/btcpay-server-hot-wallet-thefts-older-versions?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://investinglive.com/cryptocurrency/zcash-extends-consolidation-as-macro-headwinds-continue-to-limit-the-upside-what-to-watch-next/",
     "https://www.coindesk.com/tech/2026/11/02/xrp-ledger-set-to-fix-flaw-that-could-let-stablecoin-partners-print-new-tokens",
@@ -101,11 +100,13 @@
     "https://decrypt.co/383221/roadmap-is-complete-cardano-founder-charles-hoskinson-says",
     "https://www.coindesk.com/markets/2026/11/13/bitcoin-hits-12-week-low-as-dollar-rallies-on-interest-rate-outlook-liquidations-top-usd1-6-billion",
     "https://www.coindesk.com/markets/2026/11/13/ethereum-treasury-firm-btcs-sold-ether-at-a-loss-to-keep-usd64-million-aave-loan-healthy",
-    "https://www.coindesk.com/business/2026/11/12/jupiter-adds-anchorage-backed-usdgo-to-its-usd1-billion-solana-lending-platform"
+    "https://www.coindesk.com/business/2026/11/12/jupiter-adds-anchorage-backed-usdgo-to-its-usd1-billion-solana-lending-platform",
+    "https://decrypt.co/383260/trump-first-democratic-picks-sec-cftc-could-reshape-crypto"
   ],
   "posted_tickers": [
     "BTC",
     "ETH",
-    "SOL"
+    "SOL",
+    "TRUMP"
   ]
 }
