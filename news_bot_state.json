@@ -1,8 +1,7 @@
 {
-  "date": "2026-11-13",
-  "count": 8,
+  "date": "2026-11-14",
+  "count": 1,
   "seen_urls": [
-    "https://www.coindesk.com/markets/2026/11/01/binance-opens-crypto-withdrawals-in-phases-starting-with-bitcoin-following-usd6-3-billion-hack",
     "https://www.coindesk.com/policy/2026/10/31/fbi-confirms-north-korea-s-role-in-usd6-billion-binance-hack-asks-defi-community-to-block-btc-eth-sol-addresses",
     "https://decrypt.co/videos/interviews/GVQVX2ND/first-2026-dip-btc-at-92k-morgan-stanley-file-for-btc-eth-sol-etfs-hyperliquid-airdrop-speculation",
     "https://cointelegraph.com/magazine/36b-flees-binance-on-reopen-thorchain-co-founder-opposes-coin-freeze-hodlers-digest?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -101,16 +100,10 @@
     "https://decrypt.co/383144/illinois-crypto-tax-draws-alliance-doj-banks-defi",
     "https://decrypt.co/383139/tron-tether-chainalysis-new-crypto-crime-task-force-replacing-trm",
     "https://cointelegraph.com/news/trump-nominates-hester-peirce-successor-among-sec-cftc-picks?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://decrypt.co/383221/roadmap-is-complete-cardano-founder-charles-hoskinson-says"
+    "https://decrypt.co/383221/roadmap-is-complete-cardano-founder-charles-hoskinson-says",
+    "https://www.coindesk.com/markets/2026/11/13/bitcoin-hits-12-week-low-as-dollar-rallies-on-interest-rate-outlook-liquidations-top-usd1-6-billion"
   ],
   "posted_tickers": [
-    "BTC",
-    "ETH",
-    "SOL",
-    "ZEC",
-    "UNI",
-    "TRX",
-    "TRUMP",
-    "ADA"
+    "BTC"
   ]
 }
