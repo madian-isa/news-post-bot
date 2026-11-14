@@ -1,8 +1,7 @@
 {
   "date": "2026-11-15",
-  "count": 3,
+  "count": 4,
   "seen_urls": [
-    "https://cointelegraph.com/news/zachxbt-flags-suspected-106m-crypto-theft-as-solana-bot-faces-possible-786k-drain?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/tech/2026/11/03/arbitrum-s-council-moved-usd30-million-of-binance-hack-funds-without-the-hacker-s-key",
     "https://cointelegraph.com/news/ark-buys-coinbase-circle-trims-bullish?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/382401/binance-misses-monthly-luna-classic-burn-for-first-time-since-2023",
@@ -101,11 +100,13 @@
     "https://cointelegraph.com/news/megaeth-parent-cuts-20-percent-staff-ai-push?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/markets/2026/11/14/a-behind-the-scenes-force-may-amplify-bitcoin-and-ether-price-volatility",
     "https://decrypt.co/383132/dtcc-to-bring-tokenized-stocks-and-treasuries-to-solana-in-2027",
-    "https://decrypt.co/383096/sofi-brings-bank-issued-stablecoin-polygon-payments-stack"
+    "https://decrypt.co/383096/sofi-brings-bank-issued-stablecoin-polygon-payments-stack",
+    "https://www.coindesk.com/tech/2026/11/12/zcash-holders-to-vote-on-pulling-50-000-zec-from-grants-treasury"
   ],
   "posted_tickers": [
     "BTC",
     "SOL",
-    "ETH"
+    "ETH",
+    "ZEC"
   ]
 }
