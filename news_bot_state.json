@@ -1,8 +1,7 @@
 {
-  "date": "2026-11-15",
-  "count": 5,
+  "date": "2026-11-16",
+  "count": 1,
   "seen_urls": [
-    "https://cointelegraph.com/news/ark-buys-coinbase-circle-trims-bullish?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/382401/binance-misses-monthly-luna-classic-burn-for-first-time-since-2023",
     "https://cointelegraph.com/markets/near-sinks-7-proposal-cut-annual-token-issuance-passes?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/daybook-us/2026/11/03/bitcoin-is-breaking-a-midterm-election-pattern-going-back-to-2014",
@@ -101,13 +100,10 @@
     "https://decrypt.co/383132/dtcc-to-bring-tokenized-stocks-and-treasuries-to-solana-in-2027",
     "https://decrypt.co/383096/sofi-brings-bank-issued-stablecoin-polygon-payments-stack",
     "https://www.coindesk.com/tech/2026/11/12/zcash-holders-to-vote-on-pulling-50-000-zec-from-grants-treasury",
-    "https://www.coindesk.com/markets/2026/11/15/xrp-crashes-to-its-lowest-since-november-2024-as-money-leaves-crypto"
+    "https://www.coindesk.com/markets/2026/11/15/xrp-crashes-to-its-lowest-since-november-2024-as-money-leaves-crypto",
+    "https://www.coindesk.com/policy/2026/11/13/britain-could-turn-wasted-scottish-wind-power-into-bitcoin-to-cut-its-usd1-3-billion-grid-bill"
   ],
   "posted_tickers": [
-    "BTC",
-    "SOL",
-    "ETH",
-    "ZEC",
-    "XRP"
+    "BTC"
   ]
 }
