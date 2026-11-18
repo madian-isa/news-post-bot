@@ -1,8 +1,7 @@
 {
   "date": "2026-11-18",
-  "count": 5,
+  "count": 6,
   "seen_urls": [
-    "https://www.coindesk.com/markets/2026/11/05/xrp-ledger-closes-bug-that-let-approved-token-burners-create-new-tokens",
     "https://www.coindesk.com/business/2026/11/05/kraken-parent-payward-and-its-clients-buy-aave-tokens-in-defi-investment-push",
     "https://www.coindesk.com/business/2026/11/05/gate-ceo-says-crypto-exchanges-must-prove-they-can-survive-a-hack-like-binance-s",
     "https://cointelegraph.com/news/us-midterms-2026-live-results-and-what-they-mean-for-crypto?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -101,13 +100,15 @@
     "https://www.coindesk.com/tech/2026/11/16/solana-drops-beta-label-after-more-than-six-years",
     "https://cointelegraph.com/news/us-judge-acquits-brothers-25m-ethereum-mev-exploit?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/383463/cathie-wood-ark-sells-85-million-nvidia-buys-crypto-stocks",
-    "https://decrypt.co/383485/world-bank-circle-citi-test-stablecoins-development-payments"
+    "https://decrypt.co/383485/world-bank-circle-citi-test-stablecoins-development-payments",
+    "https://cointelegraph.com/news/ledger-hardware-implant-saga-reaches-dubais-virgin-megastore?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
   ],
   "posted_tickers": [
     "BTC",
     "SOL",
     "ETH",
     "ARK",
-    "WLD"
+    "WLD",
+    "SAGA"
   ]
 }
