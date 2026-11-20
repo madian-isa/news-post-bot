@@ -1,8 +1,7 @@
 {
   "date": "2026-11-20",
-  "count": 7,
+  "count": 8,
   "seen_urls": [
-    "https://decrypt.co/382586/stablecoins-samsung-wallet-adds-usdc-solana",
     "https://cointelegraph.com/news/ethereum-devs-fork-glamsterdam-hoodi-smart-contract-risks?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/markets/bitcoin-ether-etfs-lose-post-election-gains-erased?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/382663/zcash-upgrade-could-lock-16-million-crypto",
@@ -101,7 +100,8 @@
     "https://cointelegraph.com/news/sec-nominees-johnson-levine-tokenized-stocks?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/business/2026/11/19/sky-s-usds-stablecoin-shrinks-35-as-usd1-5-billion-exits-reserves-after-illicit-finance-report",
     "https://cointelegraph.com/magazine/binances-65b-freeze-order-hong-kong-suspicious-of-hype-asia-express?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://www.coindesk.com/markets/2026/11/20/crypto-traders-have-anthropic-trading-below-its-first-nasdaq-close-on-hyperliquid"
+    "https://www.coindesk.com/markets/2026/11/20/crypto-traders-have-anthropic-trading-below-its-first-nasdaq-close-on-hyperliquid",
+    "https://investinglive.com/cryptocurrency/zcash-s-bearish-trend-remains-intact-as-the-path-to-recovery-depends-on-two-major-macro-catalysts/"
   ],
   "posted_tickers": [
     "SOL",
@@ -110,6 +110,7 @@
     "TRUMP",
     "USDS",
     "HYPE",
-    "OPEN"
+    "OPEN",
+    "ZEC"
   ]
 }
