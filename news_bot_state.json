@@ -1,8 +1,7 @@
 {
   "date": "2026-11-21",
-  "count": 2,
+  "count": 3,
   "seen_urls": [
-    "https://decrypt.co/382663/zcash-upgrade-could-lock-16-million-crypto",
     "https://cointelegraph.com/magazine/vitaliks-pivots-to-eth-as-a-store-of-value-us-election-weighs-on-crypto-hodlers-digest?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/tbtc-bridge-resumes-aave-120m-reserve-frozen?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/tech/2026/11/09/solana-moves-to-scrap-the-transaction-feature-used-in-the-usd270-million-drift-hack",
@@ -101,10 +100,12 @@
     "https://www.coindesk.com/markets/2026/11/20/crypto-traders-have-anthropic-trading-below-its-first-nasdaq-close-on-hyperliquid",
     "https://investinglive.com/cryptocurrency/zcash-s-bearish-trend-remains-intact-as-the-path-to-recovery-depends-on-two-major-macro-catalysts/",
     "https://www.coindesk.com/daybook-us/2026/11/20/bitcoin-stocks-and-gold-traders-getting-nervous-and-volatility-gauges-are-surging",
-    "https://decrypt.co/383570/why-coinshares-just-sold-all-ethereum-half-solana"
+    "https://decrypt.co/383570/why-coinshares-just-sold-all-ethereum-half-solana",
+    "https://www.coindesk.com/policy/2026/11/19/trump-s-democratic-sec-pick-suggests-tokenization-policy-deserves-full-rule-process"
   ],
   "posted_tickers": [
     "BTC",
-    "ETH"
+    "ETH",
+    "TRUMP"
   ]
 }
