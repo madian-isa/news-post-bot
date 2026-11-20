@@ -1,8 +1,7 @@
 {
-  "date": "2026-11-20",
-  "count": 8,
+  "date": "2026-11-21",
+  "count": 1,
   "seen_urls": [
-    "https://cointelegraph.com/news/ethereum-devs-fork-glamsterdam-hoodi-smart-contract-risks?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/markets/bitcoin-ether-etfs-lose-post-election-gains-erased?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/382663/zcash-upgrade-could-lock-16-million-crypto",
     "https://cointelegraph.com/magazine/vitaliks-pivots-to-eth-as-a-store-of-value-us-election-weighs-on-crypto-hodlers-digest?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -101,16 +100,10 @@
     "https://www.coindesk.com/business/2026/11/19/sky-s-usds-stablecoin-shrinks-35-as-usd1-5-billion-exits-reserves-after-illicit-finance-report",
     "https://cointelegraph.com/magazine/binances-65b-freeze-order-hong-kong-suspicious-of-hype-asia-express?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/markets/2026/11/20/crypto-traders-have-anthropic-trading-below-its-first-nasdaq-close-on-hyperliquid",
-    "https://investinglive.com/cryptocurrency/zcash-s-bearish-trend-remains-intact-as-the-path-to-recovery-depends-on-two-major-macro-catalysts/"
+    "https://investinglive.com/cryptocurrency/zcash-s-bearish-trend-remains-intact-as-the-path-to-recovery-depends-on-two-major-macro-catalysts/",
+    "https://www.coindesk.com/daybook-us/2026/11/20/bitcoin-stocks-and-gold-traders-getting-nervous-and-volatility-gauges-are-surging"
   ],
   "posted_tickers": [
-    "SOL",
-    "BTC",
-    "ETH",
-    "TRUMP",
-    "USDS",
-    "HYPE",
-    "OPEN",
-    "ZEC"
+    "BTC"
   ]
 }
