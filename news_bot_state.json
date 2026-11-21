@@ -1,8 +1,7 @@
 {
-  "date": "2026-11-21",
-  "count": 7,
+  "date": "2026-11-22",
+  "count": 1,
   "seen_urls": [
-    "https://decrypt.co/382813/trump-says-he-knows-nothing-about-world-liberty-financial-as-he-defends-uae-ties",
     "https://decrypt.co/382816/coinbase-joins-circle-ripple-with-final-occ-approval-for-federal-trust-bank-charter",
     "https://www.coindesk.com/business/2026/11/09/nyse-picks-avalanche-to-settle-tokenized-stocks-amid-wall-street-s-blockchain-race",
     "https://investinglive.com/cryptocurrency/bitcoin-is-doing-it-s-abcs-technically-what-will-the-buyers-and-selllers-do-at-the-old-support/",
@@ -101,15 +100,10 @@
     "https://cointelegraph.com/news/iosco-quantum-blockchain-upgrades-security-risks?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/sky-protocol-sees-2b-in-stablecoin-withdrawals-disputes-illicit-fund-claims?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/markets/2026/11/21/xrp-falls-10-as-long-bets-unwind-and-etf-assets-slip-below-usd1-billion",
-    "https://www.coindesk.com/markets/2026/11/21/ether-treasury-firm-btcs-warns-sec-its-usd54-million-aave-loan-could-be-liquidated"
+    "https://www.coindesk.com/markets/2026/11/21/ether-treasury-firm-btcs-warns-sec-its-usd54-million-aave-loan-could-be-liquidated",
+    "https://www.coindesk.com/markets/2026/11/20/bitcoin-plunges-below-usd59-000-as-rush-to-cash-puts-new-bear-market-lows-back-in-play"
   ],
   "posted_tickers": [
-    "BTC",
-    "ETH",
-    "TRUMP",
-    "SOL",
-    "SKY",
-    "XRP",
-    "AAVE"
+    "BTC"
   ]
 }
