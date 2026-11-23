@@ -1,8 +1,7 @@
 {
   "date": "2026-11-23",
-  "count": 2,
+  "count": 3,
   "seen_urls": [
-    "https://cointelegraph.com/news/zcash-developers-propose-20-second-blocks-nu7-upgrade?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/382833/nyse-avalanche-settle-tokenized-stock-platform",
     "https://decrypt.co/382859/solana-tokenized-stock-venue-formation-sec",
     "https://www.coindesk.com/business/2026/11/09/trump-says-he-knows-nothing-about-world-liberty-s-uae-ties-as-justin-sun-challenges-filings",
@@ -101,10 +100,12 @@
     "https://cointelegraph.com/news/binance-hacker-600m-eth-routes-thorchain-chainflip?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/383756/gta-6-leaker-dangles-pc-port-15-million-crypto-pump",
     "https://cointelegraph.com/markets/bitcoin-falls-below-60k-for-first-time-since-july-amid-broader-market-selloff?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://decrypt.co/383737/cathie-wood-bets-91m-anthropic-ipo-paring-crypto-exposure"
+    "https://decrypt.co/383737/cathie-wood-bets-91m-anthropic-ipo-paring-crypto-exposure",
+    "https://cointelegraph.com/news/half-wallets-trumps-dinner-list-got-tokens-from-non-us-exchanges?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
   ],
   "posted_tickers": [
     "BTC",
-    "ETH"
+    "ETH",
+    "TRUMP"
   ]
 }
