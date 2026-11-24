@@ -1,8 +1,7 @@
 {
   "date": "2026-11-24",
-  "count": 4,
+  "count": 5,
   "seen_urls": [
-    "https://decrypt.co/382888/moodys-chainlink-credit-ratings-across-multiple-blockchains",
     "https://www.coindesk.com/markets/2026/11/10/emb-10-am-et-plume-affiliate-gets-the-legal-green-light-to-trade-regulated-security-entitlements-onchain",
     "https://investinglive.com/cryptocurrency/zcash-remains-stuck-in-a-range-as-macro-headwinds-continue-to-limit-the-upside-what-s-next/",
     "https://investinglive.com/cryptocurrency/bitcoin-tests-its-200-day-moving-average-after-hotter-us-cpi-data/",
@@ -101,12 +100,14 @@
     "https://cointelegraph.com/markets/bitcoin-rebounds-lows-nvidia-rally-sparks-500m-crypto-liquidations?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/383800/tom-lee-ethereum-scarce-bitcoin-bitmine-buys-more",
     "https://investinglive.com/cryptocurrency/solana-recovers-some-ground-amid-general-short-covering-as-traders-await-new-catalysts/",
-    "https://cointelegraph.com/news/google-wants-make-you-star-your-own-ai-slop-movies?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+    "https://cointelegraph.com/news/google-wants-make-you-star-your-own-ai-slop-movies?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+    "https://www.coindesk.com/business/2026/11/24/btcs-sells-more-than-half-its-ether-to-repay-usd43-8-million-in-aave-debt"
   ],
   "posted_tickers": [
     "BTC",
     "ETH",
     "SOL",
-    "WLD"
+    "WLD",
+    "AAVE"
   ]
 }
