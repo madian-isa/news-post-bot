@@ -1,8 +1,7 @@
 {
   "date": "2026-11-24",
-  "count": 5,
+  "count": 6,
   "seen_urls": [
-    "https://www.coindesk.com/markets/2026/11/10/emb-10-am-et-plume-affiliate-gets-the-legal-green-light-to-trade-regulated-security-entitlements-onchain",
     "https://investinglive.com/cryptocurrency/zcash-remains-stuck-in-a-range-as-macro-headwinds-continue-to-limit-the-upside-what-s-next/",
     "https://investinglive.com/cryptocurrency/bitcoin-tests-its-200-day-moving-average-after-hotter-us-cpi-data/",
     "https://cointelegraph.com/news/pnc-bank-launches-usdc-payment-pilot-coinbase?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -101,13 +100,15 @@
     "https://decrypt.co/383800/tom-lee-ethereum-scarce-bitcoin-bitmine-buys-more",
     "https://investinglive.com/cryptocurrency/solana-recovers-some-ground-amid-general-short-covering-as-traders-await-new-catalysts/",
     "https://cointelegraph.com/news/google-wants-make-you-star-your-own-ai-slop-movies?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://www.coindesk.com/business/2026/11/24/btcs-sells-more-than-half-its-ether-to-repay-usd43-8-million-in-aave-debt"
+    "https://www.coindesk.com/business/2026/11/24/btcs-sells-more-than-half-its-ether-to-repay-usd43-8-million-in-aave-debt",
+    "https://investinglive.com/cryptocurrency/zcash-s-nvidia-induced-rally-fades-quickly-as-hawkish-fed-and-geopolitical-risks-keep-the-market-under-pressure/"
   ],
   "posted_tickers": [
     "BTC",
     "ETH",
     "SOL",
     "WLD",
-    "AAVE"
+    "AAVE",
+    "ZEC"
   ]
 }
