@@ -1,8 +1,7 @@
 {
   "date": "2026-11-26",
-  "count": 5,
+  "count": 6,
   "seen_urls": [
-    "https://decrypt.co/382806/decrypt-money-account-gets-confidential-transfers-with-solana-privacy-firm-helius",
     "https://cointelegraph.com/news/suiet-wallet-shut-down-latest-exit-sui-ecosystem?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/tech/2026/11/12/ripple-s-bank-lending-system-moves-closer-to-launch-on-the-xrp-ledger",
     "https://cointelegraph.com/news/tron-tether-chainalysis-cybercrime-task-force-laundering?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -101,13 +100,15 @@
     "https://decrypt.co/383927/ethereum-foundation-ai-more-urgent-threat-quantum-computing",
     "https://cointelegraph.com/news/sbi-smfg-solana-global-stablecoin-tokenization?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://investinglive.com/cryptocurrency/franklin-templeton-adds-hyperliquid-s-hype-to-its-ezpz-crypto-index-etf-from-december-1/",
-    "https://cointelegraph.com/news/sky-emergency-vote-25m-transfer-stusds-liquidity-stress?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+    "https://cointelegraph.com/news/sky-emergency-vote-25m-transfer-stusds-liquidity-stress?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+    "https://www.coindesk.com/markets/2026/11/26/ripple-is-worth-usd90-a-share-to-one-fund-and-usd300-to-another-sec-filings-show"
   ],
   "posted_tickers": [
     "BTC",
     "ETH",
     "SOL",
     "DOGE",
-    "SKY"
+    "SKY",
+    "XRP"
   ]
 }
