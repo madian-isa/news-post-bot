@@ -1,8 +1,7 @@
 {
   "date": "2026-11-26",
-  "count": 7,
+  "count": 8,
   "seen_urls": [
-    "https://www.coindesk.com/tech/2026/11/12/ripple-s-bank-lending-system-moves-closer-to-launch-on-the-xrp-ledger",
     "https://cointelegraph.com/news/tron-tether-chainalysis-cybercrime-task-force-laundering?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://cointelegraph.com/news/crypto-hackers-stole-57-cents-every-1-earned-ark?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/daybook-us/2026/11/12/bitcoin-weakness-erases-september-s-bullish-signal",
@@ -101,7 +100,8 @@
     "https://investinglive.com/cryptocurrency/franklin-templeton-adds-hyperliquid-s-hype-to-its-ezpz-crypto-index-etf-from-december-1/",
     "https://cointelegraph.com/news/sky-emergency-vote-25m-transfer-stusds-liquidity-stress?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/markets/2026/11/26/ripple-is-worth-usd90-a-share-to-one-fund-and-usd300-to-another-sec-filings-show",
-    "https://www.coindesk.com/tech/2026/11/26/zcash-developers-want-users-to-move-usd300-million-out-of-an-older-privacy-system"
+    "https://www.coindesk.com/tech/2026/11/26/zcash-developers-want-users-to-move-usd300-million-out-of-an-older-privacy-system",
+    "https://decrypt.co/384036/cournot-raises-5m-to-build-ai-native-oracle-for-verifiable-intelligence"
   ],
   "posted_tickers": [
     "BTC",
@@ -110,6 +110,7 @@
     "DOGE",
     "SKY",
     "XRP",
-    "ZEC"
+    "ZEC",
+    "WLD"
   ]
 }
