@@ -1,8 +1,7 @@
 {
   "date": "2026-11-27",
-  "count": 3,
+  "count": 4,
   "seen_urls": [
-    "https://www.coindesk.com/tech/2026/11/12/ethereum-researchers-drop-faster-blocks-to-race-toward-quantum-defenses-in-2027",
     "https://decrypt.co/resources/what-are-solana-privacy-rings-inside-helius-privacy-protocol-for-solana",
     "https://investinglive.com/cryptocurrency/zcash-tumbles-as-hawkish-fed-repricing-weighs-on-the-crypto-market-focus-remains-on-the-fed-and-us-iran-negotiations/",
     "https://decrypt.co/383144/illinois-crypto-tax-draws-alliance-doj-banks-defi",
@@ -101,11 +100,13 @@
     "https://decrypt.co/384036/cournot-raises-5m-to-build-ai-native-oracle-for-verifiable-intelligence",
     "https://investinglive.com/cryptocurrency/zcash-continues-to-face-macro-headwinds-despite-improving-adoption-developments-what-s-next/",
     "https://cointelegraph.com/markets/morgan-stanley-bitcoin-etf-trend-outflows-november?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
-    "https://decrypt.co/383945/morning-minute-ethereum-focuses-on-security-as-ai-threats-rise"
+    "https://decrypt.co/383945/morning-minute-ethereum-focuses-on-security-as-ai-threats-rise",
+    "https://www.coindesk.com/tech/2026/11/25/solana-developers-move-to-stop-validators-finishing-work-on-blocks-that-already-lost"
   ],
   "posted_tickers": [
     "ZEC",
     "BTC",
-    "ETH"
+    "ETH",
+    "SOL"
   ]
 }
