@@ -1,8 +1,7 @@
 {
   "date": "2026-11-27",
-  "count": 5,
+  "count": 6,
   "seen_urls": [
-    "https://investinglive.com/cryptocurrency/zcash-tumbles-as-hawkish-fed-repricing-weighs-on-the-crypto-market-focus-remains-on-the-fed-and-us-iran-negotiations/",
     "https://decrypt.co/383144/illinois-crypto-tax-draws-alliance-doj-banks-defi",
     "https://decrypt.co/383139/tron-tether-chainalysis-new-crypto-crime-task-force-replacing-trm",
     "https://cointelegraph.com/news/trump-nominates-hester-peirce-successor-among-sec-cftc-picks?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
@@ -101,13 +100,15 @@
     "https://cointelegraph.com/markets/morgan-stanley-bitcoin-etf-trend-outflows-november?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/383945/morning-minute-ethereum-focuses-on-security-as-ai-threats-rise",
     "https://www.coindesk.com/tech/2026/11/25/solana-developers-move-to-stop-validators-finishing-work-on-blocks-that-already-lost",
-    "https://decrypt.co/384066/before-the-sell-off-ai-stocks-showed-dot-com-level-bubble-signals-study"
+    "https://decrypt.co/384066/before-the-sell-off-ai-stocks-showed-dot-com-level-bubble-signals-study",
+    "https://cointelegraph.com/news/bnb-chain-details-new-layer-1-trading-private-finance-ai?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
   ],
   "posted_tickers": [
     "ZEC",
     "BTC",
     "ETH",
     "SOL",
-    "DOT"
+    "DOT",
+    "BNB"
   ]
 }
