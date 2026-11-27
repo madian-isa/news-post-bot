@@ -1,8 +1,7 @@
 {
-  "date": "2026-11-27",
-  "count": 8,
+  "date": "2026-11-28",
+  "count": 1,
   "seen_urls": [
-    "https://cointelegraph.com/news/trump-nominates-hester-peirce-successor-among-sec-cftc-picks?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://decrypt.co/383221/roadmap-is-complete-cardano-founder-charles-hoskinson-says",
     "https://www.coindesk.com/markets/2026/11/13/bitcoin-hits-12-week-low-as-dollar-rallies-on-interest-rate-outlook-liquidations-top-usd1-6-billion",
     "https://www.coindesk.com/markets/2026/11/13/ethereum-treasury-firm-btcs-sold-ether-at-a-loss-to-keep-usd64-million-aave-loan-healthy",
@@ -101,16 +100,10 @@
     "https://decrypt.co/384066/before-the-sell-off-ai-stocks-showed-dot-com-level-bubble-signals-study",
     "https://cointelegraph.com/news/bnb-chain-details-new-layer-1-trading-private-finance-ai?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
     "https://www.coindesk.com/markets/2026/11/27/ripple-s-lending-plan-moves-closer-to-tapping-xrp-ledger-s-usd950-million-in-stablecoins",
-    "https://cointelegraph.com/news/bluefin-shut-down-perps-refocus-spot-trading-tokenized-rwas?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+    "https://cointelegraph.com/news/bluefin-shut-down-perps-refocus-spot-trading-tokenized-rwas?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+    "https://www.coindesk.com/policy/2026/11/27/next-ecb-chief-favors-tokenized-bank-deposits-over-stablecoins-and-bitcoin"
   ],
   "posted_tickers": [
-    "ZEC",
-    "BTC",
-    "ETH",
-    "SOL",
-    "DOT",
-    "BNB",
-    "XRP",
-    "SUI"
+    "BTC"
   ]
 }
